@@ -27,8 +27,9 @@ contract OpinionBase is IOpinionBase {
     
     event newOpinion(address addy, address user, uint8 rating, bool hasComment, string comment, uint timestamp);
 
-    function writeOpinion(address addy, uint8 rating, string calldata comment, bool hasComment) external override {
+    function writeOpinion(address addy, uint8 rating, string calldata comment) external override {
         require(rating != 50, "rating must not be 50");
+        bool hasComment = bytes(comment).length > 0;
         require(!hasComment || (bytes(comment).length >= 20 && bytes(comment).length <= 600), "comment must be between 20 and 600 characters");
         Opinion memory opinion = Opinion(msg.sender, addy, rating, hasComment, comment, block.timestamp);
         _userOpinion[addy][msg.sender].push(opinion);

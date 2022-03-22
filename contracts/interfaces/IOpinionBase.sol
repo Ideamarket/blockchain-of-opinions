@@ -15,7 +15,7 @@ interface IOpinionBase {
         string comment;
         uint timestamp;
     }
-    function writeOpinion(address addy, uint8 rating, string calldata comment, bool hasComment) external;
+    function writeOpinion(address addy, uint8 rating, string calldata comment) external;
     function getOpinion(address addy, address user) external view returns (Opinion[] memory);
     function getUsersOpinions(address user) external view returns (Opinion[] memory);
     function getOpinionsAboutAddress(address addy) external view returns (Opinion[] memory);

@@ -169,27 +169,9 @@ describe("OpinionBase", () => {
 		expect(opinedAddresses[0]).to.equal(token1Address);
 	})
 	
+	it("emmited event should be connect", async () => {
+		expect(opinionBase.connect(alice).writeOpinion(token1Address, 98, "I like this url a lot")).
+		to.emit(opinionBase, "OpinionWritten").withArgs(alice.address, token1Address, true, 98, "I like this url a lot",);
+	})
 
-	//multiple opinions same person same token
-	// multiple opinions same person different token
-	// event test
-
-
-
-
-	/*it("Should return the new greeting once it's changed", async () => {
-		const Greeter = await ethers.getContractFactory("Greeter");
-		const greeter = await Greeter.deploy("Hello, world!");
-		await greeter.deployed();
-
-		expect(await greeter.greet()).to.equal("Hello, world!");
-
-		const setGreetingTx = await greeter.setGreeting("Hola, mundo!");
-
-		// wait until the transaction is mined
-		await setGreetingTx.wait();
-
-		expect(await greeter.greet()).to.equal("Hola, mundo!");
-	});
-	*/
 })

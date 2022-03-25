@@ -10,7 +10,6 @@ import "./interfaces/IOpinionBase.sol";
  */
 
 contract OpinionBase is IOpinionBase {
-//FFFFFFFFIIIIIIIIIIIIIIIIIIIIIXXXX ADD EVENTS 
 
     // address => user wallet address => the opinions they have made about that address (token, wallet, etc)
     mapping(address => mapping(address => Opinion[])) _userOpinion;

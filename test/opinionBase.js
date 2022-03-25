@@ -25,6 +25,7 @@ describe("OpinionBase", () => {
 		expect(opinion[0]['addy']).to.equal("0x0000000000000000000000000000000000000001");
 		expect(opinion[0]['rating']).to.equal(98);
 		expect(opinion[0]['author']).to.equal(alice.address);
+		expect(opinion.length).to.equal(1);
 	})
 
 	it("should write opinion w/out comment", async () => {
@@ -48,18 +49,19 @@ describe("OpinionBase", () => {
 
 	it("should fetch opinion on topic", async () => {
 		await opinionBase.connect(alice).writeOpinion(token1Address, 98, "");
-		const opinion = await opinionBase.getOpinion(token1Address, alice.address);
 		const fetchedOpinions = await opinionBase.getOpinionsAboutAddress(token1Address);
 		expect(fetchedOpinions[0]['comment']).to.equal("");
 		expect(fetchedOpinions[0]['addy']).to.equal("0x0000000000000000000000000000000000000001");
 		expect(fetchedOpinions[0]['rating']).to.equal(98);
 		expect(fetchedOpinions[0]['author']).to.equal(alice.address);
+		expect(fetchedOpinions.length).to.equal(1);
 	})
 
 	it("should fetch opinined Addresses", async () => {
 		await opinionBase.connect(alice).writeOpinion(token1Address, 98, "I like this url a lot");
 		const opinedAddresses = await opinionBase.getOpinedAddresses();
 		expect(opinedAddresses[0]).to.equal(token1Address);
+		expect(opinedAddresses.length).to.equal(1);
 	})
 
 	it("write and fetch multiple opinions from the same person about same address", async () => {

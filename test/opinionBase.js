@@ -93,6 +93,7 @@ describe("OpinionBase", () => {
 
 		const allOpinions = await opinionBase.getAllOpinions();
 		expect(allOpinions[0]["comment"]).to.equal(opinion[0]["comment"]);
+		expect(allOpinions.length).to.equal(2);
 
 	})
 
@@ -131,6 +132,7 @@ describe("OpinionBase", () => {
 		const allOpinions = await opinionBase.getAllOpinions();
 		expect(allOpinions[0]["comment"]).to.equal("I like this url a lot");
 		expect(allOpinions[1]["comment"]).to.equal("I like this url a little");
+		expect(allOpinions.length).to.equal(2);
 	})
 
 	it("write and fetch multiple opinions from the different people about same address", async () => {
@@ -172,6 +174,7 @@ describe("OpinionBase", () => {
 		const allOpinions = await opinionBase.getAllOpinions();
 		expect(allOpinions[0]["comment"]).to.equal("I like this url a lot");
 		expect(allOpinions[1]["comment"]).to.equal("I like this url a little");
+		expect(allOpinions.length).to.equal(2);
 	})
 	
 	it("emmited event should be connect", async () => {

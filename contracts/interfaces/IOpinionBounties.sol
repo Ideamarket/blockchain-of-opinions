@@ -17,6 +17,6 @@ interface IOpinionBounties {
     function getAmountDeposited(address addy, address user, address token) external view returns (uint amount);
     function getBountyAmountPayable(address addy, address user, address token) external view returns (uint amount);
     function getBountiesForUser(address user) external view returns (Bounty[] memory);
-    function setBountyFee() external;
+    function setBountyFees() external;
     function setFeeDistributorAddress() external;
 }

@@ -28,6 +28,16 @@ describe("OpinionBase", () => {
 		expect(opinion.length).to.equal(1);
 	})
 
+	it("should write short opinion", async () => {
+		await opinionBase.connect(alice).writeOpinion(token1Address, 98, "I like");
+		const opinion = await opinionBase.getOpinion(token1Address, alice.address);
+		expect(opinion[0]['comment']).to.equal("I like");
+		expect(opinion[0]['addy']).to.equal("0x0000000000000000000000000000000000000001");
+		expect(opinion[0]['rating']).to.equal(98);
+		expect(opinion[0]['author']).to.equal(alice.address);
+		expect(opinion.length).to.equal(1);
+	})
+
 	it("should write opinion w/out comment", async () => {
 		await opinionBase.connect(alice).writeOpinion(token1Address, 98, "");
 		const opinion = await opinionBase.getOpinion(token1Address, alice.address);
@@ -37,16 +47,11 @@ describe("OpinionBase", () => {
 		expect(opinion[0]['author']).to.equal(alice.address);
 	})
 
-	it("should fail with opinion w/ comment less than 20 char", async () => {
-		await expectRevert(opinionBase.connect(alice).writeOpinion(token1Address, 98, "i like this"), 
-			"comment must be empty or between 20 and 560 characters");
-	})
-
 	it("should fail with opinion w/ comment greater than 560 char", async () => {
 		await expectRevert(opinionBase.connect(alice).writeOpinion(token1Address, 98, "i like thissssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss"
 			+ "ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss"
 			+ "ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss"), 
-			"comment must be empty or between 20 and 560 characters");
+			"comment must be lte 560 characters");
 	})
 
 	it("should write and fetch users opinion", async () => {

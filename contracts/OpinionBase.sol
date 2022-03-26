@@ -29,8 +29,8 @@ contract OpinionBase is IOpinionBase {
 
     function writeOpinion(address addy, uint8 rating, string calldata comment) external override {
         require(rating != 50, "rating must not be 50");
-        require(bytes(comment).length == 0 || (bytes(comment).length >= 20 && bytes(comment).length <= 600), 
-            "comment must be empty or between 20 and 600 characters");
+        require(bytes(comment).length == 0 || (bytes(comment).length >= 20 && bytes(comment).length <= 560), 
+            "comment must be empty or between 20 and 560 characters");
         Opinion memory opinion = Opinion(msg.sender, addy, rating, comment, block.timestamp);
         _userOpinion[addy][msg.sender].push(opinion);
         _userOpinions[msg.sender].push(opinion);

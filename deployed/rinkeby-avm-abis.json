@@ -1,0 +1,261 @@
+{"contractName": "OpinionBase",
+  "sourceName": "contracts/OpinionBase.sol",
+  "abi": [
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "addy",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "user",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint8",
+          "name": "rating",
+          "type": "uint8"
+        },
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "comment",
+          "type": "string"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "newOpinion",
+      "type": "event"
+    },
+    {
+      "inputs": [],
+      "name": "getAllOpinions",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "author",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "addy",
+              "type": "address"
+            },
+            {
+              "internalType": "uint8",
+              "name": "rating",
+              "type": "uint8"
+            },
+            {
+              "internalType": "string",
+              "name": "comment",
+              "type": "string"
+            },
+            {
+              "internalType": "uint256",
+              "name": "timestamp",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct IOpinionBase.Opinion[]",
+          "name": "",
+          "type": "tuple[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getOpinedAddresses",
+      "outputs": [
+        {
+          "internalType": "address[]",
+          "name": "",
+          "type": "address[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "addy",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "user",
+          "type": "address"
+        }
+      ],
+      "name": "getOpinion",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "author",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "addy",
+              "type": "address"
+            },
+            {
+              "internalType": "uint8",
+              "name": "rating",
+              "type": "uint8"
+            },
+            {
+              "internalType": "string",
+              "name": "comment",
+              "type": "string"
+            },
+            {
+              "internalType": "uint256",
+              "name": "timestamp",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct IOpinionBase.Opinion[]",
+          "name": "",
+          "type": "tuple[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "addy",
+          "type": "address"
+        }
+      ],
+      "name": "getOpinionsAboutAddress",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "author",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "addy",
+              "type": "address"
+            },
+            {
+              "internalType": "uint8",
+              "name": "rating",
+              "type": "uint8"
+            },
+            {
+              "internalType": "string",
+              "name": "comment",
+              "type": "string"
+            },
+            {
+              "internalType": "uint256",
+              "name": "timestamp",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct IOpinionBase.Opinion[]",
+          "name": "",
+          "type": "tuple[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "user",
+          "type": "address"
+        }
+      ],
+      "name": "getUsersOpinions",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "author",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "addy",
+              "type": "address"
+            },
+            {
+              "internalType": "uint8",
+              "name": "rating",
+              "type": "uint8"
+            },
+            {
+              "internalType": "string",
+              "name": "comment",
+              "type": "string"
+            },
+            {
+              "internalType": "uint256",
+              "name": "timestamp",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct IOpinionBase.Opinion[]",
+          "name": "",
+          "type": "tuple[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "addy",
+          "type": "address"
+        },
+        {
+          "internalType": "uint8",
+          "name": "rating",
+          "type": "uint8"
+        },
+        {
+          "internalType": "string",
+          "name": "comment",
+          "type": "string"
+        }
+      ],
+      "name": "writeOpinion",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ]
+}

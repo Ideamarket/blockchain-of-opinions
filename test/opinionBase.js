@@ -74,9 +74,19 @@ describe("OpinionBase", () => {
 		expect(fetchedOpinions.length).to.equal(1);
 	})
 
+	it("should fetch latest opinion on topic", async () => {
+		await opinionBase.connect(alice).writeOpinion(token1Address, 98, "");
+		const fetchedOpinions = await opinionBase.getLatestOpinionsAboutAddress(token1Address);
+		expect(fetchedOpinions[0]['comment']).to.equal("");
+		expect(fetchedOpinions[0]['addy']).to.equal("0x0000000000000000000000000000000000000001");
+		expect(fetchedOpinions[0]['rating']).to.equal(98);
+		expect(fetchedOpinions[0]['author']).to.equal(alice.address);
+		expect(fetchedOpinions.length).to.equal(1);
+	})
+
 	it("should fetch opinined Addresses", async () => {
 		await opinionBase.connect(alice).writeOpinion(token1Address, 98, "I like this url a lot");
-		const opinedAddresses = await opinionBase.getOpinedAddresses();
+		const opinedAddresses = await opinionBase.getOpinionedAddresses();
 		expect(opinedAddresses[0]).to.equal(token1Address);
 		expect(opinedAddresses.length).to.equal(1);
 	})
@@ -105,7 +115,11 @@ describe("OpinionBase", () => {
 		expect(opinionsAboutAddress[0]["comment"]).to.equal(opinion[0]["comment"]);
 		expect(opinionsAboutAddress[1]["comment"]).to.equal(opinion[1]["comment"]);
 
-		const opinedAddresses = await opinionBase.getOpinedAddresses();
+		const latestOpinionsAboutAddress = await opinionBase.getLatestOpinionsAboutAddress(token1Address);
+		expect(latestOpinionsAboutAddress[0]["comment"]).to.equal(opinion[1]["comment"]);
+		expect(latestOpinionsAboutAddress.length).to.equal(1);
+
+		const opinedAddresses = await opinionBase.getOpinionedAddresses();
 		expect(opinedAddresses[0]).to.equal(token1Address);
 
 		const allOpinions = await opinionBase.getAllOpinions();
@@ -120,7 +134,6 @@ describe("OpinionBase", () => {
 
 		const opinionTokenOne = await opinionBase.getOpinion(token1Address, alice.address);
 		const opinionTokenTwo = await opinionBase.getOpinion(token2Address, alice.address);
-
 
 		expect(opinionTokenOne[0]['comment']).to.equal("I like this url a lot");
 		expect(opinionTokenOne[0]['addy']).to.equal("0x0000000000000000000000000000000000000001");
@@ -142,7 +155,7 @@ describe("OpinionBase", () => {
 		const opinionsAboutAddress2 = await opinionBase.getOpinionsAboutAddress(token2Address);
 		expect(opinionsAboutAddress2[0]["comment"]).to.equal("I like this url a little");
 
-		const opinedAddresses = await opinionBase.getOpinedAddresses();
+		const opinedAddresses = await opinionBase.getOpinionedAddresses();
 		expect(opinedAddresses[0]).to.equal(token1Address);
 		expect(opinedAddresses[1]).to.equal(token2Address);
 
@@ -152,7 +165,7 @@ describe("OpinionBase", () => {
 		expect(allOpinions.length).to.equal(2);
 	})
 
-	it("write and fetch multiple opinions from the different people about same address", async () => {
+	it("write and fetch multiple opinions from different people about same address", async () => {
 		await opinionBase.connect(alice).writeOpinion(token1Address, 98, "I like this url a lot");
 		await opinionBase.connect(bob).writeOpinion(token1Address, 45, "I like this url a little");
 		
@@ -168,7 +181,6 @@ describe("OpinionBase", () => {
 		expect(opinionBob[0]['rating']).to.equal(45);
 		expect(opinionBob[0]['author']).to.equal(bob.address);
 
-		
 		const fetchedOpinionsAlice = await opinionBase.getUsersOpinions(alice.address);
 		const fetchedOpinionsBob = await opinionBase.getUsersOpinions(bob.address);
 		expect(fetchedOpinionsAlice[0]["comment"]).to.equal("I like this url a lot");
@@ -184,7 +196,11 @@ describe("OpinionBase", () => {
 		expect(opinionsAboutAddress[0]["comment"]).to.equal("I like this url a lot");
 		expect(opinionsAboutAddress[1]["comment"]).to.equal("I like this url a little");
 
-		const opinedAddresses = await opinionBase.getOpinedAddresses();
+		const latestOpinionsAboutAddress = await opinionBase.getLatestOpinionsAboutAddress(token1Address);
+		expect(latestOpinionsAboutAddress[0]["comment"]).to.equal("I like this url a lot");
+		expect(latestOpinionsAboutAddress[1]["comment"]).to.equal("I like this url a little");
+
+		const opinedAddresses = await opinionBase.getOpinionedAddresses();
 		expect(opinedAddresses[0]).to.equal(token1Address);
 		expect(opinedAddresses.length).to.equal(1);
 
@@ -192,6 +208,62 @@ describe("OpinionBase", () => {
 		expect(allOpinions[0]["comment"]).to.equal("I like this url a lot");
 		expect(allOpinions[1]["comment"]).to.equal("I like this url a little");
 		expect(allOpinions.length).to.equal(2);
+	})
+
+	it("integration test", async () => {
+		await opinionBase.connect(alice).writeOpinion(token1Address, 98, "I like this url a lot");
+		await opinionBase.connect(alice).writeOpinion(token1Address, 2, "I don't like");
+		await opinionBase.connect(bob).writeOpinion(token1Address, 45, "I like this url a little");
+		
+		const opinionAlice = await opinionBase.getOpinion(token1Address, alice.address);
+		expect(opinionAlice[0]['comment']).to.equal("I like this url a lot");
+		expect(opinionAlice[0]['addy']).to.equal("0x0000000000000000000000000000000000000001");
+		expect(opinionAlice[0]['rating']).to.equal(98);
+		expect(opinionAlice[0]['author']).to.equal(alice.address);
+		
+		const opinionBob = await opinionBase.getOpinion(token1Address, bob.address);
+		expect(opinionBob[0]['comment']).to.equal("I like this url a little");
+		expect(opinionBob[0]['addy']).to.equal("0x0000000000000000000000000000000000000001");
+		expect(opinionBob[0]['rating']).to.equal(45);
+		expect(opinionBob[0]['author']).to.equal(bob.address);
+
+		const fetchedOpinionsAlice = await opinionBase.getUsersOpinions(alice.address);
+		const fetchedOpinionsBob = await opinionBase.getUsersOpinions(bob.address);
+		expect(fetchedOpinionsAlice[0]["comment"]).to.equal("I like this url a lot");
+		expect(fetchedOpinionsBob[0]["comment"]).to.equal("I like this url a little");
+
+		expect(opinionAlice.length).to.equal(2);
+		expect(opinionBob.length).to.equal(1);
+		
+		expect(fetchedOpinionsAlice.length).to.equal(2);
+		expect(fetchedOpinionsBob.length).to.equal(1);
+
+		const opinionsAboutAddress = await opinionBase.getOpinionsAboutAddress(token1Address);
+		expect(opinionsAboutAddress[0]["comment"]).to.equal("I like this url a lot");
+		expect(opinionsAboutAddress[1]["comment"]).to.equal("I don't like");
+		expect(opinionsAboutAddress[2]["comment"]).to.equal("I like this url a little");
+
+		let latestOpinionsAboutAddress = await opinionBase.getLatestOpinionsAboutAddress(token1Address);
+		expect(latestOpinionsAboutAddress[0]["comment"]).to.equal("I don't like");
+		expect(latestOpinionsAboutAddress[1]["comment"]).to.equal("I like this url a little");
+		expect(latestOpinionsAboutAddress.length).to.equal(2);
+
+		const opinedAddresses = await opinionBase.getOpinionedAddresses();
+		expect(opinedAddresses[0]).to.equal(token1Address);
+		expect(opinedAddresses.length).to.equal(1);
+
+		const allOpinions = await opinionBase.getAllOpinions();
+		expect(allOpinions[0]["comment"]).to.equal("I like this url a lot");
+		expect(allOpinions[1]["comment"]).to.equal("I don't like");
+		expect(allOpinions[2]["comment"]).to.equal("I like this url a little");
+		expect(allOpinions.length).to.equal(3);
+
+		await opinionBase.connect(alice).writeOpinion(token1Address, 38, "I love this!");
+
+		latestOpinionsAboutAddress = await opinionBase.getLatestOpinionsAboutAddress(token1Address);
+		expect(latestOpinionsAboutAddress[0]["comment"]).to.equal("I love this!");
+		expect(latestOpinionsAboutAddress[1]["comment"]).to.equal("I like this url a little");
+		expect(latestOpinionsAboutAddress.length).to.equal(2);
 	})
 	
 	it("emmited event should be connect", async () => {

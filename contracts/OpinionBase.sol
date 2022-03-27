@@ -12,57 +12,77 @@ import "./interfaces/IOpinionBase.sol";
 contract OpinionBase is IOpinionBase {
 
     // address => user wallet address => the opinions they have made about that address (token, wallet, etc)
-    mapping(address => mapping(address => Opinion[])) _userOpinion;
+    mapping(address => mapping(address => Opinion[])) _userOpinions;
 
     // wallet address => all opinions made by that address
-    mapping(address => Opinion[]) _userOpinions;
+    mapping(address => Opinion[]) _totalUserOpinions;
 
-    // address => all opinions for that given address
+    // address => all opinions for a given given address
     mapping(address => Opinion[]) _opinions;
 
+    // address => address[] of users who have made opinions about that address
+    mapping(address => address[]) _opinionatorList;
+
     // address array storing all addresses about which opinions have been made
-    address[] _opinedAddresses;
+    address[] _opinionedAddresses;
 
     uint totalOpinionNumber;
     
     event newOpinion(address addy, address user, uint8 rating, string comment, uint timestamp);
 
     function writeOpinion(address addy, uint8 rating, string calldata comment) external override {
+        
         require(rating != 50, "rating must not be 50");
         require(bytes(comment).length <= 560, "comment must be lte 560 characters");
         Opinion memory opinion = Opinion(msg.sender, addy, rating, comment, block.timestamp);
-        _userOpinion[addy][msg.sender].push(opinion);
-        _userOpinions[msg.sender].push(opinion);
+        _userOpinions[addy][msg.sender].push(opinion);
+        _totalUserOpinions[msg.sender].push(opinion);
+
         if (_opinions[addy].length == 0) {
-            _opinedAddresses.push(addy);
+            _opinionedAddresses.push(addy);
         }
         _opinions[addy].push(opinion);
+
+        if (_userOpinions[addy][msg.sender].length == 1) {
+            _opinionatorList[addy].push(msg.sender);
+        }
+
         totalOpinionNumber++;
         emit newOpinion(addy, msg.sender, rating, comment, block.timestamp);
     }
 
     function getOpinion(address addy, address user) external view override returns (Opinion[] memory) {
-        return _userOpinion[addy][user];
+        return _userOpinions[addy][user];
     }
 
     function getUsersOpinions(address user) external view override returns (Opinion[] memory) {
-        return _userOpinions[user];
+        return _totalUserOpinions[user];
     }
 
     function getOpinionsAboutAddress(address addy) external view override returns (Opinion[] memory) {
         return _opinions[addy];
     }
 
-    function getOpinedAddresses() external view override returns (address[] memory) {
-        return _opinedAddresses;
+    function getLatestOpinionsAboutAddress(address addy) external view override returns (Opinion[] memory) {
+        Opinion[] memory latestOpinions = new Opinion[](_opinionatorList[addy].length);
+
+        for (uint i = 0; i < _opinionatorList[addy].length; i++) {
+            uint latestOpinionIndex = _userOpinions[addy][_opinionatorList[addy][i]].length - 1;
+            latestOpinions[i] = _userOpinions[addy][_opinionatorList[addy][i]][latestOpinionIndex];
+        }
+        return latestOpinions;
+    }
+
+    function getOpinionedAddresses() external view override returns (address[] memory) {
+        return _opinionedAddresses;
     }
     
     function getAllOpinions() external view override returns (Opinion[] memory) {
         Opinion[] memory allOpinions = new Opinion[](totalOpinionNumber);
         uint k;
-        for (uint i = 0; i < _opinedAddresses.length; i++) {
-            for (uint j = 0; j < _opinions[_opinedAddresses[i]].length; j++) {
-                allOpinions[k] = _opinions[_opinedAddresses[i]][j];
+        for (uint i = 0; i < _opinionedAddresses.length; i++) {
+            for (uint j = 0; j < _opinions[_opinionedAddresses[i]].length; j++) {
+                allOpinions[k] = _opinions[_opinionedAddresses[i]][j];
                 k++;
             }
         }

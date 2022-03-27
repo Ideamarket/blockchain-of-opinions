@@ -18,6 +18,7 @@ interface IOpinionBase {
     function getOpinion(address addy, address user) external view returns (Opinion[] memory);
     function getUsersOpinions(address user) external view returns (Opinion[] memory);
     function getOpinionsAboutAddress(address addy) external view returns (Opinion[] memory);
-    function getOpinedAddresses() external view returns (address[] memory);
+    function getLatestOpinionsAboutAddress(address addy) external view returns (Opinion[] memory);
+    function getOpinionedAddresses() external view returns (address[] memory);
     function getAllOpinions() external view returns (Opinion[] memory);
 }

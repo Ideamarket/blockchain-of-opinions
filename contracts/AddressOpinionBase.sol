@@ -1,17 +1,17 @@
 //SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
-import "./interfaces/IOpinionBase.sol";
+import "./interfaces/IAddressOpinionBase.sol";
 
 /**
- * @title OpinionBase
+ * @title AddressOpinionBase
  * @author Kelton Madden
  *
  * @dev Stores and retrieves opinions
  */
 
-contract OpinionBase is IOpinionBase {
+contract AddressOpinionBase is IAddressOpinionBase {
 
-    // address => user wallet address => the opinions they have made about that address (token, wallet, etc)
+    // address => user wallet address => the opinions they have made about that address
     mapping(address => mapping(address => Opinion[])) _userOpinions;
 
     // wallet address => all opinions made by that address
@@ -28,13 +28,13 @@ contract OpinionBase is IOpinionBase {
 
     uint totalOpinionNumber;
     
-    event newOpinion(address addy, address user, uint8 rating, string comment, uint timestamp);
+    event newOpinion(address addy, address user, uint8 rating, string comment, uint blockHeight);
 
     function writeOpinion(address addy, uint8 rating, string calldata comment) external override {
         
         require(rating != 50, "rating must not be 50");
         require(bytes(comment).length <= 560, "comment must be lte 560 characters");
-        Opinion memory opinion = Opinion(msg.sender, addy, rating, comment, block.timestamp);
+        Opinion memory opinion = Opinion(msg.sender, addy, rating, comment, block.number);
         _userOpinions[addy][msg.sender].push(opinion);
         _totalUserOpinions[msg.sender].push(opinion);
 
@@ -48,7 +48,7 @@ contract OpinionBase is IOpinionBase {
         }
 
         totalOpinionNumber++;
-        emit newOpinion(addy, msg.sender, rating, comment, block.timestamp);
+        emit newOpinion(addy, msg.sender, rating, comment, block.number);
     }
 
     function getOpinion(address addy, address user) external view override returns (Opinion[] memory) {

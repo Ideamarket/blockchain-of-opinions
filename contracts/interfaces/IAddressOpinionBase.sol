@@ -2,17 +2,17 @@
 pragma solidity ^0.8.0;
 
 /**
- * @title IOpinionBase
+ * @title IAddressOpinionBase
  * @author Kelton Madden
  */
 
-interface IOpinionBase {
+interface IAddressOpinionBase {
     struct Opinion {
         address author;
         address addy;
         uint8 rating;
         string comment;
-        uint timestamp;
+        uint blockHeight;
     }
     function writeOpinion(address addy, uint8 rating, string calldata comment) external;
     function getOpinion(address addy, address user) external view returns (Opinion[] memory);

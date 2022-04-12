@@ -3,7 +3,7 @@ const { expect } = require('chai')
 const { BigNumber } = require('ethers')
 const { ethers } = require('hardhat')
 
-describe("OpinionBase", () => {
+describe("AddressOpinionBase", () => {
 	
     const token1Address = "0x0000000000000000000000000000000000000001";
 	const token2Address = "0x0000000000000000000000000000000000000002";
@@ -14,7 +14,7 @@ describe("OpinionBase", () => {
 		alice = accounts[0];
 		bob = accounts[1];
 		charlie = accounts[2];
-        const OpinionBase = await ethers.getContractFactory("OpinionBase");
+        const OpinionBase = await ethers.getContractFactory("AddressOpinionBase");
 		opinionBase = await OpinionBase.deploy();
 	})
 
@@ -268,7 +268,7 @@ describe("OpinionBase", () => {
 	
 	it("emmited event should be connect", async () => {
 		expect(opinionBase.connect(alice).writeOpinion(token1Address, 98, "I like this url a lot")).
-		to.emit(opinionBase, "OpinionWritten").withArgs(alice.address, token1Address, true, 98, "I like this url a lot",);
+		to.emit(opinionBase, "OpinionWritten").withArgs(alice.address, token1Address, 98, "I like this url a lot",);
 	})
 
 })

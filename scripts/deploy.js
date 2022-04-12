@@ -14,7 +14,7 @@ async function main() {
 	// await hre.run('compile');
 
 	// We get the contract to deploy
-	const OpinionBase = await ethers.getContractFactory("OpinionBase");
+	const OpinionBase = await ethers.getContractFactory("NFTOpinionBase");
 	const opinionBase = await OpinionBase.deploy();
 
 	await opinionBase.deployed();

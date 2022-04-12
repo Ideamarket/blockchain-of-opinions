@@ -11,11 +11,6 @@ import "./interfaces/INFTOpinionBase.sol";
 
 contract NFTOpinionBase is INFTOpinionBase {
 
-    struct TokenIDPair {
-        address contractAddress;
-        uint tokenID;
-    }
-
     // contractAddress => uint => user wallet address => the opinions they have made about that address
     mapping(address => mapping(uint => mapping(address => Opinion[]))) _userOpinions;
 
@@ -33,7 +28,7 @@ contract NFTOpinionBase is INFTOpinionBase {
 
     uint totalOpinionNumber;
     
-    event newOpinion(address contractAddress, uint tokenID, address user, uint8 rating, string comment, uint blockHeight);
+    event NewOpinion(address contractAddress, uint tokenID, address user, uint8 rating, string comment, uint blockHeight);
 
     function writeOpinion(address contractAddress, uint tokenID, uint8 rating, string calldata comment) external override {
         
@@ -53,7 +48,7 @@ contract NFTOpinionBase is INFTOpinionBase {
         }
 
         totalOpinionNumber++;
-        emit newOpinion(contractAddress, tokenID, msg.sender, rating, comment, block.number);
+        emit NewOpinion(contractAddress, tokenID, msg.sender, rating, comment, block.number);
     }
 
     function getOpinion(address contractAddress, uint tokenID, address user) external view override returns (Opinion[] memory) {
@@ -70,15 +65,14 @@ contract NFTOpinionBase is INFTOpinionBase {
 
     function getLatestOpinionsAboutNFT(address contractAddress, uint tokenID) external view override returns (Opinion[] memory) {
         Opinion[] memory latestOpinions = new Opinion[](_opinionatorList[contractAddress][tokenID].length);
-        TokenIDPair memory tokenIDPair = TokenIDPair(contractAddress, tokenID);
         for (uint i = 0; i < _opinionatorList[contractAddress][tokenID].length; i++) {
-            uint latestOpinionIndex = _userOpinions[contractAddress][tokenID][_opinionatorList[contractAddress][tokenID]][i]].length - 1;
+            uint latestOpinionIndex = _userOpinions[contractAddress][tokenID][_opinionatorList[contractAddress][tokenID][i]].length - 1;
             latestOpinions[i] = _userOpinions[contractAddress][tokenID][_opinionatorList[contractAddress][tokenID][i]][latestOpinionIndex];
         }
         return latestOpinions;
     }
 
-    function getOpinionedNFTs() external view override returns (address[] memory) {
+    function getOpinionedNFTs() external view override returns (TokenIDPair[] memory) {
         return _opinionedNFTs;
     }
     

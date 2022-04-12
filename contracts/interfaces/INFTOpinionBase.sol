@@ -7,6 +7,11 @@ pragma solidity ^0.8.0;
  */
 
 interface INFTOpinionBase {
+    struct TokenIDPair {
+        address contractAddress;
+        uint tokenID;
+    }
+
     struct Opinion {
         address author;
         address contractAddress;
@@ -14,11 +19,12 @@ interface INFTOpinionBase {
         string comment;
         uint blockHeight;
     }
+    
     function writeOpinion(address contractAddress, uint tokenID, uint8 rating, string calldata comment) external;
     function getOpinion(address contractAddress, uint tokenID, address user) external view returns (Opinion[] memory);
     function getUsersOpinions(address user) external view returns (Opinion[] memory);
     function getOpinionsAboutNFT(address contractAddress, uint tokenID) external view returns (Opinion[] memory);
     function getLatestOpinionsAboutNFT(address contractAddress, uint tokenID) external view returns (Opinion[] memory);
-    function getOpinionedNFTs() external view returns (address[] memory);
+    function getOpinionedNFTs() external view returns (TokenIDPair[] memory);
     function getAllOpinions() external view returns (Opinion[] memory);
 }

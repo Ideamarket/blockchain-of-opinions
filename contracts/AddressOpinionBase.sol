@@ -28,7 +28,7 @@ contract AddressOpinionBase is IAddressOpinionBase {
 
     uint totalOpinionNumber;
     
-    event newOpinion(address addy, address user, uint8 rating, string comment, uint blockHeight);
+    event NewOpinion(address addy, address user, uint8 rating, string comment, uint blockHeight);
 
     function writeOpinion(address addy, uint8 rating, string calldata comment) external override {
         
@@ -48,7 +48,7 @@ contract AddressOpinionBase is IAddressOpinionBase {
         }
 
         totalOpinionNumber++;
-        emit newOpinion(addy, msg.sender, rating, comment, block.number);
+        emit NewOpinion(addy, msg.sender, rating, comment, block.number);
     }
 
     function getOpinion(address addy, address user) external view override returns (Opinion[] memory) {

@@ -12,7 +12,8 @@ import { Base64 } from "base64-sol/base64.sol";
  *
  * @dev mints erc721 tokens representing "posts" on ideamarket
  */
-
+//fix make it admin controls (multiple?) and owner controls that.
+//constructor sets owner as an admin
 contract IdeamarketPosts is IIdeamarketPosts, ERC721Enumerable, Ownable {
 
     // list of tokenIDs a particular address minted
@@ -21,6 +22,9 @@ contract IdeamarketPosts is IIdeamarketPosts, ERC721Enumerable, Ownable {
     mapping(uint => Post) public posts;
     // mapping of existing category tags
     mapping(string => bool) public categories;
+    // categories tagged for a given post
+    // tokenID => string => bool
+    mapping(uint => mapping(string => bool)) public postCategories;
 
     constructor(address owner) ERC721("IdeamarketPosts", "IMPOSTS") {
         setOwnerInternal(owner);
@@ -30,8 +34,13 @@ contract IdeamarketPosts is IIdeamarketPosts, ERC721Enumerable, Ownable {
         string calldata imageLink, bool web2URL, string  calldata web2Content, address recipient) external {
         require(bytes(content).length > 0, "content-empty");
         require(recipient != address(0), "zero-addr");
+        //check logic
+        uint tokenID = totalSupply() + 1;
         for (uint i = 0; i < categoryTags.length; i++) {
-            require(categories[categoryTags[i]], "category-not-found");
+            if (!categories[categoryTags[i]]) {
+                continue;
+            }
+            postCategories[tokenID][categoryTags[i]] = true;
         }
 
         Post memory post = Post({
@@ -43,7 +52,7 @@ contract IdeamarketPosts is IIdeamarketPosts, ERC721Enumerable, Ownable {
             web2Content: web2Content,
             blockHeight: block.number
         });
-        uint tokenID = totalSupply() + 1;
+
         posts[tokenID] = post;
         mintedTokens[recipient].push(tokenID);
         _safeMint(recipient, tokenID);
@@ -82,10 +91,32 @@ contract IdeamarketPosts is IIdeamarketPosts, ERC721Enumerable, Ownable {
         return string(abi.encodePacked(categoryString, "]"));
     }
 
+    function addCategories(string[] calldata newCategories) external onlyOwner {
+        for (uint i = 0; i < newCategories.length; i++) {
+            if (categories[newCategories[i]]) {
+                continue;
+            }
+            categories[newCategories[i]] = true;
+        }
+    }
 
-    function addCategories(string[] calldata categories) external;
-    function removeCategories(string[] calldata categories) external;
-    function addCategoriesToPost(string[] calldata category) external;
+    function removeCategories(string[] calldata oldCategories) external onlyOwner {
+        for (uint i = 0; i < oldCategories.length; i++) {
+            categories[oldCategories[i]] = false;
+        }
+    }
+
+    function addCategoriesToPost(uint tokenID, string[] calldata newCategories) external {
+        require(msg.sender == posts[tokenID].minter || msg.sender == _owner, "only-minter-or-owner-can-add-categories");
+        for (uint i = 0; i < newCategories.length; i++) {
+            if (postCategories[tokenID][newCategories[i]]) {
+                continue;
+            }
+            postCategories[tokenID][newCategories[i]] = true;
+            posts[tokenID].categories.push(newCategories[i]);
+        }
+        
+    }
     function removeCategoriesFromPost(string[] calldata category) external;
     function getUsersPosts(address user) external view returns (uint[] memory);
     function isURL(uint tokenID) external view returns (bool);

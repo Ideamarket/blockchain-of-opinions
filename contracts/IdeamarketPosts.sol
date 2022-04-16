@@ -18,6 +18,7 @@ contract IdeamarketPosts is IIdeamarketPosts, ERC721Enumerable, Ownable {
 
     // list of tokenIDs a particular address minted
     mapping(address => uint[]) mintedTokens;
+    //fix make sure this is working properly
     // metadata for posts by tokenID
     mapping(uint => Post) public posts;
     // mapping of existing category tags
@@ -107,7 +108,7 @@ contract IdeamarketPosts is IIdeamarketPosts, ERC721Enumerable, Ownable {
     }
 
     function addCategoriesToPost(uint tokenID, string[] calldata newCategories) external {
-        require(msg.sender == posts[tokenID].minter || msg.sender == _owner, "only-minter-or-owner-can-add-categories");
+        require(msg.sender == ownerOf(tokenID) || msg.sender == _owner, "only-minter-or-owner-can-add-categories");
         for (uint i = 0; i < newCategories.length; i++) {
             if (postCategories[tokenID][newCategories[i]]) {
                 continue;
@@ -117,9 +118,20 @@ contract IdeamarketPosts is IIdeamarketPosts, ERC721Enumerable, Ownable {
         }
         
     }
-    function removeCategoriesFromPost(string[] calldata category) external;
+
+    function removeCategoriesFromPost(uint tokenID, string[] calldata category) external {
+        require(msg.sender == ownerOf(tokenID) || msg.sender == _owner, "only-minter-or-owner-can-remove-categories");
+        for (uint i = 0; i < category.length; i++) {
+            postCategories[tokenID][category[i]] = false;
+            posts[tokenID].categories.remove(category[i]);
+        }
+    }
     function getUsersPosts(address user) external view returns (uint[] memory);
     function isURL(uint tokenID) external view returns (bool);
+    
+    //fix can also be updated by current holder
+    function updateImage(uint tokenI, string calldata imageLinkD) external onlyOwner {
+    }
 
 
  }

@@ -19,8 +19,9 @@ interface IIdeamarketPosts {
 
     function addCategories(string[] calldata categories) external;
     function removeCategories(string[] calldata categories) external;
-    function addCategoriesToPost(string[] calldata category) external;
-    function removeCategoriesFromPost(string[] calldata category) external;
+    function addCategoriesToPost(uint tokenID, string[] calldata category) external;
+    function removeCategoriesFromPost(uint tokenID, string[] calldata category) external;
+    function updateImage(uint tokenID, string calldata imageLink) external;
     function getPost(uint tokenID)  external view returns (Post memory);
     function getUsersPosts(address user) external view returns (uint[] memory);
     function isURL(uint tokenID) external view returns (bool);

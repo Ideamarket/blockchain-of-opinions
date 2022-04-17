@@ -29,8 +29,8 @@ contract IdeamarketPosts is IIdeamarketPosts, ERC721Enumerable, AccessControl {
     // tokenID => string => bool
     mapping(uint => mapping(string => bool)) public postCategories;
 
-    constructor(bytes32 admin) ERC721("IdeamarketPosts", "IMPOSTS") {
-        _setRoleAdmin("ADMIN_ROLE", admin);
+    constructor(address admin) ERC721("IdeamarketPosts", "IMPOSTS") {
+        _grantRole("ADMIN_ROLE", admin);
     }
     
     function mint(string calldata content, string[] calldata categoryTags, string calldata imageLink, 
@@ -40,10 +40,9 @@ contract IdeamarketPosts is IIdeamarketPosts, ERC721Enumerable, AccessControl {
         //check logic
         uint tokenID = totalSupply() + 1;
         for (uint i = 0; i < categoryTags.length; i++) {
-            if (!categories[categoryTags[i]]) {
-                continue;
+            if (categories[categoryTags[i]]) {
+                postCategories[tokenID][categoryTags[i]] = true;
             }
-            postCategories[tokenID][categoryTags[i]] = true;
         }
 
         Post memory post = Post({
@@ -84,10 +83,6 @@ contract IdeamarketPosts is IIdeamarketPosts, ERC721Enumerable, AccessControl {
         ));
     }
 
-    function getPost(uint tokenID) external view returns (Post memory post) {
-        return posts[tokenID];
-    }
-
     function stringifyCategories(string[] memory categoryTags) internal pure returns(string memory) {
         string memory categoryString = "[";
         for (uint i = 0; i < categoryTags.length; i++) {
@@ -96,67 +91,69 @@ contract IdeamarketPosts is IIdeamarketPosts, ERC721Enumerable, AccessControl {
         return string(abi.encodePacked(categoryString, "]"));
     }
 
-    function addCategories(string[] calldata newCategories) external {
+    function addCategories(string[] calldata newCategories) external override{
         require(hasRole(ADMIN_ROLE, msg.sender), "admin-only");
         for (uint i = 0; i < newCategories.length; i++) {
-            if (categories[newCategories[i]]) {
-                continue;
-            }
+            if (!categories[newCategories[i]]) {
             categories[newCategories[i]] = true;
+            }
         }
     }
 
-    function removeCategories(string[] calldata oldCategories) external {
+    function removeCategories(string[] calldata oldCategories) external override{
         require(hasRole(ADMIN_ROLE, msg.sender), "admin-only");
         for (uint i = 0; i < oldCategories.length; i++) {
             categories[oldCategories[i]] = false;
         }
     }
 
-    function addCategoriesToPost(uint tokenID, string[] calldata newCategories) external {
+    function addCategoriesToPost(uint tokenID, string[] calldata newCategories) external override{
         require(hasRole(ADMIN_ROLE, msg.sender), "only-admin");
         for (uint i = 0; i < newCategories.length; i++) {
-            if (postCategories[tokenID][newCategories[i]]) {
-                continue;
-            }
-            postCategories[tokenID][newCategories[i]] = true;
-            posts[tokenID].categories.push(newCategories[i]);
-        }
-        
-    }
-
-    function removeCategoriesFromPost(uint tokenID, string[] calldata oldCategories) external {
-        require(hasRole(ADMIN_ROLE, msg.sender), "only-admin");
-        string[] memory currentCategories = posts[tokenID].categories;
-        delete posts[tokenID].categories;
-        for (uint i = 0; i < currentCategories.length; i++) {
-            for (uint j; j < oldCategories.length; j++) {
-                postCategories[tokenID][oldCategories[i]] = false;
-                if (!(keccak256(abi.encodePacked(currentCategories[i])) == keccak256(abi.encodePacked(oldCategories[j])))) {
-                    posts[tokenID].categories.push(currentCategories[i]);
+            if(categories[newCategories[i]]) {
+                if (!postCategories[tokenID][newCategories[i]]) {
+                    postCategories[tokenID][newCategories[i]] = true;
+                    posts[tokenID].categories.push(newCategories[i]);
                 }
             }
         }
     }
 
-    //fix can also be updated by current holder
-    function updateImage(uint tokenID, string calldata imageLink) external {
-        //fix admin
+    function removeCategoriesFromPost(uint tokenID, string[] calldata oldCategories) external override{
+        require(hasRole(ADMIN_ROLE, msg.sender), "only-admin");
+        string[] memory currentCategories = posts[tokenID].categories;
+        delete posts[tokenID].categories;
+        for (uint i = 0; i < currentCategories.length; i++) {
+            bool pushed = false;
+            for (uint j; j < oldCategories.length; j++) {
+                postCategories[tokenID][oldCategories[i]] = false;
+                if (!(keccak256(abi.encodePacked(currentCategories[i])) == keccak256(abi.encodePacked(oldCategories[j]))) && !pushed) {
+                    posts[tokenID].categories.push(currentCategories[i]);
+                    pushed = true;
+                }
+            }
+        }
+    }
+
+    function updateImage(uint tokenID, string calldata imageLink) external override{
         require(msg.sender == ownerOf(tokenID) || hasRole(ADMIN_ROLE, msg.sender), "only-minter-or-admin");
         posts[tokenID].imageLink = imageLink;
     }
 
-    function getUsersPosts(address user) external view returns (uint[] memory) {
+    function getUsersPosts(address user) external view override returns (uint[] memory) {
         return mintedTokens[user];
     }
 
-    function isURL(uint tokenID) external view returns (bool) {
+    function isURL(uint tokenID) external view override returns (bool) {
         return posts[tokenID].isURL;
     }
 
-    function isWeb2URL(uint tokenID) external view returns (bool) {
+    function isWeb2URL(uint tokenID) external view override returns (bool) {
         return posts[tokenID].isWeb2URL;
     }
 
+    function supportsInterface(bytes4 interfaceId) public view virtual override(ERC721Enumerable, AccessControl) returns (bool) {
+        return interfaceId == type(IAccessControl).interfaceId || super.supportsInterface(interfaceId);
+    }
 
 }

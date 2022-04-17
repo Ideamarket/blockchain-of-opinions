@@ -2,7 +2,7 @@
 pragma solidity ^0.8.0;
 
 import "./interfaces/IIdeamarketPosts.sol";
-import "./Ownable.sol";
+import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import { Base64 } from "base64-sol/base64.sol";
 
@@ -14,7 +14,9 @@ import { Base64 } from "base64-sol/base64.sol";
  */
 //fix make it admin controls (multiple?) and owner controls that.
 //constructor sets owner as an admin
-contract IdeamarketPosts is IIdeamarketPosts, ERC721Enumerable, Ownable {
+contract IdeamarketPosts is IIdeamarketPosts, ERC721Enumerable, AccessControl {
+
+    bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
 
     // list of tokenIDs a particular address minted
     mapping(address => uint[]) mintedTokens;
@@ -27,12 +29,12 @@ contract IdeamarketPosts is IIdeamarketPosts, ERC721Enumerable, Ownable {
     // tokenID => string => bool
     mapping(uint => mapping(string => bool)) public postCategories;
 
-    constructor(address owner) ERC721("IdeamarketPosts", "IMPOSTS") {
-        setOwnerInternal(owner);
+    constructor(bytes32 admin) ERC721("IdeamarketPosts", "IMPOSTS") {
+        _setRoleAdmin("ADMIN_ROLE", admin);
     }
     
-    function mint(string calldata content, string[] calldata categoryTags,
-        string calldata imageLink, bool web2URL, string  calldata web2Content, address recipient) external {
+    function mint(string calldata content, string[] calldata categoryTags, string calldata imageLink, 
+        bool urlBool, bool web2URLBool, string  calldata web2Content, address recipient) external {
         require(bytes(content).length > 0, "content-empty");
         require(recipient != address(0), "zero-addr");
         //check logic
@@ -49,7 +51,8 @@ contract IdeamarketPosts is IIdeamarketPosts, ERC721Enumerable, Ownable {
             content: content,
             categories: categoryTags,
             imageLink: imageLink,
-            web2URL: web2URL,
+            isURL: urlBool,
+            isWeb2URL: web2URLBool,
             web2Content: web2Content,
             blockHeight: block.number
         });
@@ -72,7 +75,8 @@ contract IdeamarketPosts is IIdeamarketPosts, ERC721Enumerable, Ownable {
                     "'content': '", currentPost.content, "', ",
                     "'image': '", currentPost.imageLink, "',",
                     "'categories': '", categoryString, "',",
-                    "'web2URL': ", currentPost.web2URL, "',",
+                    "'isURL': '", currentPost.isURL, "',",
+                    "'web2URL': ", currentPost.isWeb2URL, "',",
                     "'web2Content': '", currentPost.web2Content, "',",
                     "'blockHeight': ", currentPost.blockHeight,
                 "}"
@@ -92,7 +96,8 @@ contract IdeamarketPosts is IIdeamarketPosts, ERC721Enumerable, Ownable {
         return string(abi.encodePacked(categoryString, "]"));
     }
 
-    function addCategories(string[] calldata newCategories) external onlyOwner {
+    function addCategories(string[] calldata newCategories) external {
+        require(hasRole(ADMIN_ROLE, msg.sender), "admin-only");
         for (uint i = 0; i < newCategories.length; i++) {
             if (categories[newCategories[i]]) {
                 continue;
@@ -101,14 +106,15 @@ contract IdeamarketPosts is IIdeamarketPosts, ERC721Enumerable, Ownable {
         }
     }
 
-    function removeCategories(string[] calldata oldCategories) external onlyOwner {
+    function removeCategories(string[] calldata oldCategories) external {
+        require(hasRole(ADMIN_ROLE, msg.sender), "admin-only");
         for (uint i = 0; i < oldCategories.length; i++) {
             categories[oldCategories[i]] = false;
         }
     }
 
     function addCategoriesToPost(uint tokenID, string[] calldata newCategories) external {
-        require(msg.sender == ownerOf(tokenID) || msg.sender == _owner, "only-minter-or-owner-can-add-categories");
+        require(hasRole(ADMIN_ROLE, msg.sender), "only-admin");
         for (uint i = 0; i < newCategories.length; i++) {
             if (postCategories[tokenID][newCategories[i]]) {
                 continue;
@@ -119,19 +125,38 @@ contract IdeamarketPosts is IIdeamarketPosts, ERC721Enumerable, Ownable {
         
     }
 
-    function removeCategoriesFromPost(uint tokenID, string[] calldata category) external {
-        require(msg.sender == ownerOf(tokenID) || msg.sender == _owner, "only-minter-or-owner-can-remove-categories");
-        for (uint i = 0; i < category.length; i++) {
-            postCategories[tokenID][category[i]] = false;
-            posts[tokenID].categories.remove(category[i]);
+    function removeCategoriesFromPost(uint tokenID, string[] calldata oldCategories) external {
+        require(hasRole(ADMIN_ROLE, msg.sender), "only-admin");
+        string[] memory currentCategories = posts[tokenID].categories;
+        delete posts[tokenID].categories;
+        for (uint i = 0; i < currentCategories.length; i++) {
+            for (uint j; j < oldCategories.length; j++) {
+                postCategories[tokenID][oldCategories[i]] = false;
+                if (!(keccak256(abi.encodePacked(currentCategories[i])) == keccak256(abi.encodePacked(oldCategories[j])))) {
+                    posts[tokenID].categories.push(currentCategories[i]);
+                }
+            }
         }
     }
-    function getUsersPosts(address user) external view returns (uint[] memory);
-    function isURL(uint tokenID) external view returns (bool);
-    
+
     //fix can also be updated by current holder
-    function updateImage(uint tokenI, string calldata imageLinkD) external onlyOwner {
+    function updateImage(uint tokenID, string calldata imageLink) external {
+        //fix admin
+        require(msg.sender == ownerOf(tokenID) || hasRole(ADMIN_ROLE, msg.sender), "only-minter-or-admin");
+        posts[tokenID].imageLink = imageLink;
+    }
+
+    function getUsersPosts(address user) external view returns (uint[] memory) {
+        return mintedTokens[user];
+    }
+
+    function isURL(uint tokenID) external view returns (bool) {
+        return posts[tokenID].isURL;
+    }
+
+    function isWeb2URL(uint tokenID) external view returns (bool) {
+        return posts[tokenID].isWeb2URL;
     }
 
 
- }
+}

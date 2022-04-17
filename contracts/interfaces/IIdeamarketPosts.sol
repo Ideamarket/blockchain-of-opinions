@@ -12,7 +12,8 @@ interface IIdeamarketPosts {
         string content;
         string[] categories;
         string imageLink;
-        bool web2URL;
+        bool isURL;
+        bool isWeb2URL;
         string web2Content; 
         uint blockHeight;
     }

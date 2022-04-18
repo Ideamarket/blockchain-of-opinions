@@ -4,6 +4,7 @@ pragma solidity ^0.8.0;
 import "./interfaces/IIdeamarketPosts.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
 import { Base64 } from "base64-sol/base64.sol";
 
 /**
@@ -30,7 +31,7 @@ contract IdeamarketPosts is IIdeamarketPosts, ERC721Enumerable, AccessControl {
     mapping(uint => mapping(string => bool)) public postCategories;
 
     constructor(address admin) ERC721("IdeamarketPosts", "IMPOSTS") {
-        _grantRole("ADMIN_ROLE", admin);
+        _setupRole(ADMIN_ROLE, admin);("ADMIN_ROLE", admin);
     }
     
     function mint(string calldata content, string[] calldata categoryTags, string calldata imageLink, 
@@ -70,15 +71,15 @@ contract IdeamarketPosts is IIdeamarketPosts, ERC721Enumerable, AccessControl {
         return string(abi.encodePacked(
             "data:application/json;base64,", Base64.encode(abi.encodePacked(
                 "{",
-                    "'minter': '", currentPost.minter, "',",
-                    "'content': '", currentPost.content, "', ",
+                    "'minter': '", Strings.toHexString(uint160(currentPost.minter), 20), "',",
+                    "'content': '", currentPost.content, "',",
                     "'image': '", currentPost.imageLink, "',",
                     "'categories': '", categoryString, "',",
-                    "'isURL': '", currentPost.isURL, "',",
-                    "'web2URL': ", currentPost.isWeb2URL, "',",
+                    "'isURL': '", Strings.toString(toUInt256(currentPost.isURL)), "',",
+                    "'isWeb2URL': '", Strings.toString(toUInt256(currentPost.isWeb2URL)), "',",
                     "'web2Content': '", currentPost.web2Content, "',",
-                    "'blockHeight': ", currentPost.blockHeight,
-                "}"
+                    "'blockHeight': '", Strings.toString(currentPost.blockHeight),
+                "'}"
             ))
         ));
     }
@@ -139,7 +140,16 @@ contract IdeamarketPosts is IIdeamarketPosts, ERC721Enumerable, AccessControl {
         require(msg.sender == ownerOf(tokenID) || hasRole(ADMIN_ROLE, msg.sender), "only-minter-or-admin");
         posts[tokenID].imageLink = imageLink;
     }
+    
+    function updateWeb2Content(uint tokenID, string calldata web2Content) external override {
+        require(hasRole(ADMIN_ROLE, msg.sender), "only-minter-or-admin");
+        posts[tokenID].web2Content = web2Content;
+    }
 
+    function getPost(uint tokenID) external view override returns (Post memory post) {
+        require(_exists(tokenID), "nonexistent token");
+        return posts[tokenID];
+    }
     function getUsersPosts(address user) external view override returns (uint[] memory) {
         return mintedTokens[user];
     }
@@ -154,6 +164,10 @@ contract IdeamarketPosts is IIdeamarketPosts, ERC721Enumerable, AccessControl {
 
     function supportsInterface(bytes4 interfaceId) public view virtual override(ERC721Enumerable, AccessControl) returns (bool) {
         return interfaceId == type(IAccessControl).interfaceId || super.supportsInterface(interfaceId);
+    }
+
+    function toUInt256(bool x) internal pure returns (uint r) {
+        assembly { r := x }
     }
 
 }

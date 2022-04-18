@@ -34,22 +34,19 @@ contract IdeamarketPosts is IIdeamarketPosts, ERC721Enumerable, AccessControl {
         _setupRole(ADMIN_ROLE, admin);("ADMIN_ROLE", admin);
     }
     
-    function mint(string calldata content, string[] calldata categoryTags, string calldata imageLink, 
-        bool urlBool, bool web2URLBool, string  calldata web2Content, address recipient) external {
+    function mint(string calldata content, string[] memory categoryTags, string calldata imageLink, 
+        bool urlBool, bool web2URLBool, string calldata web2Content, address recipient) external {
+        
         require(bytes(content).length > 0, "content-empty");
         require(recipient != address(0), "zero-addr");
-        //check logic
-        uint tokenID = totalSupply() + 1;
-        for (uint i = 0; i < categoryTags.length; i++) {
-            if (categories[categoryTags[i]]) {
-                postCategories[tokenID][categoryTags[i]] = true;
-            }
-        }
 
+        uint tokenID = totalSupply() + 1;
+        string[] memory validCategoryTags = filterValidCategories(tokenID, categoryTags);
+        
         Post memory post = Post({
             minter: msg.sender,
             content: content,
-            categories: categoryTags,
+            categories: validCategoryTags,
             imageLink: imageLink,
             isURL: urlBool,
             isWeb2URL: web2URLBool,
@@ -84,20 +81,11 @@ contract IdeamarketPosts is IIdeamarketPosts, ERC721Enumerable, AccessControl {
         ));
     }
 
-    function stringifyCategories(string[] memory categoryTags) internal pure returns(string memory) {
-        string memory categoryString = "[";
-        for (uint i = 0; i < categoryTags.length; i++) {
-                categoryString = string(abi.encodePacked(categoryString, ", ", categoryTags[i]));
-        }
-        return string(abi.encodePacked(categoryString, "]"));
-    }
 
     function addCategories(string[] calldata newCategories) external override{
         require(hasRole(ADMIN_ROLE, msg.sender), "admin-only");
         for (uint i = 0; i < newCategories.length; i++) {
-            if (!categories[newCategories[i]]) {
             categories[newCategories[i]] = true;
-            }
         }
     }
 
@@ -166,6 +154,33 @@ contract IdeamarketPosts is IIdeamarketPosts, ERC721Enumerable, AccessControl {
         return interfaceId == type(IAccessControl).interfaceId || super.supportsInterface(interfaceId);
     }
 
+    function stringifyCategories(string[] memory categoryTags) internal pure returns(string memory) {
+        string memory categoryString = "[";
+        for (uint i = 0; i < categoryTags.length; i++) {
+                categoryString = string(abi.encodePacked(categoryString, ", ", categoryTags[i]));
+        }
+        return string(abi.encodePacked(categoryString, "]"));
+    }
+    
+    function filterValidCategories(uint tokenID, string[] memory categoryTags) internal returns(string[] memory) {
+        uint validCategoryTagsLength;
+        for (uint i = 0; i < categoryTags.length; i++) {
+            if (categories[categoryTags[i]]) {
+                validCategoryTagsLength++;
+                postCategories[tokenID][categoryTags[i]] = true;
+            } else {
+                delete categoryTags[i];
+            }
+        }
+        string[] memory validCategoryTags = new string[](validCategoryTagsLength);
+        for (uint i; i < categoryTags.length; i++) {
+            if (categories[categoryTags[i]]) {
+                validCategoryTags[i] = categoryTags[i];
+            }
+        }
+        return validCategoryTags;
+    }
+    
     function toUInt256(bool x) internal pure returns (uint r) {
         assembly { r := x }
     }

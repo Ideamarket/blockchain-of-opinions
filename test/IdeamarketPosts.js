@@ -56,6 +56,16 @@ describe("IdeamarketPosts", () => {
         expect(post['web2Content']).to.deep.equal('kinda worried that 8 eth for my milady is too cheap..');
     })
 
+    it("should fail mint with no content", async () => {
+        await expectRevert(ideamarketPosts.connect(alice).mint("", [], "", 
+            true, true, "kinda worried that 8 eth for my milady is too cheap..", alice.address), 'content-empty');
+    })
+
+    it("should fail mint with 0x0 recipient", async () => {
+        await expectRevert(ideamarketPosts.connect(alice).mint("hi", [], "", 
+            true, true, "kinda worried that 8 eth for my milady is too cheap..", '0x0000000000000000000000000000000000000000'), 'zero-addr');
+    })
+
     it("should be able add and use a category tag", async () => {
         await ideamarketPosts.connect(alice).addCategories(['A', 'B', 'C']);
         await ideamarketPosts.connect(alice).mint("https://mirror.xyz/charlemagnefang.eth/m3fUfJUS1DqsmIdPTpxLaoD-DLxR_aIyjOr2udcKGdY", ['A'], "", 
@@ -139,6 +149,10 @@ describe("IdeamarketPosts", () => {
         "'image': '','categories': '[A, C]','isURL': '1','isWeb2URL': '1','web2Content': 'kinda worried that 8 eth for my milady is too cheap..'," +
         "'blockHeight': '" + tx['blockNumber'] + "'}").toString( "base64");
         expect(uri).to.deep.equal(expectedURI);
+    })
+
+    it("tokenURI for nonexistent token should fail", async () => {
+        await expectRevert(ideamarketPosts.tokenURI(1), "ERC721Metadata: URI query for nonexistent token");
     })
 
 })

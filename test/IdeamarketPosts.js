@@ -80,11 +80,20 @@ describe("IdeamarketPosts", () => {
         await ideamarketPosts.connect(alice).mint("https://mirror.xyz/charlemagnefang.eth/m3fUfJUS1DqsmIdPTpxLaoD-DLxR_aIyjOr2udcKGdY", [""], "", 
             true, false, "", alice.address);
         const post = await ideamarketPosts.getPost(1);
-        console.log(post['categories'])
         expect(post['categories'].length).to.deep.equal(0);
     })
 
-    it("tokenURI should work without categories", async () => {
+    it("should only be able keep valid categories", async () => {
+        await ideamarketPosts.connect(alice).addCategories(['A', 'B', 'C']);
+        await ideamarketPosts.connect(alice).mint("https://mirror.xyz/charlemagnefang.eth/m3fUfJUS1DqsmIdPTpxLaoD-DLxR_aIyjOr2udcKGdY", ["", 'A', 'C', 'D'], "", 
+            true, false, "", alice.address);
+        const post = await ideamarketPosts.getPost(1);
+        expect(post['categories'].length).to.deep.equal(2);
+        expect(post['categories'][0]).to.deep.equal('A');
+        expect(post['categories'][1]).to.deep.equal('C');
+    })
+
+    it("tokenURI should work web2url without categories", async () => {
         const tx = await ideamarketPosts.connect(alice).mint("https://twitter.com/boreasrex/status/1515005721993224195", [], "", 
             true, true, "kinda worried that 8 eth for my milady is too cheap..", alice.address);
         const uri = await ideamarketPosts.tokenURI(1);
@@ -92,25 +101,45 @@ describe("IdeamarketPosts", () => {
         "'content': 'https://twitter.com/boreasrex/status/1515005721993224195'," +
         "'image': '','categories': '[]','isURL': '1','isWeb2URL': '1','web2Content': 'kinda worried that 8 eth for my milady is too cheap..'," +
         "'blockHeight': '" + tx['blockNumber'] + "'}").toString( "base64");
-        console.log(expectedURI)
+        expect(uri).to.deep.equal(expectedURI);
+    })
+
+    it("tokenURI should work for post", async () => {
+        const tx = await ideamarketPosts.connect(alice).mint("I love Ideamarket!", [], "", 
+            false, false, "", alice.address);
+        const uri = await ideamarketPosts.tokenURI(1);
+        const expectedURI = "data:application/json;base64," + Buffer.from("{'minter': '" + alice.address.toLowerCase() + "'," +
+        "'content': 'I love Ideamarket!'," +
+        "'image': '','categories': '[]','isURL': '0','isWeb2URL': '0','web2Content': ''," +
+        "'blockHeight': '" + tx['blockNumber'] + "'}").toString( "base64");
         expect(uri).to.deep.equal(expectedURI);
     })
 
     it("tokenURI should work with categories", async () => {
-        const tx = await ideamarketPosts.connect(alice).mint("https://twitter.com/boreasrex/status/1515005721993224195", [""], "", 
+        await ideamarketPosts.connect(alice).addCategories(['A']);
+        const tx = await ideamarketPosts.connect(alice).mint("https://twitter.com/boreasrex/status/1515005721993224195", ["A"], "", 
             true, true, "kinda worried that 8 eth for my milady is too cheap..", alice.address);
         const uri = await ideamarketPosts.tokenURI(1);
         const aliceAddress = alice.address.toLowerCase()
         const expectedURI = "data:application/json;base64," + Buffer.from("{'minter': '" + aliceAddress + "'," +
         "'content': 'https://twitter.com/boreasrex/status/1515005721993224195'," +
-        "'image': '','categories': '[]','isURL': '1','isWeb2URL': '1','web2Content': 'kinda worried that 8 eth for my milady is too cheap..'," +
+        "'image': '','categories': '[A]','isURL': '1','isWeb2URL': '1','web2Content': 'kinda worried that 8 eth for my milady is too cheap..'," +
         "'blockHeight': '" + tx['blockNumber'] + "'}").toString( "base64");
-        console.log(expectedURI)
         expect(uri).to.deep.equal(expectedURI);
     })
 
     it("tokenURI data should work with multiple categories", async () => {
-
+        await ideamarketPosts.connect(alice).addCategories(['A', 'B', 'C']);
+        const tx = await ideamarketPosts.connect(alice).mint("https://twitter.com/boreasrex/status/1515005721993224195", ["A", "", "C"], "", 
+            true, true, "kinda worried that 8 eth for my milady is too cheap..", alice.address);
+        const uri = await ideamarketPosts.tokenURI(1);
+        const aliceAddress = alice.address.toLowerCase()
+        const expectedURI = "data:application/json;base64," + Buffer.from("{'minter': '" + aliceAddress + "'," +
+        "'content': 'https://twitter.com/boreasrex/status/1515005721993224195'," +
+        "'image': '','categories': '[A, C]','isURL': '1','isWeb2URL': '1','web2Content': 'kinda worried that 8 eth for my milady is too cheap..'," +
+        "'blockHeight': '" + tx['blockNumber'] + "'}").toString( "base64");
+        expect(uri).to.deep.equal(expectedURI);
     })
+
 })
 	

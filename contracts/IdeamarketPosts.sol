@@ -7,6 +7,8 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import { Base64 } from "base64-sol/base64.sol";
 
+import "hardhat/console.sol";
+//fix
 /**
  * @title IdeamarketPosts
  * @author Kelton Madden
@@ -157,7 +159,12 @@ contract IdeamarketPosts is IIdeamarketPosts, ERC721Enumerable, AccessControl {
     function stringifyCategories(string[] memory categoryTags) internal pure returns(string memory) {
         string memory categoryString = "[";
         for (uint i = 0; i < categoryTags.length; i++) {
+            if (i == 0) {
+                categoryString = string(abi.encodePacked(categoryString, categoryTags[i]));
+            }
+            else {
                 categoryString = string(abi.encodePacked(categoryString, ", ", categoryTags[i]));
+            }
         }
         return string(abi.encodePacked(categoryString, "]"));
     }
@@ -173,14 +180,16 @@ contract IdeamarketPosts is IIdeamarketPosts, ERC721Enumerable, AccessControl {
             }
         }
         string[] memory validCategoryTags = new string[](validCategoryTagsLength);
+        uint validIndex;
         for (uint i; i < categoryTags.length; i++) {
             if (categories[categoryTags[i]]) {
-                validCategoryTags[i] = categoryTags[i];
+                validCategoryTags[validIndex] = categoryTags[i];
+                validIndex++;
             }
         }
         return validCategoryTags;
     }
-    
+
     function toUInt256(bool x) internal pure returns (uint r) {
         assembly { r := x }
     }

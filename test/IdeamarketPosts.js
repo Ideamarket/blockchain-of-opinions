@@ -155,5 +155,18 @@ describe("IdeamarketPosts", () => {
         await expectRevert(ideamarketPosts.tokenURI(1), "ERC721Metadata: URI query for nonexistent token");
     })
 
+    it("should fetch mintedTokens for a  given address", async () => {
+        await ideamarketPosts.connect(alice).mint("I love ideamarket!", [], "", 
+            false, false, "", alice.address);
+        await ideamarketPosts.connect(alice).mint("hi", [], "", 
+            false, false, "", alice.address);
+        const posts = await ideamarketPosts.getUsersPosts(alice.address);
+        expect(posts.length).to.deep.equal(2);
+        expect(posts[0]).to.deep.equal(1);
+        expect(posts[1]).to.deep.equal(2);
+    })
+
+
+
 })
 	

@@ -166,7 +166,66 @@ describe("IdeamarketPosts", () => {
         expect(posts[1]).to.deep.equal(2);
     })
 
+    it("only admin can add/remove categories", async () => {
+        await expectRevert(ideamarketPosts.connect(bob).addCategories(['A']), 'admin-only');
+        await expectRevert(ideamarketPosts.connect(bob).removeCategories(['A']), 'admin-only');
+    })
 
+    it("admin should remove category", async () => {
+        await ideamarketPosts.connect(alice).addCategories(['A']);
+        await ideamarketPosts.connect(alice).removeCategories(['A']);
+        await ideamarketPosts.connect(alice).mint("https://mirror.xyz/charlemagnefang.eth/m3fUfJUS1DqsmIdPTpxLaoD-DLxR_aIyjOr2udcKGdY", ['A'], "", 
+            true, false, "", alice.address);
+        const post = await ideamarketPosts.getPost(1);
+        expect(post['categories'].length).to.deep.equal(0);
+    })
 
+    it("admin should remove multiple categories", async () => {
+        await ideamarketPosts.connect(alice).addCategories(['A', 'B', 'C']);
+        await ideamarketPosts.connect(alice).removeCategories(['A', 'B', 'C']);
+        await ideamarketPosts.connect(alice).mint("https://mirror.xyz/charlemagnefang.eth/m3fUfJUS1DqsmIdPTpxLaoD-DLxR_aIyjOr2udcKGdY", ['A', 'C', 'B'], "", 
+        true, false, "", alice.address);
+        const post = await ideamarketPosts.getPost(1);
+        expect(post['categories'].length).to.deep.equal(0);
+    })
+
+    it("only admin can add/remove categories from a post", async () => {
+        await ideamarketPosts.connect(alice).addCategories(['A', 'B', 'C']);
+        await ideamarketPosts.connect(alice).mint("https://mirror.xyz/charlemagnefang.eth/m3fUfJUS1DqsmIdPTpxLaoD-DLxR_aIyjOr2udcKGdY", ['A', 'B'], "", 
+        true, false, "", alice.address);
+        await expectRevert(ideamarketPosts.connect(bob).addCategoriesToPost(1, ['C']), 'admin-only');
+        await expectRevert(ideamarketPosts.connect(bob).removeCategoriesFromPost(1, ['A']), 'admin-only');
+    })
+
+    it("admin can add categories to a post", async () => {
+        await ideamarketPosts.connect(alice).addCategories(['A', 'B', 'C']);
+        await ideamarketPosts.connect(alice).mint("https://mirror.xyz/charlemagnefang.eth/m3fUfJUS1DqsmIdPTpxLaoD-DLxR_aIyjOr2udcKGdY", ['A'], "", 
+        true, false, "", alice.address);
+        await ideamarketPosts.connect(alice).addCategoriesToPost(1, ['C', 'B']);
+        const post = await ideamarketPosts.getPost(1);
+        expect(post['categories'].length).to.deep.equal(3);
+        expect(post['categories'][0]).to.deep.equal('A');
+        expect(post['categories'][1]).to.deep.equal('C');
+        expect(post['categories'][2]).to.deep.equal('B');
+
+    })
+
+    it("admin can remove category from a post", async () => {
+        await ideamarketPosts.connect(alice).addCategories(['A', 'B', 'C']);
+        await ideamarketPosts.connect(alice).mint("https://mirror.xyz/charlemagnefang.eth/m3fUfJUS1DqsmIdPTpxLaoD-DLxR_aIyjOr2udcKGdY", ['A', 'B'], "", 
+        true, false, "", alice.address);
+        await ideamarketPosts.connect(alice).removeCategoriesFromPost(1, ['A']);
+        const post = await ideamarketPosts.getPost(1);
+        expect(post['categories'].length).to.deep.equal(1);
+        expect(post['categories'][0]).to.deep.equal('B');
+    })
+
+    it("admin can remove multiple categories from a post", async () => {
+        await ideamarketPosts.connect(alice).addCategories(['A', 'B', 'C']);
+        await ideamarketPosts.connect(alice).mint("https://mirror.xyz/charlemagnefang.eth/m3fUfJUS1DqsmIdPTpxLaoD-DLxR_aIyjOr2udcKGdY", ['A', 'B'], "", 
+        true, false, "", alice.address);
+        await ideamarketPosts.connect(alice).removeCategoriesFromPost(1, ['A', 'B']);
+        const post = await ideamarketPosts.getPost(1);
+        expect(post['categories'].length).to.deep.equal(0);
+    })
 })
-	

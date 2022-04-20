@@ -7,6 +7,8 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import { Base64 } from "base64-sol/base64.sol";
 
+import "hardhat/console.sol";
+
 /**
  * @title IdeamarketPosts
  * @author Kelton Madden
@@ -80,7 +82,6 @@ contract IdeamarketPosts is IIdeamarketPosts, ERC721Enumerable, AccessControl {
         ));
     }
 
-
     function addCategories(string[] calldata newCategories) external override{
         require(hasRole(ADMIN_ROLE, msg.sender), "admin-only");
         for (uint i = 0; i < newCategories.length; i++) {
@@ -96,7 +97,7 @@ contract IdeamarketPosts is IIdeamarketPosts, ERC721Enumerable, AccessControl {
     }
 
     function addCategoriesToPost(uint tokenID, string[] calldata newCategories) external override{
-        require(hasRole(ADMIN_ROLE, msg.sender), "only-admin");
+        require(hasRole(ADMIN_ROLE, msg.sender), "admin-only");
         for (uint i = 0; i < newCategories.length; i++) {
             if(categories[newCategories[i]]) {
                 if (!postCategories[tokenID][newCategories[i]]) {
@@ -108,16 +109,20 @@ contract IdeamarketPosts is IIdeamarketPosts, ERC721Enumerable, AccessControl {
     }
 
     function removeCategoriesFromPost(uint tokenID, string[] calldata oldCategories) external override{
-        require(hasRole(ADMIN_ROLE, msg.sender), "only-admin");
+        require(hasRole(ADMIN_ROLE, msg.sender), "admin-only");
         string[] memory currentCategories = posts[tokenID].categories;
         delete posts[tokenID].categories;
         for (uint i = 0; i < currentCategories.length; i++) {
+            console.log("current");
+            console.log(currentCategories[i]);
             bool pushed = false;
             for (uint j; j < oldCategories.length; j++) {
-                postCategories[tokenID][oldCategories[i]] = false;
+                postCategories[tokenID][oldCategories[j]] = false;
                 if (!(keccak256(abi.encodePacked(currentCategories[i])) == keccak256(abi.encodePacked(oldCategories[j]))) && !pushed) {
                     posts[tokenID].categories.push(currentCategories[i]);
                     pushed = true;
+                    console.log("old");
+                    console.log(oldCategories[j]);
                 }
             }
         }

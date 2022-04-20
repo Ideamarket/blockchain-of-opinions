@@ -7,16 +7,13 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import { Base64 } from "base64-sol/base64.sol";
 
-import "hardhat/console.sol";
-//fix
 /**
  * @title IdeamarketPosts
  * @author Kelton Madden
  *
  * @dev mints erc721 tokens representing "posts" on ideamarket
  */
-//fix make it admin controls (multiple?) and owner controls that.
-//constructor sets owner as an admin
+
 contract IdeamarketPosts is IIdeamarketPosts, ERC721Enumerable, AccessControl {
 
     bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");

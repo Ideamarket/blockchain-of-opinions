@@ -155,7 +155,11 @@ describe("IdeamarketPosts", () => {
         await expectRevert(ideamarketPosts.tokenURI(1), "ERC721Metadata: URI query for nonexistent token");
     })
 
-    it("should fetch mintedTokens for a  given address", async () => {
+    it("getPost for nonexistent token should fail", async () => {
+        await expectRevert(ideamarketPosts.getPost(1), "nonexistent token");
+    })
+
+    it("should fetch mintedTokens for a given address", async () => {
         await ideamarketPosts.connect(alice).mint("I love ideamarket!", [], "", 
             false, false, "", alice.address);
         await ideamarketPosts.connect(alice).mint("hi", [], "", 
@@ -194,7 +198,7 @@ describe("IdeamarketPosts", () => {
         await ideamarketPosts.connect(alice).mint("https://mirror.xyz/charlemagnefang.eth/m3fUfJUS1DqsmIdPTpxLaoD-DLxR_aIyjOr2udcKGdY", ['A', 'B'], "", 
         true, false, "", alice.address);
         await expectRevert(ideamarketPosts.connect(bob).addCategoriesToPost(1, ['C']), 'admin-only');
-        await expectRevert(ideamarketPosts.connect(bob).removeCategoriesFromPost(1, ['A']), 'admin-only');
+        await expectRevert(ideamarketPosts.connect(bob).resetCategoriesForPost(1, ['A']), 'admin-only');
     })
 
     it("admin can add categories to a post", async () => {
@@ -207,25 +211,74 @@ describe("IdeamarketPosts", () => {
         expect(post['categories'][0]).to.deep.equal('A');
         expect(post['categories'][1]).to.deep.equal('C');
         expect(post['categories'][2]).to.deep.equal('B');
-
     })
 
-    it("admin can remove category from a post", async () => {
+    it("admin can reset category to a single tag from a post", async () => {
         await ideamarketPosts.connect(alice).addCategories(['A', 'B', 'C']);
         await ideamarketPosts.connect(alice).mint("https://mirror.xyz/charlemagnefang.eth/m3fUfJUS1DqsmIdPTpxLaoD-DLxR_aIyjOr2udcKGdY", ['A', 'B'], "", 
         true, false, "", alice.address);
-        await ideamarketPosts.connect(alice).removeCategoriesFromPost(1, ['A']);
+        await ideamarketPosts.connect(alice).resetCategoriesForPost(1, ['A']);
         const post = await ideamarketPosts.getPost(1);
         expect(post['categories'].length).to.deep.equal(1);
-        expect(post['categories'][0]).to.deep.equal('B');
+        expect(post['categories'][0]).to.deep.equal('A');
     })
 
-    it("admin can remove multiple categories from a post", async () => {
+    it("admin can reset multiple categories for a post", async () => {
         await ideamarketPosts.connect(alice).addCategories(['A', 'B', 'C']);
         await ideamarketPosts.connect(alice).mint("https://mirror.xyz/charlemagnefang.eth/m3fUfJUS1DqsmIdPTpxLaoD-DLxR_aIyjOr2udcKGdY", ['A', 'B'], "", 
         true, false, "", alice.address);
-        await ideamarketPosts.connect(alice).removeCategoriesFromPost(1, ['A', 'B']);
+        await ideamarketPosts.connect(alice).resetCategoriesForPost(1, ['A', 'B']);
         const post = await ideamarketPosts.getPost(1);
-        expect(post['categories'].length).to.deep.equal(0);
+        expect(post['categories'].length).to.deep.equal(2);
+        expect(post['categories'][0]).to.deep.equal('A');
+        expect(post['categories'][1]).to.deep.equal('B');
+    })
+
+    it("admin can reset and then add multiple categories for a post ", async () => {
+        await ideamarketPosts.connect(alice).addCategories(['A', 'B', 'C', 'D']);
+        await ideamarketPosts.connect(alice).mint("https://mirror.xyz/charlemagnefang.eth/m3fUfJUS1DqsmIdPTpxLaoD-DLxR_aIyjOr2udcKGdY", ['A', 'B'], "", 
+        true, false, "", alice.address);
+        await ideamarketPosts.connect(alice).resetCategoriesForPost(1, ['A', 'B']);
+        await ideamarketPosts.connect(alice).addCategoriesToPost(1, ['D', 'C']);
+        const post = await ideamarketPosts.getPost(1);
+        expect(post['categories'].length).to.deep.equal(4);
+        expect(post['categories'][0]).to.deep.equal('A');
+        expect(post['categories'][1]).to.deep.equal('B');
+        expect(post['categories'][2]).to.deep.equal('D');
+        expect(post['categories'][3]).to.deep.equal('C');
+    })
+
+    it("only admin or current token owner can update image", async () => {
+        await ideamarketPosts.connect(alice).mint("I love ideamarket!", [], "", 
+            false, false, "", alice.address);
+        await expectRevert(ideamarketPosts.connect(bob).updateImage(1, "https://ipfsimagelink"), 'only-token-owner-or-admin');
+    })
+
+    it("current token owner and admin can update image", async () => {
+        await ideamarketPosts.connect(alice).mint("I love ideamarket!", [], "", 
+            false, false, "", bob.address);
+        await ideamarketPosts.connect(alice).updateImage(1, "https://ipfsimagelink");
+        let post = await ideamarketPosts.getPost(1);
+        expect(post['imageLink']).to.deep.equal("https://ipfsimagelink");
+        await ideamarketPosts.connect(bob).updateImage(1, "https://ipfsimagelinknew");
+        post = await ideamarketPosts.getPost(1);
+        expect(post['imageLink']).to.deep.equal("https://ipfsimagelinknew");
+    })
+    //fix contract to only have url bool
+    it("only admin can update URLContent", async () => {
+        await ideamarketPosts.connect(alice).mint("I love ideamarket!", [], "", 
+            false, false, "", alice.address);
+        await expectRevert(ideamarketPosts.connect(bob).updateWeb2Content(1, "https://ipfsimagelink"), 'admin-only');
+    })
+
+    it("current token owner and admin can update urlContent", async () => {
+        await ideamarketPosts.connect(alice).mint("I love ideamarket!", [], "", 
+            false, false, "", bob.address);
+        await ideamarketPosts.connect(alice).updateImage(1, "https://ipfsimagelink");
+        let post = await ideamarketPosts.getPost(1);
+        expect(post['imageLink']).to.deep.equal("https://ipfsimagelink");
+        await ideamarketPosts.connect(bob).updateImage(1, "https://ipfsimagelinknew");
+        post = await ideamarketPosts.getPost(1);
+        expect(post['imageLink']).to.deep.equal("https://ipfsimagelinknew");
     })
 })

@@ -100,41 +100,34 @@ contract IdeamarketPosts is IIdeamarketPosts, ERC721Enumerable, AccessControl {
         require(hasRole(ADMIN_ROLE, msg.sender), "admin-only");
         for (uint i = 0; i < newCategories.length; i++) {
             if(categories[newCategories[i]]) {
-                if (!postCategories[tokenID][newCategories[i]]) {
-                    postCategories[tokenID][newCategories[i]] = true;
-                    posts[tokenID].categories.push(newCategories[i]);
-                }
+                postCategories[tokenID][newCategories[i]] = true;
+                posts[tokenID].categories.push(newCategories[i]);
             }
         }
     }
 
-    function removeCategoriesFromPost(uint tokenID, string[] calldata oldCategories) external override{
+    function resetCategoriesForPost(uint tokenID, string[] calldata newCategories) external override {
         require(hasRole(ADMIN_ROLE, msg.sender), "admin-only");
-        string[] memory currentCategories = posts[tokenID].categories;
+        for (uint i = 0; i < posts[tokenID].categories.length; i++) {
+            postCategories[tokenID][posts[tokenID].categories[i]] = false;
+        }
         delete posts[tokenID].categories;
-        for (uint i = 0; i < currentCategories.length; i++) {
-            console.log("current");
-            console.log(currentCategories[i]);
-            bool pushed = false;
-            for (uint j; j < oldCategories.length; j++) {
-                postCategories[tokenID][oldCategories[j]] = false;
-                if (!(keccak256(abi.encodePacked(currentCategories[i])) == keccak256(abi.encodePacked(oldCategories[j]))) && !pushed) {
-                    posts[tokenID].categories.push(currentCategories[i]);
-                    pushed = true;
-                    console.log("old");
-                    console.log(oldCategories[j]);
-                }
+        for (uint i = 0; i < newCategories.length; i++) {
+            if(categories[newCategories[i]]) {
+                postCategories[tokenID][newCategories[i]] = true;
+                posts[tokenID].categories.push(newCategories[i]);
             }
         }
     }
 
     function updateImage(uint tokenID, string calldata imageLink) external override{
-        require(msg.sender == ownerOf(tokenID) || hasRole(ADMIN_ROLE, msg.sender), "only-minter-or-admin");
+        require(msg.sender == ownerOf(tokenID) || hasRole(ADMIN_ROLE, msg.sender), "only-token-owner-or-admin");
         posts[tokenID].imageLink = imageLink;
     }
     
     function updateWeb2Content(uint tokenID, string calldata web2Content) external override {
-        require(hasRole(ADMIN_ROLE, msg.sender), "only-minter-or-admin");
+        require(hasRole(ADMIN_ROLE, msg.sender), "admin-only");
+        require(posts[tokenID].isWeb2URL, "web2Content-empty");
         posts[tokenID].web2Content = web2Content;
     }
 

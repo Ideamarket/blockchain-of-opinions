@@ -97,7 +97,7 @@ contract IdeamarketPosts is IIdeamarketPosts, ERC721Enumerable, AccessControl {
     function addCategoriesToPost(uint tokenID, string[] calldata newCategories) external override{
         require(hasRole(ADMIN_ROLE, msg.sender), "admin-only");
         for (uint i = 0; i < newCategories.length; i++) {
-            if(categories[newCategories[i]]) {
+            if(categories[newCategories[i]] && !postCategories[tokenID][newCategories[i]]) {
                 postCategories[tokenID][newCategories[i]] = true;
                 posts[tokenID].categories.push(newCategories[i]);
             }
@@ -133,7 +133,7 @@ contract IdeamarketPosts is IIdeamarketPosts, ERC721Enumerable, AccessControl {
         require(_exists(tokenID), "nonexistent token");
         return posts[tokenID];
     }
-    
+
     function getUsersPosts(address user) external view override returns (uint[] memory) {
         return mintedTokens[user];
     }

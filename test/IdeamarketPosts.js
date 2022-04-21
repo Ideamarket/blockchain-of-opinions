@@ -210,6 +210,18 @@ describe("IdeamarketPosts", () => {
         expect(post['categories'][2]).to.deep.equal('B');
     })
 
+    it("add categories to a post that already exist should do nothing", async () => {
+      await ideamarketPosts.connect(alice).addCategories(['A', 'B', 'C']);
+      await ideamarketPosts.connect(alice).mint("https://mirror.xyz/charlemagnefang.eth/m3fUfJUS1DqsmIdPTpxLaoD-DLxR_aIyjOr2udcKGdY", ['A'], "", 
+      true, "", alice.address);
+      await ideamarketPosts.connect(alice).addCategoriesToPost(1, ['A', 'C', 'B']);
+      const post = await ideamarketPosts.getPost(1);
+      expect(post['categories'].length).to.deep.equal(3);
+      expect(post['categories'][0]).to.deep.equal('A');
+      expect(post['categories'][1]).to.deep.equal('C');
+      expect(post['categories'][2]).to.deep.equal('B');
+  })
+
     it("admin can reset category to a single tag from a post", async () => {
         await ideamarketPosts.connect(alice).addCategories(['A', 'B', 'C']);
         await ideamarketPosts.connect(alice).mint("https://mirror.xyz/charlemagnefang.eth/m3fUfJUS1DqsmIdPTpxLaoD-DLxR_aIyjOr2udcKGdY", ['A', 'B'], "", 
@@ -244,6 +256,20 @@ describe("IdeamarketPosts", () => {
         expect(post['categories'][2]).to.deep.equal('D');
         expect(post['categories'][3]).to.deep.equal('C');
     })
+
+    it("adding already existing category for a post should do nothing ", async () => {
+      await ideamarketPosts.connect(alice).addCategories(['A', 'B', 'C', 'D']);
+      await ideamarketPosts.connect(alice).mint("https://mirror.xyz/charlemagnefang.eth/m3fUfJUS1DqsmIdPTpxLaoD-DLxR_aIyjOr2udcKGdY", ['A', 'B'], "", 
+      true, "", alice.address);
+      await ideamarketPosts.connect(alice).resetCategoriesForPost(1, ['A', 'B']);
+      await ideamarketPosts.connect(alice).addCategoriesToPost(1, ['D', 'C', 'A']);
+      const post = await ideamarketPosts.getPost(1);
+      expect(post['categories'].length).to.deep.equal(4);
+      expect(post['categories'][0]).to.deep.equal('A');
+      expect(post['categories'][1]).to.deep.equal('B');
+      expect(post['categories'][2]).to.deep.equal('D');
+      expect(post['categories'][3]).to.deep.equal('C');
+  })
 
     it("only admin or current token owner can update image", async () => {
         await ideamarketPosts.connect(alice).mint("I love ideamarket!", [], "", 

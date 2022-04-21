@@ -36,7 +36,7 @@ contract IdeamarketPosts is IIdeamarketPosts, ERC721Enumerable, AccessControl {
     }
     
     function mint(string calldata content, string[] memory categoryTags, string calldata imageLink, 
-        bool urlBool, bool web2URLBool, string calldata web2Content, address recipient) external {
+        bool urlBool, string calldata urlContent, address recipient) external {
         
         require(bytes(content).length > 0, "content-empty");
         require(recipient != address(0), "zero-addr");
@@ -50,8 +50,7 @@ contract IdeamarketPosts is IIdeamarketPosts, ERC721Enumerable, AccessControl {
             categories: validCategoryTags,
             imageLink: imageLink,
             isURL: urlBool,
-            isWeb2URL: web2URLBool,
-            web2Content: web2Content,
+            urlContent: urlContent,
             blockHeight: block.number
         });
 
@@ -74,8 +73,7 @@ contract IdeamarketPosts is IIdeamarketPosts, ERC721Enumerable, AccessControl {
                     "'image': '", currentPost.imageLink, "',",
                     "'categories': '", categoryString, "',",
                     "'isURL': '", Strings.toString(toUInt256(currentPost.isURL)), "',",
-                    "'isWeb2URL': '", Strings.toString(toUInt256(currentPost.isWeb2URL)), "',",
-                    "'web2Content': '", currentPost.web2Content, "',",
+                    "'urlContent': '", currentPost.urlContent, "',",
                     "'blockHeight': '", Strings.toString(currentPost.blockHeight),
                 "'}"
             ))
@@ -125,26 +123,23 @@ contract IdeamarketPosts is IIdeamarketPosts, ERC721Enumerable, AccessControl {
         posts[tokenID].imageLink = imageLink;
     }
     
-    function updateWeb2Content(uint tokenID, string calldata web2Content) external override {
+    function updateURLContent(uint tokenID, string calldata urlContent) external override {
         require(hasRole(ADMIN_ROLE, msg.sender), "admin-only");
-        require(posts[tokenID].isWeb2URL, "web2Content-empty");
-        posts[tokenID].web2Content = web2Content;
+        require(posts[tokenID].isURL, "post-is-not-a-url");
+        posts[tokenID].urlContent = urlContent;
     }
 
     function getPost(uint tokenID) external view override returns (Post memory post) {
         require(_exists(tokenID), "nonexistent token");
         return posts[tokenID];
     }
+    
     function getUsersPosts(address user) external view override returns (uint[] memory) {
         return mintedTokens[user];
     }
 
     function isURL(uint tokenID) external view override returns (bool) {
         return posts[tokenID].isURL;
-    }
-
-    function isWeb2URL(uint tokenID) external view override returns (bool) {
-        return posts[tokenID].isWeb2URL;
     }
 
     function supportsInterface(bytes4 interfaceId) public view virtual override(ERC721Enumerable, AccessControl) returns (bool) {

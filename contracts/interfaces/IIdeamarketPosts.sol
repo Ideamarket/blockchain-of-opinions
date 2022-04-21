@@ -13,8 +13,7 @@ interface IIdeamarketPosts {
         string[] categories;
         string imageLink;
         bool isURL;
-        bool isWeb2URL;
-        string web2Content; 
+        string urlContent; 
         uint blockHeight;
     }
 
@@ -22,10 +21,9 @@ interface IIdeamarketPosts {
     function removeCategories(string[] calldata categories) external;
     function addCategoriesToPost(uint tokenID, string[] calldata category) external;
     function resetCategoriesForPost(uint tokenID, string[] calldata category) external;
-    function updateWeb2Content(uint tokenID, string calldata web2Content) external;
+    function updateURLContent(uint tokenID, string calldata urlContent) external;
     function updateImage(uint tokenID, string calldata imageLink) external;
     function getPost(uint tokenID) external view returns (Post memory post);
     function getUsersPosts(address user) external view returns (uint[] memory);
     function isURL(uint tokenID) external view returns (bool);
-    function isWeb2URL(uint tokenID) external view returns (bool);
 }

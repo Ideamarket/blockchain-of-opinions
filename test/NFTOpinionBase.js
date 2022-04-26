@@ -22,6 +22,7 @@ describe("NFTOpinionBase", () => {
 		await opinionBase.connect(alice).writeOpinion(token1Address, 1,  98, "I like this url a lot");
 		const opinion = await opinionBase.getOpinion(token1Address, 1, alice.address);
 		expect(opinion[0]['comment']).to.equal("I like this url a lot");
+		expect(opinion[0]['tokenID']).to.equal(1);
 		expect(opinion[0]['contractAddress']).to.equal("0x0000000000000000000000000000000000000001");
 		expect(opinion[0]['rating']).to.equal(98);
 		expect(opinion[0]['author']).to.equal(alice.address);
@@ -32,6 +33,7 @@ describe("NFTOpinionBase", () => {
 		await opinionBase.connect(alice).writeOpinion(token1Address, 1, 98, "I like");
 		const opinion = await opinionBase.getOpinion(token1Address, 1,  alice.address);
 		expect(opinion[0]['comment']).to.equal("I like");
+		expect(opinion[0]['tokenID']).to.equal(1);
 		expect(opinion[0]['contractAddress']).to.equal("0x0000000000000000000000000000000000000001");
 		expect(opinion[0]['rating']).to.equal(98);
 		expect(opinion[0]['author']).to.equal(alice.address);
@@ -59,6 +61,7 @@ describe("NFTOpinionBase", () => {
 		const opinion = await opinionBase.getOpinion(token1Address, 1,  alice.address);
 		const fetchedOpinions = await opinionBase.getUsersOpinions(alice.address);
 		expect(fetchedOpinions[0]['comment']).to.equal("");
+		expect(opinion[0]['tokenID']).to.equal(1);
 		expect(fetchedOpinions[0]['contractAddress']).to.equal("0x0000000000000000000000000000000000000001");
 		expect(fetchedOpinions[0]['rating']).to.equal(98);
 		expect(fetchedOpinions[0]['author']).to.equal(alice.address);

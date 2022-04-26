@@ -15,6 +15,7 @@ interface INFTOpinionBase {
     struct Opinion {
         address author;
         address contractAddress;
+        uint tokenID;
         uint8 rating;
         string comment;
         uint blockHeight;

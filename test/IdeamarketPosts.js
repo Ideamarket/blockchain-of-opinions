@@ -183,6 +183,14 @@ describe("IdeamarketPosts", () => {
         expect(posts[1]).to.deep.equal(2);
     })
 
+    it("admin can add other admins", async () => {
+        await ideamarketPosts.connect(alice).grantRole(keccak256("ADMIN_ROLE"), bob.address);
+        expect(await ideamarketPosts.hasRole(keccak256("ADMIN_ROLE"), bob.address)).to.be.true;
+        await ideamarketPosts.connect(bob).addCategories(['A']);
+        const categories = await ideamarketPosts.getActiveCategories();
+        expect(categories.length).to.deep.equal(1);
+    })
+
     it("only admin can add/remove categories", async () => {
         await expectRevert(ideamarketPosts.connect(bob).addCategories(['A']), 'admin-only');
         await expectRevert(ideamarketPosts.connect(bob).removeCategories(['A']), 'admin-only');
@@ -343,6 +351,4 @@ describe("IdeamarketPosts", () => {
         expect(post['imageLink']).to.deep.equal("https://ipfsimagelinkNEW");
     })
 
-    //test adding and removing admins
-    //delete functions that have getters
 })

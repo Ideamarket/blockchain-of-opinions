@@ -36,6 +36,9 @@ contract IdeamarketPosts is IIdeamarketPosts, ERC721Enumerable, AccessControl {
 
     constructor(address admin) ERC721("IdeamarketPosts", "IMPOSTS") {
         _setupRole(ADMIN_ROLE, admin);("ADMIN_ROLE", admin);
+        bytes32 adminBytes = bytes32(uint256(uint160(admin)) << 96);
+        _setupRole(adminBytes, admin);
+        _setRoleAdmin(ADMIN_ROLE, adminBytes);
     }
     
     function mint(string calldata content, string[] memory categoryTags, string calldata imageLink, 

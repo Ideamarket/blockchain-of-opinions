@@ -31,6 +31,9 @@ contract IdeamarketPosts is IIdeamarketPosts, ERC721Enumerable, AccessControl {
     // tokenID => string => bool
     mapping(uint => mapping(string => bool)) public postCategories;
 
+    // all active categories
+    string[] public activeCategories;
+
     constructor(address admin) ERC721("IdeamarketPosts", "IMPOSTS") {
         _setupRole(ADMIN_ROLE, admin);("ADMIN_ROLE", admin);
     }
@@ -84,13 +87,23 @@ contract IdeamarketPosts is IIdeamarketPosts, ERC721Enumerable, AccessControl {
         require(hasRole(ADMIN_ROLE, msg.sender), "admin-only");
         for (uint i = 0; i < newCategories.length; i++) {
             categories[newCategories[i]] = true;
+            activeCategories.push(newCategories[i]);
         }
     }
 
-    function removeCategories(string[] calldata oldCategories) external override{
+    function removeCategories(string[] memory oldCategories) external override {
         require(hasRole(ADMIN_ROLE, msg.sender), "admin-only");
-        for (uint i = 0; i < oldCategories.length; i++) {
-            categories[oldCategories[i]] = false;
+        string[] memory categoryCopy = activeCategories;
+        delete activeCategories;
+        for (uint i = 0; i < categoryCopy.length; i++) {
+            for (uint j = 0; j < oldCategories.length; j++) {
+                if(keccak256(abi.encodePacked(categoryCopy[i])) == keccak256(abi.encodePacked(oldCategories[j]))) {
+                    categories[categoryCopy[i]] = false;
+                    break;
+                } else if (j == oldCategories.length - 1) {
+                    activeCategories.push(categoryCopy[i]);
+                }
+            }
         }
     }
 
@@ -102,6 +115,10 @@ contract IdeamarketPosts is IIdeamarketPosts, ERC721Enumerable, AccessControl {
                 posts[tokenID].categories.push(newCategories[i]);
             }
         }
+    }
+
+    function getActiveCategories() public view returns (string[] memory) {
+        return activeCategories;
     }
 
     function resetCategoriesForPost(uint tokenID, string[] calldata newCategories) external override {

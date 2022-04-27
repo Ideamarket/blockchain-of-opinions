@@ -9,6 +9,7 @@ pragma solidity ^0.8.0;
 interface IIdeamarketPosts {
     struct Post {
         address minter;
+        uint tokenID;
         string content;
         string[] categories;
         string imageLink;

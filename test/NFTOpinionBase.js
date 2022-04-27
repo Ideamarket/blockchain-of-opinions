@@ -240,7 +240,7 @@ describe("NFTOpinionBase", () => {
 
 		const tokenIDs = await opinionBase.getOpinionedNFTsForAddress(token1Address);
 		expect(tokenIDs.length).to.equal(1);
-		expect(tokenIDs[0]).to.equal(1); 
+		expect(tokenIDs[0]).to.equal(1);
 
 		const addressOpinions = await opinionBase.getAllOpinionsForAddress(token1Address);
 		expect(addressOpinions.length).to.equal(2);

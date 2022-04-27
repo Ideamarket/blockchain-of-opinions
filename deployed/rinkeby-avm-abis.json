@@ -1084,6 +1084,11 @@
                             "type": "address"
                         },
                         {
+                            "internalType": "uint256",
+                            "name": "tokenID",
+                            "type": "uint256"
+                        },
+                        {
                             "internalType": "string",
                             "name": "content",
                             "type": "string"
@@ -1353,6 +1358,11 @@
                     "internalType": "address",
                     "name": "minter",
                     "type": "address"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "tokenID",
+                    "type": "uint256"
                 },
                 {
                     "internalType": "string",

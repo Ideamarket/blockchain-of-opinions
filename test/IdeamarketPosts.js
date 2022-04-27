@@ -22,7 +22,23 @@ describe("IdeamarketPosts", () => {
             false, "", alice.address);
         const post = await ideamarketPosts.getPost(1);
         expect(post['minter']).to.deep.equal(alice.address);
+        expect(post['tokenID']).to.deep.equal(1);
         expect(post['content']).to.deep.equal('I love ideamarket!');
+        expect(post['categories'].length).to.deep.equal(0);
+        expect(post['imageLink']).to.deep.equal('');
+        expect(post['isURL']).to.deep.equal(false);
+        expect(post['urlContent']).to.deep.equal('');
+    })
+
+    it("should mint multiple posts", async () => {
+        await ideamarketPosts.connect(alice).mint("I love ideamarket!", [], "", 
+            false, "", alice.address);
+        await ideamarketPosts.connect(alice).mint("I like ideamarket!", [], "", 
+            false, "", alice.address);
+        const post = await ideamarketPosts.getPost(2);
+        expect(post['minter']).to.deep.equal(alice.address);
+        expect(post['tokenID']).to.deep.equal(2);
+        expect(post['content']).to.deep.equal('I like ideamarket!');
         expect(post['categories'].length).to.deep.equal(0);
         expect(post['imageLink']).to.deep.equal('');
         expect(post['isURL']).to.deep.equal(false);

@@ -52,6 +52,7 @@ contract IdeamarketPosts is IIdeamarketPosts, ERC721Enumerable, AccessControl {
         
         Post memory post = Post({
             minter: msg.sender,
+            tokenID: tokenID,
             content: content,
             categories: validCategoryTags,
             imageLink: imageLink,

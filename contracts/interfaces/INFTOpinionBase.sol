@@ -26,6 +26,8 @@ interface INFTOpinionBase {
     function getUsersOpinions(address user) external view returns (Opinion[] memory);
     function getOpinionsAboutNFT(address contractAddress, uint tokenID) external view returns (Opinion[] memory);
     function getLatestOpinionsAboutNFT(address contractAddress, uint tokenID) external view returns (Opinion[] memory);
+    function getOpinionedNFTsForAddress(address contractAddress) external view returns (uint[] memory);
+    function getAllOpinionsForAddress(address contractAddress) external view returns (Opinion[] memory);
     function getOpinionedNFTs() external view returns (TokenIDPair[] memory);
     function getAllOpinions() external view returns (Opinion[] memory);
 }

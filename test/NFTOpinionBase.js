@@ -77,6 +77,26 @@ describe("NFTOpinionBase", () => {
 		expect(fetchedOpinions.length).to.equal(1);
 	})
 
+		it("should fetch opinions for an address", async () => {
+		await opinionBase.connect(alice).writeOpinion(token1Address, 1, 98, "");
+		await opinionBase.connect(alice).writeOpinion(token1Address, 2, 48, "");
+		await opinionBase.connect(alice).writeOpinion(token1Address, 2, 58, "");
+		const fetchedOpinions = await opinionBase.getAllOpinionsForAddress(token1Address);
+		const idList = await opinionBase.getOpinionedNFTsForAddress(token1Address);
+		expect(idList.length).to.equal(2);
+		expect(idList[0]).to.equal(1);
+		expect(idList[1]).to.equal(2);
+		expect(fetchedOpinions[0]['comment']).to.equal("");
+		expect(fetchedOpinions[0]['contractAddress']).to.equal("0x0000000000000000000000000000000000000001");
+		expect(fetchedOpinions[0]['rating']).to.equal(98);
+		expect(fetchedOpinions[0]['author']).to.equal(alice.address);
+		expect(fetchedOpinions[1]['comment']).to.equal("");
+		expect(fetchedOpinions[1]['contractAddress']).to.equal("0x0000000000000000000000000000000000000001");
+		expect(fetchedOpinions[1]['rating']).to.equal(48);
+		expect(fetchedOpinions[1]['author']).to.equal(alice.address);
+		expect(fetchedOpinions.length).to.equal(3);
+	})
+
 	it("should fetch latest opinion on topic", async () => {
 		await opinionBase.connect(alice).writeOpinion(token1Address, 1, 98, "");
 		const fetchedOpinions = await opinionBase.getLatestOpinionsAboutNFT(token1Address, 1);
@@ -217,6 +237,15 @@ describe("NFTOpinionBase", () => {
 		expect(allOpinions[0]["comment"]).to.equal("I like this url a lot");
 		expect(allOpinions[1]["comment"]).to.equal("I like this url a little");
 		expect(allOpinions.length).to.equal(2);
+
+		const tokenIDs = await opinionBase.getOpinionedNFTsForAddress(token1Address);
+		expect(tokenIDs.length).to.equal(1);
+		expect(tokenIDs[0]).to.equal(1); 
+
+		const addressOpinions = await opinionBase.getAllOpinionsForAddress(token1Address);
+		expect(addressOpinions.length).to.equal(2);
+		expect(addressOpinions[0]["comment"]).to.equal("I like this url a lot");
+		expect(addressOpinions[1]["comment"]).to.equal("I like this url a little");
 	})
 
 	it("integration test", async () => {

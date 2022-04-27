@@ -398,6 +398,57 @@
                     "internalType": "address",
                     "name": "contractAddress",
                     "type": "address"
+                }
+            ],
+            "name": "getAllOpinionsForAddress",
+            "outputs": [
+                {
+                    "components": [
+                        {
+                            "internalType": "address",
+                            "name": "author",
+                            "type": "address"
+                        },
+                        {
+                            "internalType": "address",
+                            "name": "contractAddress",
+                            "type": "address"
+                        },
+                        {
+                            "internalType": "uint256",
+                            "name": "tokenID",
+                            "type": "uint256"
+                        },
+                        {
+                            "internalType": "uint8",
+                            "name": "rating",
+                            "type": "uint8"
+                        },
+                        {
+                            "internalType": "string",
+                            "name": "comment",
+                            "type": "string"
+                        },
+                        {
+                            "internalType": "uint256",
+                            "name": "blockHeight",
+                            "type": "uint256"
+                        }
+                    ],
+                    "internalType": "struct INFTOpinionBase.Opinion[]",
+                    "name": "",
+                    "type": "tuple[]"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "address",
+                    "name": "contractAddress",
+                    "type": "address"
                 },
                 {
                     "internalType": "uint256",
@@ -529,6 +580,25 @@
                     "internalType": "struct INFTOpinionBase.TokenIDPair[]",
                     "name": "",
                     "type": "tuple[]"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "address",
+                    "name": "contractAddress",
+                    "type": "address"
+                }
+            ],
+            "name": "getOpinionedNFTsForAddress",
+            "outputs": [
+                {
+                    "internalType": "uint256[]",
+                    "name": "",
+                    "type": "uint256[]"
                 }
             ],
             "stateMutability": "view",

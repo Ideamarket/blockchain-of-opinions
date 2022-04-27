@@ -30,11 +30,11 @@
                 {
                     "indexed": false,
                     "internalType": "uint256",
-                    "name": "timestamp",
+                    "name": "blockHeight",
                     "type": "uint256"
                 }
             ],
-            "name": "newOpinion",
+            "name": "NewOpinion",
             "type": "event"
         },
         {
@@ -65,11 +65,11 @@
                         },
                         {
                             "internalType": "uint256",
-                            "name": "timestamp",
+                            "name": "blockHeight",
                             "type": "uint256"
                         }
                     ],
-                    "internalType": "struct IOpinionBase.Opinion[]",
+                    "internalType": "struct IAddressOpinionBase.Opinion[]",
                     "name": "",
                     "type": "tuple[]"
                 }
@@ -111,11 +111,11 @@
                         },
                         {
                             "internalType": "uint256",
-                            "name": "timestamp",
+                            "name": "blockHeight",
                             "type": "uint256"
                         }
                     ],
-                    "internalType": "struct IOpinionBase.Opinion[]",
+                    "internalType": "struct IAddressOpinionBase.Opinion[]",
                     "name": "",
                     "type": "tuple[]"
                 }
@@ -162,11 +162,11 @@
                         },
                         {
                             "internalType": "uint256",
-                            "name": "timestamp",
+                            "name": "blockHeight",
                             "type": "uint256"
                         }
                     ],
-                    "internalType": "struct IOpinionBase.Opinion[]",
+                    "internalType": "struct IAddressOpinionBase.Opinion[]",
                     "name": "",
                     "type": "tuple[]"
                 }
@@ -221,11 +221,11 @@
                         },
                         {
                             "internalType": "uint256",
-                            "name": "timestamp",
+                            "name": "blockHeight",
                             "type": "uint256"
                         }
                     ],
-                    "internalType": "struct IOpinionBase.Opinion[]",
+                    "internalType": "struct IAddressOpinionBase.Opinion[]",
                     "name": "",
                     "type": "tuple[]"
                 }
@@ -267,11 +267,11 @@
                         },
                         {
                             "internalType": "uint256",
-                            "name": "timestamp",
+                            "name": "blockHeight",
                             "type": "uint256"
                         }
                     ],
-                    "internalType": "struct IOpinionBase.Opinion[]",
+                    "internalType": "struct IAddressOpinionBase.Opinion[]",
                     "name": "",
                     "type": "tuple[]"
                 }

@@ -87,7 +87,7 @@ contract NFTOpinionBase is INFTOpinionBase {
     function getOpinionedNFTsForAddress(address contractAddress) external view override returns (uint[] memory) {
         return _opinionedTokenIDs[contractAddress];
     }
-
+    
     function getAllOpinionsForAddress(address contractAddress) external view override returns (Opinion[] memory) {
         Opinion[] memory allOpinions = new Opinion[](_addressOpinionCount[contractAddress]);
         uint k;

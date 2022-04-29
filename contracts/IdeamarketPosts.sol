@@ -16,7 +16,7 @@ import "hardhat/console.sol";
  * @dev mints erc721 tokens representing "posts" on ideamarket
  */
 
-contract IdeamarketPosts is IIdeamarketPosts, ERC721Enumerable, AccessControl {
+contract IdeamarketPosts is IIdeamarketPosts, ERC721, AccessControl {
 
     bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
 
@@ -34,6 +34,8 @@ contract IdeamarketPosts is IIdeamarketPosts, ERC721Enumerable, AccessControl {
     // all active categories
     string[] public activeCategories;
 
+    uint tokenNumber;
+
     constructor(address admin) ERC721("IdeamarketPosts", "IMPOSTS") {
         _setupRole(ADMIN_ROLE, admin);("ADMIN_ROLE", admin);
         bytes32 adminBytes = bytes32(uint256(uint160(admin)) << 96);
@@ -47,7 +49,8 @@ contract IdeamarketPosts is IIdeamarketPosts, ERC721Enumerable, AccessControl {
         require(bytes(content).length > 0, "content-empty");
         require(recipient != address(0), "zero-addr");
 
-        uint tokenID = totalSupply() + 1;
+        uint tokenID = ++tokenNumber;
+        _mint(recipient, tokenID);
         string[] memory validCategoryTags = filterValidCategories(tokenID, categoryTags);
         
         Post memory post = Post({
@@ -63,7 +66,7 @@ contract IdeamarketPosts is IIdeamarketPosts, ERC721Enumerable, AccessControl {
 
         posts[tokenID] = post;
         mintedTokens[recipient].push(tokenID);
-        _safeMint(recipient, tokenID);
+
     }
 
     function tokenURI(uint tokenID) public view override returns (string memory) {
@@ -163,7 +166,7 @@ contract IdeamarketPosts is IIdeamarketPosts, ERC721Enumerable, AccessControl {
         return posts[tokenID].isURL;
     }
 
-    function supportsInterface(bytes4 interfaceId) public view virtual override(ERC721Enumerable, AccessControl) returns (bool) {
+    function supportsInterface(bytes4 interfaceId) public view virtual override(ERC721, AccessControl) returns (bool) {
         return interfaceId == type(IAccessControl).interfaceId || super.supportsInterface(interfaceId);
     }
 
@@ -199,6 +202,10 @@ contract IdeamarketPosts is IIdeamarketPosts, ERC721Enumerable, AccessControl {
             }
         }
         return validCategoryTags;
+    }
+
+    function totalSupply() public view returns (uint) {
+        return tokenNumber;
     }
 
     function toUInt256(bool x) internal pure returns (uint r) {

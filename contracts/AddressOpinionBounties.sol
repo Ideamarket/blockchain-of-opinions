@@ -125,8 +125,8 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
     function getBountyAmountPayable(address addy, address user, address token) external view returns (uint) {
         uint amount;
-                IAddressOpinionBase.Opinion[] memory opinions = _addressOpinionBase.getOpinion(addy, msg.sender);
-            for (uint i = 0; i <  _bounties[addy][msg.sender][token].length; i++) {
+        IAddressOpinionBase.Opinion[] memory opinions = _addressOpinionBase.getOpinion(addy, msg.sender);
+        for (uint i = 0; i <  _bounties[addy][msg.sender][token].length; i++) {
             if (opinions[opinions.length - 1].blockHeight <=  _bounties[addy][msg.sender][token][i].blockHeight) {
                 amount +=  _bounties[addy][msg.sender][token][i].amount;
             }

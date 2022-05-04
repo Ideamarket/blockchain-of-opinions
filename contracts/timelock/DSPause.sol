@@ -31,7 +31,7 @@ contract DSPause is IDSPause {
     modifier wait { require(msg.sender == address(_proxy), "ds-pause-undelayed-call"); _; }
     modifier auth { require(msg.sender == _owner, "ds-pause-unauthorized"); _; }
 
-    constructor(uint delay, address owner) public {
+    constructor(uint delay, address owner) {
         require(owner != address(0), "invalid-params");
         _delay = delay;
         _owner = owner;

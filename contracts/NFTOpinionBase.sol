@@ -44,6 +44,7 @@ contract NFTOpinionBase is INFTOpinionBase {
         require(rating != 50, "rating must not be 50");
         require(bytes(comment).length <= 560, "comment must be lte 560 characters");
         uint blockHeight = _arbSys.arbBlockNumber();
+        //uint blockHeight = block.number;
         Opinion memory opinion = Opinion(msg.sender, contractAddress,tokenID, rating, comment, blockHeight);
         _userOpinions[contractAddress][tokenID][msg.sender].push(opinion);
         _totalUserOpinions[msg.sender].push(opinion);

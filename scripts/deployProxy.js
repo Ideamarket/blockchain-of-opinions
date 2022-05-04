@@ -16,7 +16,7 @@ const allDeploymentParams = {
 }
 const allExternalContractAddresses = {
 	'avm': {
-		multisig: '0x4905485d8B0Be42b317CCB4806b966aC0d4f4AE8',
+		multisig: '0x1Cc33A0ae55C250F66B8f9A1a3094bF285A9083f',
 	},
 	'rinkeby-avm': {
 		multisig: '0x4e6a11b687F35fA21D92731F9CD2f231C61f9151',
@@ -35,7 +35,7 @@ async function main() {
 	console.log('')
 
 	let networkName = (await ethers.provider.getNetwork()).name
-    if (networkName === 'avm') {
+    if (networkName == 'arbitrum') {
 		console.log('Using avm')
 		networkName = 'avm'
 		deploymentParams = allDeploymentParams['avm']

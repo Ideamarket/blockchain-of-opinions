@@ -1,6 +1,7 @@
 //SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 import "./interfaces/INFTOpinionBase.sol";
+import "./interfaces/IArbSys.sol";
 
 /**
  * @title NFTOpinionBase
@@ -32,15 +33,18 @@ contract NFTOpinionBase is INFTOpinionBase {
     // TokenIDPair array storing all tokenID pairs about which opinions have been made
     TokenIDPair[] _opinionedNFTs;
 
-    uint totalOpinionNumber;
+    uint _totalOpinionNumber;
+
+    IArbSys _arbSys = IArbSys(address(100));
     
-    event NewOpinion(address contractAddress, uint tokenID, address user, uint8 rating, string comment, uint blockHeight);
+    event NewOpinion(address contractAddress, uint tokenID, address user, uint8 rating, string comment);
 
     function writeOpinion(address contractAddress, uint tokenID, uint8 rating, string calldata comment) external override {
         
         require(rating != 50, "rating must not be 50");
         require(bytes(comment).length <= 560, "comment must be lte 560 characters");
-        Opinion memory opinion = Opinion(msg.sender, contractAddress,tokenID, rating, comment, block.number);
+        uint blockHeight = _arbSys.arbBlockNumber();
+        Opinion memory opinion = Opinion(msg.sender, contractAddress,tokenID, rating, comment, blockHeight);
         _userOpinions[contractAddress][tokenID][msg.sender].push(opinion);
         _totalUserOpinions[msg.sender].push(opinion);
 
@@ -55,8 +59,8 @@ contract NFTOpinionBase is INFTOpinionBase {
         }
 
         _addressOpinionCount[contractAddress]++;
-        totalOpinionNumber++;
-        emit NewOpinion(contractAddress, tokenID, msg.sender, rating, comment, block.number);
+        _totalOpinionNumber++;
+        emit NewOpinion(contractAddress, tokenID, msg.sender, rating, comment);
     }
 
     function getOpinion(address contractAddress, uint tokenID, address user) external view override returns (Opinion[] memory) {
@@ -101,7 +105,7 @@ contract NFTOpinionBase is INFTOpinionBase {
     }
 
     function getAllOpinions() external view override returns (Opinion[] memory) {
-        Opinion[] memory allOpinions = new Opinion[](totalOpinionNumber);
+        Opinion[] memory allOpinions = new Opinion[](_totalOpinionNumber);
         uint k;
         for (uint i = 0; i < _opinionedNFTs.length; i++) {
             for (uint j = 0; j < _opinions[_opinionedNFTs[i].contractAddress][_opinionedNFTs[i].tokenID].length; j++) {

@@ -14,7 +14,7 @@ async function main() {
 	// await hre.run('compile');
 
 	// We get the contract to deploy
-	const OpinionBase = await ethers.getContractFactory("AddressOpinionBase");
+	const OpinionBase = await ethers.getContractFactory("NFTOpinionBase");
 	const opinionBase = await OpinionBase.deploy({ gasLimit: ethers.BigNumber.from(200000000)});
 
 	await opinionBase.deployed();

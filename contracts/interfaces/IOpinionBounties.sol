@@ -11,12 +11,11 @@ interface IOpinionBounties {
     function addBountiableToken(address token) external;
     function removeBountiableToken(address token) external;
     function depositBounty(address addy, address user, address depositor, address token, uint amount) external payable;
-    function rescindBounty(address addy, address, user, address token) external;
-    function getBountyInfo(address addy, address user, address token) external view returns (Bounty memory);
+    function rescindBounty(address addy, address user, address token) external;
+    function getBountyInfo(address addy, address user, address token) external view returns (Bounty[] memory);
     function claimBounty(address addy, address token) external; //?
-    function getAmountDeposited(address addy, address user, address token) external view returns (uint);
+    function getAmountDepositedByUser(address addy, address user, address token) external view returns (uint);
     function getBountyAmountPayable(address addy, address user, address token) external view returns (uint);
     function setBountyFees() external;
     function setFeeDistributorAddress() external;
-    function getBounties(address addy, address user, address token) external view returns (Bounty[] memory);
 }

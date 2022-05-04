@@ -1,6 +1,7 @@
 //SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 import "./interfaces/IAddressOpinionBase.sol";
+import "./interfaces/IArbSys.sol";
 
 /**
  * @title AddressOpinionBase
@@ -26,15 +27,17 @@ contract AddressOpinionBase is IAddressOpinionBase {
     // address array storing all addresses about which opinions have been made
     address[] _opinionedAddresses;
 
-    uint totalOpinionNumber;
-    
-    event NewOpinion(address addy, address user, uint8 rating, string comment, uint blockHeight);
+    uint _totalOpinionNumber;
 
+    IArbSys _arbSys = IArbSys(address(100));
+    
+    event NewOpinion(address addy, address user, uint8 rating, string comment);
+    
     function writeOpinion(address addy, uint8 rating, string calldata comment) external override {
-        
         require(rating != 50, "rating must not be 50");
         require(bytes(comment).length <= 560, "comment must be lte 560 characters");
-        Opinion memory opinion = Opinion(msg.sender, addy, rating, comment, block.number);
+        uint blockHeight = _arbSys.arbBlockNumber();
+        Opinion memory opinion = Opinion(msg.sender, addy, rating, comment, blockHeight);
         _userOpinions[addy][msg.sender].push(opinion);
         _totalUserOpinions[msg.sender].push(opinion);
 
@@ -47,8 +50,8 @@ contract AddressOpinionBase is IAddressOpinionBase {
             _opinionatorList[addy].push(msg.sender);
         }
 
-        totalOpinionNumber++;
-        emit NewOpinion(addy, msg.sender, rating, comment, block.number);
+        _totalOpinionNumber++;
+        emit NewOpinion(addy, msg.sender, rating, comment);
     }
 
     function getOpinion(address addy, address user) external view override returns (Opinion[] memory) {
@@ -78,7 +81,7 @@ contract AddressOpinionBase is IAddressOpinionBase {
     }
     
     function getAllOpinions() external view override returns (Opinion[] memory) {
-        Opinion[] memory allOpinions = new Opinion[](totalOpinionNumber);
+        Opinion[] memory allOpinions = new Opinion[](_totalOpinionNumber);
         uint k;
         for (uint i = 0; i < _opinionedAddresses.length; i++) {
             for (uint j = 0; j < _opinions[_opinionedAddresses[i]].length; j++) {

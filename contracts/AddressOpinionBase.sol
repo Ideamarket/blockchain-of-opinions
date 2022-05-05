@@ -29,7 +29,7 @@ contract AddressOpinionBase is IAddressOpinionBase {
 
     uint _totalOpinionNumber;
 
-    IArbSys _arbSys = IArbSys(address(100));
+    IArbSys constant _arbSys = IArbSys(address(100));
     
     event NewOpinion(address addy, address user, uint8 rating, string comment);
     
@@ -37,7 +37,6 @@ contract AddressOpinionBase is IAddressOpinionBase {
         require(rating != 50, "rating must not be 50");
         require(bytes(comment).length <= 560, "comment must be lte 560 characters");
         uint blockHeight = _arbSys.arbBlockNumber();
-        //uint blockHeight = block.number;
         Opinion memory opinion = Opinion(msg.sender, addy, rating, comment, blockHeight);
         _userOpinions[addy][msg.sender].push(opinion);
         _totalUserOpinions[msg.sender].push(opinion);

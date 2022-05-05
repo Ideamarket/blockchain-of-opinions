@@ -7,7 +7,6 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import { Base64 } from "base64-sol/base64.sol";
 
-import "hardhat/console.sol";
 
 /**
  * @title IdeamarketPosts
@@ -37,7 +36,7 @@ contract IdeamarketPosts is IIdeamarketPosts, ERC721, AccessControl {
     uint tokenNumber;
 
     constructor(address admin) ERC721("IdeamarketPosts", "IMPOSTS") {
-        _setupRole(ADMIN_ROLE, admin);("ADMIN_ROLE", admin);
+        _setupRole(ADMIN_ROLE, admin);
         bytes32 adminBytes = bytes32(uint256(uint160(admin)) << 96);
         _setupRole(adminBytes, admin);
         _setRoleAdmin(ADMIN_ROLE, adminBytes);
@@ -166,10 +165,6 @@ contract IdeamarketPosts is IIdeamarketPosts, ERC721, AccessControl {
         return posts[tokenID].isURL;
     }
 
-    function supportsInterface(bytes4 interfaceId) public view virtual override(ERC721, AccessControl) returns (bool) {
-        return interfaceId == type(IAccessControl).interfaceId || super.supportsInterface(interfaceId);
-    }
-
     function stringifyCategories(string[] memory categoryTags) internal pure returns(string memory) {
         string memory categoryString = "[";
         for (uint i = 0; i < categoryTags.length; i++) {
@@ -210,6 +205,10 @@ contract IdeamarketPosts is IIdeamarketPosts, ERC721, AccessControl {
 
     function toUInt256(bool x) internal pure returns (uint r) {
         assembly { r := x }
+    }
+
+    function supportsInterface(bytes4 interfaceId) public view virtual override(ERC721, AccessControl) returns (bool) {
+        return interfaceId == type(IAccessControl).interfaceId || super.supportsInterface(interfaceId);
     }
 
 }

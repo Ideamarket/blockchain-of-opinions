@@ -35,7 +35,7 @@ contract NFTOpinionBase is INFTOpinionBase {
 
     uint _totalOpinionNumber;
 
-    IArbSys _arbSys = IArbSys(address(100));
+    IArbSys constant _arbSys = IArbSys(address(100));
     
     event NewOpinion(address contractAddress, uint tokenID, address user, uint8 rating, string comment);
 
@@ -44,7 +44,6 @@ contract NFTOpinionBase is INFTOpinionBase {
         require(rating != 50, "rating must not be 50");
         require(bytes(comment).length <= 560, "comment must be lte 560 characters");
         uint blockHeight = _arbSys.arbBlockNumber();
-        //uint blockHeight = block.number;
         Opinion memory opinion = Opinion(msg.sender, contractAddress,tokenID, rating, comment, blockHeight);
         _userOpinions[contractAddress][tokenID][msg.sender].push(opinion);
         _totalUserOpinions[msg.sender].push(opinion);

@@ -197,6 +197,7 @@ describe("IdeamarketPosts", () => {
         expect(posts.length).to.deep.equal(2);
         expect(posts[0]).to.deep.equal(1);
         expect(posts[1]).to.deep.equal(2);
+        expect(await ideamarketPosts.totalSupply()).to.deep.equal(2);
     })
 
     it("admin can add other admins", async () => {
@@ -297,6 +298,7 @@ describe("IdeamarketPosts", () => {
         expect(post['categories'].length).to.deep.equal(2);
         expect(post['categories'][0]).to.deep.equal('A');
         expect(post['categories'][1]).to.deep.equal('B');
+        expect(await ideamarketPosts.totalSupply()).to.deep.equal(1);
     })
 
     it("admin can reset and then add multiple categories for a post ", async () => {
@@ -356,15 +358,32 @@ describe("IdeamarketPosts", () => {
         await expectRevert(ideamarketPosts.connect(alice).updateURLContent(1, "https://ipfsimagelink"), 'post-is-not-a-url');
     })
 
-    it("admin can update urlContent", async () => {
+    it("returns isURL", async () => {
         await ideamarketPosts.connect(alice).mint("I love ideamarket!", [], "", 
-            false, "", bob.address);
+            true, "", bob.address);
+        expect(await ideamarketPosts.isURL(1)).to.deep.equal(true);
+    })
+
+    it("admin can update image Content", async () => {
+        await ideamarketPosts.connect(alice).mint("I love ideamarket!", [], "", 
+            true, "", bob.address);
         await ideamarketPosts.connect(alice).updateImage(1, "https://ipfsimagelink");
         let post = await ideamarketPosts.getPost(1);
         expect(post['imageLink']).to.deep.equal("https://ipfsimagelink");
         await ideamarketPosts.connect(bob).updateImage(1, "https://ipfsimagelinkNEW");
         post = await ideamarketPosts.getPost(1);
         expect(post['imageLink']).to.deep.equal("https://ipfsimagelinkNEW");
+    })
+
+    it("admin can update url Content", async () => {
+        await ideamarketPosts.connect(alice).mint("I love ideamarket!", [], "", 
+            true, "", bob.address);
+        await ideamarketPosts.connect(alice).updateURLContent(1, "tweet");
+        let post = await ideamarketPosts.getPost(1);
+        expect(post['urlContent']).to.deep.equal("tweet");
+        await ideamarketPosts.connect(alice).updateURLContent(1, "tweetNEW");
+        post = await ideamarketPosts.getPost(1);
+        expect(post['urlContent']).to.deep.equal("tweetNEW");
     })
 
 })

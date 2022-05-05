@@ -50,7 +50,7 @@ async function main() {
 
 	console.log('Block', await ethers.provider.getBlockNumber())
 
-	const STAGE = 1
+	const STAGE = 3
 
 	let dsPauseProxyAddress
 	if (STAGE <= 1) {

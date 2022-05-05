@@ -2,6 +2,7 @@
 pragma solidity ^0.8.0;
 
 import "./interfaces/IIdeamarketPosts.sol";
+import "./interfaces/IArbSys.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
@@ -34,6 +35,8 @@ contract IdeamarketPosts is IIdeamarketPosts, ERC721, AccessControl {
     string[] public activeCategories;
 
     uint tokenNumber;
+    // contract to retrieve arb block height
+    IArbSys constant _arbSys = IArbSys(address(100));
 
     constructor(address admin) ERC721("IdeamarketPosts", "IMPOSTS") {
         _setupRole(ADMIN_ROLE, admin);
@@ -44,10 +47,10 @@ contract IdeamarketPosts is IIdeamarketPosts, ERC721, AccessControl {
     
     function mint(string calldata content, string[] memory categoryTags, string calldata imageLink, 
         bool urlBool, string calldata urlContent, address recipient) external {
-        
         require(bytes(content).length > 0, "content-empty");
         require(recipient != address(0), "zero-addr");
-
+        
+        uint blockHeight = _arbSys.arbBlockNumber();
         uint tokenID = ++tokenNumber;
         _mint(recipient, tokenID);
         string[] memory validCategoryTags = filterValidCategories(tokenID, categoryTags);
@@ -60,7 +63,7 @@ contract IdeamarketPosts is IIdeamarketPosts, ERC721, AccessControl {
             imageLink: imageLink,
             isURL: urlBool,
             urlContent: urlContent,
-            blockHeight: block.number
+            blockHeight: blockHeight
         });
 
         posts[tokenID] = post;

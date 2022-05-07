@@ -45,20 +45,21 @@ contract IdeamarketPosts is IIdeamarketPosts, ERC721, AccessControl {
         _setRoleAdmin(ADMIN_ROLE, adminBytes);
     }
     
-    function mint(string calldata content, string[] memory categoryTags, string calldata imageLink, 
+    function mint(string calldata content, string[] memory imageHashes, string[] memory categoryTags, string calldata imageLink, 
         bool urlBool, string calldata urlContent, address recipient) external {
         require(bytes(content).length > 0, "content-empty");
         require(recipient != address(0), "zero-addr");
         
-        uint blockHeight = _arbSys.arbBlockNumber();
-        uint tokenID = ++tokenNumber;
-        _mint(recipient, tokenID);
-        string[] memory validCategoryTags = filterValidCategories(tokenID, categoryTags);
+        //uint blockHeight = _arbSys.arbBlockNumber();
+        uint blockHeight = block.number;
+        _mint(recipient, ++tokenNumber);
+        string[] memory validCategoryTags = filterValidCategories(tokenNumber, categoryTags);
         
         Post memory post = Post({
             minter: msg.sender,
-            tokenID: tokenID,
+            tokenID: tokenNumber,
             content: content,
+            imageHashes: imageHashes,
             categories: validCategoryTags,
             imageLink: imageLink,
             isURL: urlBool,
@@ -66,8 +67,8 @@ contract IdeamarketPosts is IIdeamarketPosts, ERC721, AccessControl {
             blockHeight: blockHeight
         });
 
-        posts[tokenID] = post;
-        mintedTokens[recipient].push(tokenID);
+        posts[tokenNumber] = post;
+        mintedTokens[recipient].push(tokenNumber);
 
     }
 
@@ -75,13 +76,15 @@ contract IdeamarketPosts is IIdeamarketPosts, ERC721, AccessControl {
         require(_exists(tokenID), "ERC721Metadata: URI query for nonexistent token");
 
         Post memory currentPost = posts[tokenID];
-        string memory categoryString = stringifyCategories(currentPost.categories);
+        string memory categoryString = stringify(currentPost.categories);
+        string memory imageHashString = stringify(currentPost.imageHashes);
         // Create JSON for OpenSea
         return string(abi.encodePacked(
             "data:application/json;base64,", Base64.encode(abi.encodePacked(
                 "{",
                     "'minter': '", Strings.toHexString(uint160(currentPost.minter), 20), "',",
                     "'content': '", currentPost.content, "',",
+                    "'imageHashes': '", imageHashString, "',",
                     "'image': '", currentPost.imageLink, "',",
                     "'categories': '", categoryString, "',",
                     "'isURL': '", Strings.toString(toUInt256(currentPost.isURL)), "',",
@@ -144,11 +147,16 @@ contract IdeamarketPosts is IIdeamarketPosts, ERC721, AccessControl {
         }
     }
 
-    function updateImage(uint tokenID, string calldata imageLink) external override{
+    function updateImageHashes(uint tokenID, string[] memory imageHashes) external override {
+        require(msg.sender == ownerOf(tokenID) || hasRole(ADMIN_ROLE, msg.sender), "only-token-owner-or-admin");
+        posts[tokenID].imageHashes = imageHashes;
+    }
+
+    function updateImage(uint tokenID, string calldata imageLink) external override {
         require(msg.sender == ownerOf(tokenID) || hasRole(ADMIN_ROLE, msg.sender), "only-token-owner-or-admin");
         posts[tokenID].imageLink = imageLink;
     }
-    
+
     function updateURLContent(uint tokenID, string calldata urlContent) external override {
         require(hasRole(ADMIN_ROLE, msg.sender), "admin-only");
         require(posts[tokenID].isURL, "post-is-not-a-url");
@@ -168,17 +176,17 @@ contract IdeamarketPosts is IIdeamarketPosts, ERC721, AccessControl {
         return posts[tokenID].isURL;
     }
 
-    function stringifyCategories(string[] memory categoryTags) internal pure returns(string memory) {
-        string memory categoryString = "[";
-        for (uint i = 0; i < categoryTags.length; i++) {
+    function stringify(string[] memory arr) internal pure returns(string memory) {
+        string memory str = "[";
+        for (uint i = 0; i < arr.length; i++) {
             if (i == 0) {
-                categoryString = string(abi.encodePacked(categoryString, categoryTags[i]));
+                str = string(abi.encodePacked(str, arr[i]));
             }
             else {
-                categoryString = string(abi.encodePacked(categoryString, ", ", categoryTags[i]));
+                str = string(abi.encodePacked(str, ", ", arr[i]));
             }
         }
-        return string(abi.encodePacked(categoryString, "]"));
+        return string(abi.encodePacked(str, "]"));
     }
     
     function filterValidCategories(uint tokenID, string[] memory categoryTags) internal returns(string[] memory) {

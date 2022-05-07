@@ -18,10 +18,11 @@ describe("IdeamarketPosts", () => {
     })
 
     it("should mint post", async () => {
-        await ideamarketPosts.connect(alice).mint("I love ideamarket!", [], "", 
+        await ideamarketPosts.connect(alice).mint("I love ideamarket!", [], [], "", 
             false, "", alice.address);
         const post = await ideamarketPosts.getPost(1);
         expect(post['minter']).to.deep.equal(alice.address);
+        expect(post['imageHashes'].length).to.deep.equal(0);
         expect(post['tokenID']).to.deep.equal(1);
         expect(post['content']).to.deep.equal('I love ideamarket!');
         expect(post['categories'].length).to.deep.equal(0);
@@ -31,12 +32,13 @@ describe("IdeamarketPosts", () => {
     })
 
     it("should mint multiple posts", async () => {
-        await ideamarketPosts.connect(alice).mint("I love ideamarket!", [], "", 
+        await ideamarketPosts.connect(alice).mint("I love ideamarket!", [], [], "", 
             false, "", alice.address);
-        await ideamarketPosts.connect(alice).mint("I like ideamarket!", [], "", 
+        await ideamarketPosts.connect(alice).mint("I like ideamarket!", [], [], "", 
             false, "", alice.address);
         const post = await ideamarketPosts.getPost(2);
         expect(post['minter']).to.deep.equal(alice.address);
+        expect(post['imageHashes'].length).to.deep.equal(0);
         expect(post['tokenID']).to.deep.equal(2);
         expect(post['content']).to.deep.equal('I like ideamarket!');
         expect(post['categories'].length).to.deep.equal(0);
@@ -46,11 +48,12 @@ describe("IdeamarketPosts", () => {
     })
 
     it("should mint url post", async () => {
-        await ideamarketPosts.connect(alice).mint("https://mirror.xyz/charlemagnefang.eth/m3fUfJUS1DqsmIdPTpxLaoD-DLxR_aIyjOr2udcKGdY", [], "", 
+        await ideamarketPosts.connect(alice).mint("https://mirror.xyz/charlemagnefang.eth/m3fUfJUS1DqsmIdPTpxLaoD-DLxR_aIyjOr2udcKGdY", [], [], "", 
             true, "", alice.address);
         const post = await ideamarketPosts.getPost(1);
         expect(post['minter']).to.deep.equal(alice.address);
         expect(post['content']).to.deep.equal('https://mirror.xyz/charlemagnefang.eth/m3fUfJUS1DqsmIdPTpxLaoD-DLxR_aIyjOr2udcKGdY');
+        expect(post['imageHashes'].length).to.deep.equal(0);
         expect(post['categories'].length).to.deep.equal(0);
         expect(post['imageLink']).to.deep.equal('');
         expect(post['isURL']).to.deep.equal(true);
@@ -58,7 +61,7 @@ describe("IdeamarketPosts", () => {
     })
 
     it("should mint web2 post", async () => {
-        await ideamarketPosts.connect(alice).mint("https://twitter.com/boreasrex/status/1515005721993224195", [], "", 
+        await ideamarketPosts.connect(alice).mint("https://twitter.com/boreasrex/status/1515005721993224195", [], [], "", 
             true, "kinda worried that 8 eth for my milady is too cheap..", alice.address);
         const post = await ideamarketPosts.getPost(1);
         expect(post['minter']).to.deep.equal(alice.address);
@@ -70,18 +73,18 @@ describe("IdeamarketPosts", () => {
     })
 
     it("should fail mint with no content", async () => {
-        await expectRevert(ideamarketPosts.connect(alice).mint("", [], "", 
+        await expectRevert(ideamarketPosts.connect(alice).mint("", [], [], "", 
             true, "kinda worried that 8 eth for my milady is too cheap..", alice.address), 'content-empty');
     })
 
     it("should fail mint with 0x0 recipient", async () => {
-        await expectRevert(ideamarketPosts.connect(alice).mint("hi", [], "", 
+        await expectRevert(ideamarketPosts.connect(alice).mint("hi", [], [], "", 
             true, "kinda worried that 8 eth for my milady is too cheap..", '0x0000000000000000000000000000000000000000'), 'zero-addr');
     })
 
     it("should be able add and use a category tag", async () => {
         await ideamarketPosts.connect(alice).addCategories(['A', 'B', 'C']);
-        await ideamarketPosts.connect(alice).mint("https://mirror.xyz/charlemagnefang.eth/m3fUfJUS1DqsmIdPTpxLaoD-DLxR_aIyjOr2udcKGdY", ['A'], "", 
+        await ideamarketPosts.connect(alice).mint("https://mirror.xyz/charlemagnefang.eth/m3fUfJUS1DqsmIdPTpxLaoD-DLxR_aIyjOr2udcKGdY", [], ['A'], "", 
             true, "", alice.address);
         const post = await ideamarketPosts.getPost(1);
         expect(post['categories'].length).to.deep.equal(1);
@@ -106,7 +109,7 @@ describe("IdeamarketPosts", () => {
 
     it("should be able add and use multiple categories", async () => {
         await ideamarketPosts.connect(alice).addCategories(['A', 'B', 'C']);
-        await ideamarketPosts.connect(alice).mint("https://mirror.xyz/charlemagnefang.eth/m3fUfJUS1DqsmIdPTpxLaoD-DLxR_aIyjOr2udcKGdY", ['A', 'B'], "", 
+        await ideamarketPosts.connect(alice).mint("https://mirror.xyz/charlemagnefang.eth/m3fUfJUS1DqsmIdPTpxLaoD-DLxR_aIyjOr2udcKGdY", [], ['A', 'B'], "", 
             true, "", alice.address);
         const post = await ideamarketPosts.getPost(1);
         expect(post['categories'].length).to.deep.equal(2);
@@ -116,7 +119,7 @@ describe("IdeamarketPosts", () => {
 
     it("should only be able to tag with valid categories", async () => {
         await ideamarketPosts.connect(alice).addCategories(['A', 'B', 'C']);
-        await ideamarketPosts.connect(alice).mint("https://mirror.xyz/charlemagnefang.eth/m3fUfJUS1DqsmIdPTpxLaoD-DLxR_aIyjOr2udcKGdY", [""], "", 
+        await ideamarketPosts.connect(alice).mint("https://mirror.xyz/charlemagnefang.eth/m3fUfJUS1DqsmIdPTpxLaoD-DLxR_aIyjOr2udcKGdY", [], [""], "", 
             true, "", alice.address);
         const post = await ideamarketPosts.getPost(1);
         expect(post['categories'].length).to.deep.equal(0);
@@ -124,7 +127,7 @@ describe("IdeamarketPosts", () => {
 
     it("should only be able keep valid categories", async () => {
         await ideamarketPosts.connect(alice).addCategories(['A', 'B', 'C']);
-        await ideamarketPosts.connect(alice).mint("https://mirror.xyz/charlemagnefang.eth/m3fUfJUS1DqsmIdPTpxLaoD-DLxR_aIyjOr2udcKGdY", ["", 'A', 'C', 'D'], "", 
+        await ideamarketPosts.connect(alice).mint("https://mirror.xyz/charlemagnefang.eth/m3fUfJUS1DqsmIdPTpxLaoD-DLxR_aIyjOr2udcKGdY", [], ["", 'A', 'C', 'D'], "", 
             true, "", alice.address);
         const post = await ideamarketPosts.getPost(1);
         expect(post['categories'].length).to.deep.equal(2);
@@ -132,23 +135,59 @@ describe("IdeamarketPosts", () => {
         expect(post['categories'][1]).to.deep.equal('C');
     })
 
+    
+    it("should be able add imageHash", async () => {
+        await ideamarketPosts.connect(alice).mint("https", ["QmPK1s3pNYLi9ERiq3BDxKa4XosgWwFRQUydHUtz4YgpqB"], [], "", 
+            true, "", alice.address);
+        const post = await ideamarketPosts.getPost(1);
+        expect(post['imageHashes'].length).to.deep.equal(1);
+        expect(post['imageHashes'][0]).to.deep.equal("QmPK1s3pNYLi9ERiq3BDxKa4XosgWwFRQUydHUtz4YgpqB");
+
+    })
+
+    it("should be able add multiple imageHashes", async () => {
+        await ideamarketPosts.connect(alice).mint("https://mirror.xyz/charlemagnefang.eth/m3fUfJUS1DqsmIdPTpxLaoD-DLxR_aIyjOr2udcKGdY", ["QmPK1s3pNYLi9ERiq3BDxKa4XosgWwFRQUydHUtz4YgpqB", "QmPK1s3pNYLi9ERiq3BDxKa4XosgWwFRQUydHUtz4YgpqB"], [""], "", 
+            true, "", alice.address);
+        const post = await ideamarketPosts.getPost(1);
+        expect(post['imageHashes'].length).to.deep.equal(2);
+        expect(post['imageHashes'][0]).to.deep.equal("QmPK1s3pNYLi9ERiq3BDxKa4XosgWwFRQUydHUtz4YgpqB");
+        expect(post['imageHashes'][1]).to.deep.equal("QmPK1s3pNYLi9ERiq3BDxKa4XosgWwFRQUydHUtz4YgpqB");
+    })
+
+    it("should be able to update imageHash", async () => {
+        await ideamarketPosts.connect(bob).mint("https://mirror.xyz/charlemagnefang.eth/m3fUfJUS1DqsmIdPTpxLaoD-DLxR_aIyjOr2udcKGdY", ["QmPK1s3pNYLi9ERiq3BDxKa4XosgWwFRQUydHUtz4YgpqB", "QmPK1s3pNYLi9ERiq3BDxKa4XosgWwFRQUydHUtz4YgpqB"], [""], "", 
+            true, "", alice.address);
+        await ideamarketPosts.connect(alice).updateImageHashes(1, ["Qmhi"])
+        const post = await ideamarketPosts.getPost(1);
+        expect(post['imageHashes'].length).to.deep.equal(1);
+        expect(post['imageHashes'][0]).to.deep.equal("Qmhi");
+    })
+
+    it("only admin or owner can update imageHashes", async () => {
+        await ideamarketPosts.connect(bob).mint("https://mirror.xyz/charlemagnefang.eth/m3fUfJUS1DqsmIdPTpxLaoD-DLxR_aIyjOr2udcKGdY", ["QmPK1s3pNYLi9ERiq3BDxKa4XosgWwFRQUydHUtz4YgpqB", "QmPK1s3pNYLi9ERiq3BDxKa4XosgWwFRQUydHUtz4YgpqB"], [""], "", 
+            true, "", alice.address);
+        await ideamarketPosts.connect(alice).updateImageHashes(1, ["Qmhi"])
+        await ideamarketPosts.connect(alice).updateImageHashes(1, ["Qmhii"])
+        await expectRevert(ideamarketPosts.connect(charlie).updateImageHashes(1, ['Qmbye']), "only-token-owner-or-admin")
+    })
+
     it("tokenURI should work web2url without categories", async () => {
-        const tx = await ideamarketPosts.connect(alice).mint("https://twitter.com/boreasrex/status/1515005721993224195", [], "", 
+        const tx = await ideamarketPosts.connect(alice).mint("https://twitter.com/boreasrex/status/1515005721993224195", [], [], "", 
             true, "kinda worried that 8 eth for my milady is too cheap..", alice.address);
         const uri = await ideamarketPosts.tokenURI(1);
         const expectedURI = "data:application/json;base64," + Buffer.from("{'minter': '" + alice.address.toLowerCase() + "'," +
-        "'content': 'https://twitter.com/boreasrex/status/1515005721993224195'," +
+        "'content': 'https://twitter.com/boreasrex/status/1515005721993224195'," + "'imageHashes': '[]'," +
         "'image': '','categories': '[]','isURL': '1','urlContent': 'kinda worried that 8 eth for my milady is too cheap..'," +
         "'blockHeight': '" + tx['blockNumber'] + "'}").toString( "base64");
         expect(uri).to.deep.equal(expectedURI);
     })
 
     it("tokenURI should work for post", async () => {
-        const tx = await ideamarketPosts.connect(alice).mint("I love Ideamarket!", [], "", 
+        const tx = await ideamarketPosts.connect(alice).mint("I love Ideamarket!", [], [], "", 
             false, "", alice.address);
         const uri = await ideamarketPosts.tokenURI(1);
         const expectedURI = "data:application/json;base64," + Buffer.from("{'minter': '" + alice.address.toLowerCase() + "'," +
-        "'content': 'I love Ideamarket!'," +
+        "'content': 'I love Ideamarket!'," + "'imageHashes': '[]'," +
         "'image': '','categories': '[]','isURL': '0','urlContent': ''," +
         "'blockHeight': '" + tx['blockNumber'] + "'}").toString( "base64");
         expect(uri).to.deep.equal(expectedURI);
@@ -156,12 +195,12 @@ describe("IdeamarketPosts", () => {
 
     it("tokenURI should work with categories", async () => {
         await ideamarketPosts.connect(alice).addCategories(['A']);
-        const tx = await ideamarketPosts.connect(alice).mint("https://twitter.com/boreasrex/status/1515005721993224195", ["A"], "", 
+        const tx = await ideamarketPosts.connect(alice).mint("https://twitter.com/boreasrex/status/1515005721993224195", [], ["A"], "", 
             true, "kinda worried that 8 eth for my milady is too cheap..", alice.address);
         const uri = await ideamarketPosts.tokenURI(1);
         const aliceAddress = alice.address.toLowerCase()
         const expectedURI = "data:application/json;base64," + Buffer.from("{'minter': '" + aliceAddress + "'," +
-        "'content': 'https://twitter.com/boreasrex/status/1515005721993224195'," +
+        "'content': 'https://twitter.com/boreasrex/status/1515005721993224195'," + "'imageHashes': '[]'," +
         "'image': '','categories': '[A]','isURL': '1','urlContent': 'kinda worried that 8 eth for my milady is too cheap..'," +
         "'blockHeight': '" + tx['blockNumber'] + "'}").toString( "base64");
         expect(uri).to.deep.equal(expectedURI);
@@ -169,12 +208,38 @@ describe("IdeamarketPosts", () => {
 
     it("tokenURI data should work with multiple categories", async () => {
         await ideamarketPosts.connect(alice).addCategories(['A', 'B', 'C']);
-        const tx = await ideamarketPosts.connect(alice).mint("https://twitter.com/boreasrex/status/1515005721993224195", ["A", "", "C"], "", 
+        const tx = await ideamarketPosts.connect(alice).mint("https://twitter.com/boreasrex/status/1515005721993224195", [], ["A", "", "C"], "", 
             true, "kinda worried that 8 eth for my milady is too cheap..", alice.address);
         const uri = await ideamarketPosts.tokenURI(1);
         const aliceAddress = alice.address.toLowerCase()
         const expectedURI = "data:application/json;base64," + Buffer.from("{'minter': '" + aliceAddress + "'," +
-        "'content': 'https://twitter.com/boreasrex/status/1515005721993224195'," +
+        "'content': 'https://twitter.com/boreasrex/status/1515005721993224195'," + "'imageHashes': '[]'," +
+        "'image': '','categories': '[A, C]','isURL': '1','urlContent': 'kinda worried that 8 eth for my milady is too cheap..'," +
+        "'blockHeight': '" + tx['blockNumber'] + "'}").toString( "base64");
+        expect(uri).to.deep.equal(expectedURI);
+    })
+
+    it("tokenURI data should work with single imageHash", async () => {
+        await ideamarketPosts.connect(alice).addCategories(['A', 'B', 'C']);
+        const tx = await ideamarketPosts.connect(alice).mint("https://twitter.com/boreasrex/status/1515005721993224195", ["Qmxx"], ["A", "", "C"], "", 
+            true, "kinda worried that 8 eth for my milady is too cheap..", alice.address);
+        const uri = await ideamarketPosts.tokenURI(1);
+        const aliceAddress = alice.address.toLowerCase()
+        const expectedURI = "data:application/json;base64," + Buffer.from("{'minter': '" + aliceAddress + "'," +
+        "'content': 'https://twitter.com/boreasrex/status/1515005721993224195'," + "'imageHashes': '[Qmxx]'," +
+        "'image': '','categories': '[A, C]','isURL': '1','urlContent': 'kinda worried that 8 eth for my milady is too cheap..'," +
+        "'blockHeight': '" + tx['blockNumber'] + "'}").toString( "base64");
+        expect(uri).to.deep.equal(expectedURI);
+    })
+
+    it("tokenURI data should work with multiple imageHashes", async () => {
+        await ideamarketPosts.connect(alice).addCategories(['A', 'B', 'C']);
+        const tx = await ideamarketPosts.connect(alice).mint("https://twitter.com/boreasrex/status/1515005721993224195", ["Qmxx", "Qmyy"], ["A", "", "C"], "", 
+            true, "kinda worried that 8 eth for my milady is too cheap..", alice.address);
+        const uri = await ideamarketPosts.tokenURI(1);
+        const aliceAddress = alice.address.toLowerCase()
+        const expectedURI = "data:application/json;base64," + Buffer.from("{'minter': '" + aliceAddress + "'," +
+        "'content': 'https://twitter.com/boreasrex/status/1515005721993224195'," + "'imageHashes': '[Qmxx, Qmyy]'," +
         "'image': '','categories': '[A, C]','isURL': '1','urlContent': 'kinda worried that 8 eth for my milady is too cheap..'," +
         "'blockHeight': '" + tx['blockNumber'] + "'}").toString( "base64");
         expect(uri).to.deep.equal(expectedURI);
@@ -189,9 +254,9 @@ describe("IdeamarketPosts", () => {
     })
 
     it("should fetch mintedTokens for a given address", async () => {
-        await ideamarketPosts.connect(alice).mint("I love ideamarket!", [], "", 
+        await ideamarketPosts.connect(alice).mint("I love ideamarket!", [], [], "", 
             false, "", alice.address);
-        await ideamarketPosts.connect(alice).mint("hi", [], "", 
+        await ideamarketPosts.connect(alice).mint("hi", [], [], "", 
             false, "", alice.address);
         const posts = await ideamarketPosts.getUsersPosts(alice.address);
         expect(posts.length).to.deep.equal(2);
@@ -216,7 +281,7 @@ describe("IdeamarketPosts", () => {
     it("admin should remove category", async () => {
         await ideamarketPosts.connect(alice).addCategories(['A']);
         await ideamarketPosts.connect(alice).removeCategories(['A']);
-        await ideamarketPosts.connect(alice).mint("https://mirror.xyz/charlemagnefang.eth/m3fUfJUS1DqsmIdPTpxLaoD-DLxR_aIyjOr2udcKGdY", ['A'], "", 
+        await ideamarketPosts.connect(alice).mint("https://mirror.xyz/charlemagnefang.eth/m3fUfJUS1DqsmIdPTpxLaoD-DLxR_aIyjOr2udcKGdY", [], ['A'], "", 
             true, "", alice.address);
         const post = await ideamarketPosts.getPost(1);
         expect(post['categories'].length).to.deep.equal(0);
@@ -227,7 +292,7 @@ describe("IdeamarketPosts", () => {
     it("admin should remove multiple categories", async () => {
         await ideamarketPosts.connect(alice).addCategories(['A', 'B', 'C']);
         await ideamarketPosts.connect(alice).removeCategories(['A','C']);
-        await ideamarketPosts.connect(alice).mint("https://mirror.xyz/charlemagnefang.eth/m3fUfJUS1DqsmIdPTpxLaoD-DLxR_aIyjOr2udcKGdY", ['A', 'C', 'B'], "", 
+        await ideamarketPosts.connect(alice).mint("https://mirror.xyz/charlemagnefang.eth/m3fUfJUS1DqsmIdPTpxLaoD-DLxR_aIyjOr2udcKGdY", [], ['A', 'C', 'B'], "", 
         true, "", alice.address);
         const post = await ideamarketPosts.getPost(1);
         expect(post['categories'].length).to.deep.equal(1);
@@ -239,7 +304,7 @@ describe("IdeamarketPosts", () => {
     it("admin should remove all categories", async () => {
         await ideamarketPosts.connect(alice).addCategories(['A', 'B', 'C']);
         await ideamarketPosts.connect(alice).removeCategories(['A', 'B', 'C']);
-        await ideamarketPosts.connect(alice).mint("https://mirror.xyz/charlemagnefang.eth/m3fUfJUS1DqsmIdPTpxLaoD-DLxR_aIyjOr2udcKGdY", ['A', 'C', 'B'], "", 
+        await ideamarketPosts.connect(alice).mint("https://mirror.xyz/charlemagnefang.eth/m3fUfJUS1DqsmIdPTpxLaoD-DLxR_aIyjOr2udcKGdY", [], ['A', 'C', 'B'], "", 
         true, "", alice.address);
         const post = await ideamarketPosts.getPost(1);
         expect(post['categories'].length).to.deep.equal(0);
@@ -249,7 +314,7 @@ describe("IdeamarketPosts", () => {
 
     it("only admin can add/remove categories from a post", async () => {
         await ideamarketPosts.connect(alice).addCategories(['A', 'B', 'C']);
-        await ideamarketPosts.connect(alice).mint("https://mirror.xyz/charlemagnefang.eth/m3fUfJUS1DqsmIdPTpxLaoD-DLxR_aIyjOr2udcKGdY", ['A', 'B'], "", 
+        await ideamarketPosts.connect(alice).mint("https://mirror.xyz/charlemagnefang.eth/m3fUfJUS1DqsmIdPTpxLaoD-DLxR_aIyjOr2udcKGdY", [], ['A', 'B'], "", 
         true, "", alice.address);
         await expectRevert(ideamarketPosts.connect(bob).addCategoriesToPost(1, ['C']), 'admin-only');
         await expectRevert(ideamarketPosts.connect(bob).resetCategoriesForPost(1, ['A']), 'admin-only');
@@ -257,7 +322,7 @@ describe("IdeamarketPosts", () => {
 
     it("admin can add categories to a post", async () => {
         await ideamarketPosts.connect(alice).addCategories(['A', 'B', 'C']);
-        await ideamarketPosts.connect(alice).mint("https://mirror.xyz/charlemagnefang.eth/m3fUfJUS1DqsmIdPTpxLaoD-DLxR_aIyjOr2udcKGdY", ['A'], "", 
+        await ideamarketPosts.connect(alice).mint("https://mirror.xyz/charlemagnefang.eth/m3fUfJUS1DqsmIdPTpxLaoD-DLxR_aIyjOr2udcKGdY", [], ['A'], "", 
         true, "", alice.address);
         await ideamarketPosts.connect(alice).addCategoriesToPost(1, ['C', 'B']);
         const post = await ideamarketPosts.getPost(1);
@@ -269,7 +334,7 @@ describe("IdeamarketPosts", () => {
 
     it("add categories to a post that already exist should do nothing", async () => {
       await ideamarketPosts.connect(alice).addCategories(['A', 'B', 'C']);
-      await ideamarketPosts.connect(alice).mint("https://mirror.xyz/charlemagnefang.eth/m3fUfJUS1DqsmIdPTpxLaoD-DLxR_aIyjOr2udcKGdY", ['A'], "", 
+      await ideamarketPosts.connect(alice).mint("https://mirror.xyz/charlemagnefang.eth/m3fUfJUS1DqsmIdPTpxLaoD-DLxR_aIyjOr2udcKGdY", [], ['A'], "", 
       true, "", alice.address);
       await ideamarketPosts.connect(alice).addCategoriesToPost(1, ['A', 'C', 'B']);
       const post = await ideamarketPosts.getPost(1);
@@ -281,7 +346,7 @@ describe("IdeamarketPosts", () => {
 
     it("admin can reset category to a single tag from a post", async () => {
         await ideamarketPosts.connect(alice).addCategories(['A', 'B', 'C']);
-        await ideamarketPosts.connect(alice).mint("https://mirror.xyz/charlemagnefang.eth/m3fUfJUS1DqsmIdPTpxLaoD-DLxR_aIyjOr2udcKGdY", ['A', 'B'], "", 
+        await ideamarketPosts.connect(alice).mint("https://mirror.xyz/charlemagnefang.eth/m3fUfJUS1DqsmIdPTpxLaoD-DLxR_aIyjOr2udcKGdY", [], ['A', 'B'], "", 
         true, "", alice.address);
         await ideamarketPosts.connect(alice).resetCategoriesForPost(1, ['A']);
         const post = await ideamarketPosts.getPost(1);
@@ -291,7 +356,7 @@ describe("IdeamarketPosts", () => {
 
     it("admin can reset multiple categories for a post", async () => {
         await ideamarketPosts.connect(alice).addCategories(['A', 'B', 'C']);
-        await ideamarketPosts.connect(alice).mint("https://mirror.xyz/charlemagnefang.eth/m3fUfJUS1DqsmIdPTpxLaoD-DLxR_aIyjOr2udcKGdY", ['A', 'B'], "", 
+        await ideamarketPosts.connect(alice).mint("https://mirror.xyz/charlemagnefang.eth/m3fUfJUS1DqsmIdPTpxLaoD-DLxR_aIyjOr2udcKGdY", [], ['A', 'B'], "", 
         true, "", alice.address);
         await ideamarketPosts.connect(alice).resetCategoriesForPost(1, ['A', 'B']);
         const post = await ideamarketPosts.getPost(1);
@@ -303,7 +368,7 @@ describe("IdeamarketPosts", () => {
 
     it("admin can reset and then add multiple categories for a post ", async () => {
         await ideamarketPosts.connect(alice).addCategories(['A', 'B', 'C', 'D']);
-        await ideamarketPosts.connect(alice).mint("https://mirror.xyz/charlemagnefang.eth/m3fUfJUS1DqsmIdPTpxLaoD-DLxR_aIyjOr2udcKGdY", ['A', 'B'], "", 
+        await ideamarketPosts.connect(alice).mint("https://mirror.xyz/charlemagnefang.eth/m3fUfJUS1DqsmIdPTpxLaoD-DLxR_aIyjOr2udcKGdY", [], ['A', 'B'], "", 
         true, "", alice.address);
         await ideamarketPosts.connect(alice).resetCategoriesForPost(1, ['A', 'B']);
         await ideamarketPosts.connect(alice).addCategoriesToPost(1, ['D', 'C']);
@@ -317,7 +382,7 @@ describe("IdeamarketPosts", () => {
 
     it("adding already existing category for a post should do nothing ", async () => {
       await ideamarketPosts.connect(alice).addCategories(['A', 'B', 'C', 'D']);
-      await ideamarketPosts.connect(alice).mint("https://mirror.xyz/charlemagnefang.eth/m3fUfJUS1DqsmIdPTpxLaoD-DLxR_aIyjOr2udcKGdY", ['A', 'B'], "", 
+      await ideamarketPosts.connect(alice).mint("https://mirror.xyz/charlemagnefang.eth/m3fUfJUS1DqsmIdPTpxLaoD-DLxR_aIyjOr2udcKGdY", [], ['A', 'B'], "", 
       true, "", alice.address);
       await ideamarketPosts.connect(alice).resetCategoriesForPost(1, ['A', 'B']);
       await ideamarketPosts.connect(alice).addCategoriesToPost(1, ['D', 'C', 'A']);
@@ -330,13 +395,13 @@ describe("IdeamarketPosts", () => {
   })
 
     it("only admin or current token owner can update image", async () => {
-        await ideamarketPosts.connect(alice).mint("I love ideamarket!", [], "", 
+        await ideamarketPosts.connect(alice).mint("I love ideamarket!", [], [], "", 
             false, "", alice.address);
         await expectRevert(ideamarketPosts.connect(bob).updateImage(1, "https://ipfsimagelink"), 'only-token-owner-or-admin');
     })
 
     it("current token owner and admin can update image", async () => {
-        await ideamarketPosts.connect(alice).mint("I love ideamarket!", [], "", 
+        await ideamarketPosts.connect(alice).mint("I love ideamarket!", [], [], "", 
             false, "", bob.address);
         await ideamarketPosts.connect(alice).updateImage(1, "https://ipfsimagelink");
         let post = await ideamarketPosts.getPost(1);
@@ -347,25 +412,25 @@ describe("IdeamarketPosts", () => {
     })
 
     it("only admin can update URLContent", async () => {
-        await ideamarketPosts.connect(alice).mint("I love ideamarket!", [], "", 
+        await ideamarketPosts.connect(alice).mint("I love ideamarket!", [], [], "", 
             false, "", alice.address);
         await expectRevert(ideamarketPosts.connect(bob).updateURLContent(1, "https://ipfsimagelink"), 'admin-only');
     })
 
     it("cannot update URLContent for non url", async () => {
-        await ideamarketPosts.connect(alice).mint("I love ideamarket!", [], "", 
+        await ideamarketPosts.connect(alice).mint("I love ideamarket!", [], [], "", 
             false, "", alice.address);
         await expectRevert(ideamarketPosts.connect(alice).updateURLContent(1, "https://ipfsimagelink"), 'post-is-not-a-url');
     })
 
     it("returns isURL", async () => {
-        await ideamarketPosts.connect(alice).mint("I love ideamarket!", [], "", 
+        await ideamarketPosts.connect(alice).mint("I love ideamarket!", [], [], "", 
             true, "", bob.address);
         expect(await ideamarketPosts.isURL(1)).to.deep.equal(true);
     })
 
     it("admin can update image Content", async () => {
-        await ideamarketPosts.connect(alice).mint("I love ideamarket!", [], "", 
+        await ideamarketPosts.connect(alice).mint("I love ideamarket!", [], [], "", 
             true, "", bob.address);
         await ideamarketPosts.connect(alice).updateImage(1, "https://ipfsimagelink");
         let post = await ideamarketPosts.getPost(1);
@@ -376,7 +441,7 @@ describe("IdeamarketPosts", () => {
     })
 
     it("admin can update url Content", async () => {
-        await ideamarketPosts.connect(alice).mint("I love ideamarket!", [], "", 
+        await ideamarketPosts.connect(alice).mint("I love ideamarket!", [], [], "", 
             true, "", bob.address);
         await ideamarketPosts.connect(alice).updateURLContent(1, "tweet");
         let post = await ideamarketPosts.getPost(1);

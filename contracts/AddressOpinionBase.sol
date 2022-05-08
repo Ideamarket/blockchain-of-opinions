@@ -35,7 +35,7 @@ contract AddressOpinionBase is IAddressOpinionBase {
     
     function writeOpinion(address addy, uint8 rating, string calldata comment) external override {
         require(rating != 50, "rating must not be 50");
-        require(bytes(comment).length <= 560, "comment must be lte 560 characters");
+        require(bytes(comment).length <= 10000, "comment must be lte 10000 characters");
         uint blockHeight = _arbSys.arbBlockNumber();
         Opinion memory opinion = Opinion(msg.sender, addy, rating, comment, blockHeight);
         _userOpinions[addy][msg.sender].push(opinion);

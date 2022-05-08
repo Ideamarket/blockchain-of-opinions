@@ -82,6 +82,23 @@ describe("IdeamarketPosts", () => {
             true, "kinda worried that 8 eth for my milady is too cheap..", '0x0000000000000000000000000000000000000000'), 'zero-addr');
     })
 
+    it("should fail mint for non admin", async () => {
+        await expectRevert(ideamarketPosts.connect(bob).mint("hi", [], [], "", 
+            true, "kinda worried that 8 eth for my milady is too cheap..", '0x0000000010000000000000000000000000000000'), 'admin-only');
+    })
+
+    it("should be able to mint after public mint toggled", async () => {
+        await ideamarketPosts.connect(alice).togglePublicMint()
+        await ideamarketPosts.connect(bob).mint("hi", [], [], "", 
+            true, "kinda worried that 8 eth for my milady is too cheap..", '0x0000000010000000000000000000000000000000');
+        const post = await ideamarketPosts.getPost(1)
+        expect(post['content']).to.deep.equal('hi');
+    })
+
+    it("only admin can toggle public mint", async () => {
+        await expectRevert(ideamarketPosts.connect(bob).togglePublicMint(), "admin-only")
+    })
+
     it("should be able add and use a category tag", async () => {
         await ideamarketPosts.connect(alice).addCategories(['A', 'B', 'C']);
         await ideamarketPosts.connect(alice).mint("https://mirror.xyz/charlemagnefang.eth/m3fUfJUS1DqsmIdPTpxLaoD-DLxR_aIyjOr2udcKGdY", [], ['A'], "", 
@@ -153,8 +170,9 @@ describe("IdeamarketPosts", () => {
         expect(post['imageHashes'][0]).to.deep.equal("QmPK1s3pNYLi9ERiq3BDxKa4XosgWwFRQUydHUtz4YgpqB");
         expect(post['imageHashes'][1]).to.deep.equal("QmPK1s3pNYLi9ERiq3BDxKa4XosgWwFRQUydHUtz4YgpqB");
     })
-
-    it("should be able to update imageHash", async () => {
+    
+    it("minter should be able to update imageHash", async () => {
+        await ideamarketPosts.connect(alice).togglePublicMint()
         await ideamarketPosts.connect(bob).mint("https://mirror.xyz/charlemagnefang.eth/m3fUfJUS1DqsmIdPTpxLaoD-DLxR_aIyjOr2udcKGdY", ["QmPK1s3pNYLi9ERiq3BDxKa4XosgWwFRQUydHUtz4YgpqB", "QmPK1s3pNYLi9ERiq3BDxKa4XosgWwFRQUydHUtz4YgpqB"], [""], "", 
             true, "", alice.address);
         await ideamarketPosts.connect(alice).updateImageHashes(1, ["Qmhi"])
@@ -164,11 +182,12 @@ describe("IdeamarketPosts", () => {
     })
 
     it("only admin or owner can update imageHashes", async () => {
+        await ideamarketPosts.connect(alice).togglePublicMint()
         await ideamarketPosts.connect(bob).mint("https://mirror.xyz/charlemagnefang.eth/m3fUfJUS1DqsmIdPTpxLaoD-DLxR_aIyjOr2udcKGdY", ["QmPK1s3pNYLi9ERiq3BDxKa4XosgWwFRQUydHUtz4YgpqB", "QmPK1s3pNYLi9ERiq3BDxKa4XosgWwFRQUydHUtz4YgpqB"], [""], "", 
             true, "", alice.address);
         await ideamarketPosts.connect(alice).updateImageHashes(1, ["Qmhi"])
         await ideamarketPosts.connect(alice).updateImageHashes(1, ["Qmhii"])
-        await expectRevert(ideamarketPosts.connect(charlie).updateImageHashes(1, ['Qmbye']), "only-token-owner-or-admin")
+        await expectRevert(ideamarketPosts.connect(bob).updateImageHashes(1, ['Qmbye']), "admin-only")
     })
 
     it("tokenURI should work web2url without categories", async () => {

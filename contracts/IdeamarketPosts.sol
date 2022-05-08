@@ -35,6 +35,7 @@ contract IdeamarketPosts is IIdeamarketPosts, ERC721, AccessControl {
     string[] public activeCategories;
 
     uint tokenNumber;
+    bool publicMint;
     // contract to retrieve arb block height
     IArbSys constant _arbSys = IArbSys(address(100));
 
@@ -47,10 +48,12 @@ contract IdeamarketPosts is IIdeamarketPosts, ERC721, AccessControl {
     
     function mint(string calldata content, string[] memory imageHashes, string[] memory categoryTags, string calldata imageLink, 
         bool urlBool, string calldata urlContent, address recipient) external {
+        require(publicMint || hasRole(ADMIN_ROLE, msg.sender), "admin-only");
         require(bytes(content).length > 0, "content-empty");
         require(recipient != address(0), "zero-addr");
         
-        uint blockHeight = _arbSys.arbBlockNumber();
+        //uint blockHeight = _arbSys.arbBlockNumber();
+        uint blockHeight = block.number;
         _mint(recipient, ++tokenNumber);
         string[] memory validCategoryTags = filterValidCategories(tokenNumber, categoryTags);
         
@@ -147,7 +150,7 @@ contract IdeamarketPosts is IIdeamarketPosts, ERC721, AccessControl {
     }
 
     function updateImageHashes(uint tokenID, string[] memory imageHashes) external override {
-        require(msg.sender == ownerOf(tokenID) || hasRole(ADMIN_ROLE, msg.sender), "only-token-owner-or-admin");
+         require(hasRole(ADMIN_ROLE, msg.sender), "admin-only");
         posts[tokenID].imageHashes = imageHashes;
     }
 
@@ -173,6 +176,11 @@ contract IdeamarketPosts is IIdeamarketPosts, ERC721, AccessControl {
 
     function isURL(uint tokenID) external view override returns (bool) {
         return posts[tokenID].isURL;
+    }
+
+    function togglePublicMint() external {
+        require(hasRole(ADMIN_ROLE, msg.sender), "admin-only");
+        publicMint = true;
     }
 
     function stringify(string[] memory arr) internal pure returns(string memory) {

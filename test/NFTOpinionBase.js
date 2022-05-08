@@ -49,13 +49,6 @@ describe("NFTOpinionBase", () => {
 		expect(opinion[0]['author']).to.equal(alice.address);
 	})
 
-	it("should fail with opinion w/ comment greater than 560 char", async () => {
-		await expectRevert(opinionBase.connect(alice).writeOpinion(token1Address, 1, 98, "i like thissssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss"
-			+ "ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss"
-			+ "ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss"), 
-			"comment must be lte 560 characters");
-	})
-
 	it("should write and fetch users opinion", async () => {
 		await opinionBase.connect(alice).writeOpinion(token1Address, 1, 98, "");
 		const opinion = await opinionBase.getOpinion(token1Address, 1,  alice.address);

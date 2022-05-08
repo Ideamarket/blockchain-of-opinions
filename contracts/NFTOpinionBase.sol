@@ -42,7 +42,7 @@ contract NFTOpinionBase is INFTOpinionBase {
     function writeOpinion(address contractAddress, uint tokenID, uint8 rating, string calldata comment) external override {
         
         require(rating != 50, "rating must not be 50");
-        require(bytes(comment).length <= 560, "comment must be lte 560 characters");
+        require(bytes(comment).length <= 10000, "comment must be lte 560 characters");
         uint blockHeight = _arbSys.arbBlockNumber();
         Opinion memory opinion = Opinion(msg.sender, contractAddress,tokenID, rating, comment, blockHeight);
         _userOpinions[contractAddress][tokenID][msg.sender].push(opinion);

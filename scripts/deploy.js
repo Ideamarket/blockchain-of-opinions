@@ -15,7 +15,7 @@ async function main() {
 
 	// We get the contract to deploy
 	const OpinionBase = await ethers.getContractFactory("IdeamarketPosts");
-	const opinionBase = await OpinionBase.deploy('0x1Cc33A0ae55C250F66B8f9A1a3094bF285A9083f', { gasLimit: ethers.BigNumber.from(200000000)});
+	const opinionBase = await OpinionBase.deploy('0x93f9707adb26d98cfc6d73C8840425010AfA968B', { gasLimit: ethers.BigNumber.from(200000000)});
 
 	await opinionBase.deployed();
 

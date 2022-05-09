@@ -6,7 +6,7 @@ const { read, loadDeployedAddress, saveDeployedAddress, saveDeployedABI } = requ
 const allDeploymentParams = {
 	'avm': {
 		timelockDelay: '86400', // 24 hours
-		gasPrice: 130000000000,
+		gasPrice: 7500000000,
 	},
 	'rinkeby-avm': {
 		timelockDelay: '1',
@@ -50,7 +50,7 @@ async function main() {
 
 	console.log('Block', await ethers.provider.getBlockNumber())
 
-	const STAGE = 3
+	const STAGE = 1
 
 	let dsPauseProxyAddress
 	if (STAGE <= 1) {

@@ -74,7 +74,7 @@ describe("IdeamarketPosts", () => {
 
     it("should fail mint with no content", async () => {
         await expectRevert(ideamarketPosts.connect(alice).mint("", [], [], "", 
-            true, "kinda worried that 8 eth for my milady is too cheap..", alice.address), 'content-empty');
+            true, "kinda worried that 8 eth for my milady is too cheap..", alice.address), 'content-length');
     })
 
     it("should fail mint with 0x0 recipient", async () => {

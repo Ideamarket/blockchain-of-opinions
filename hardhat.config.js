@@ -48,9 +48,11 @@ module.exports = {
 		artifacts: './build/contracts',
 	},
 	etherscan: {
-		apiKey: process.env.ETHERSCAN_API_KEY
+		apiKey:
+		process.env.ETHERSCAN_API_KEY
+
 	},
 	mocha: {
 		timeout: 200000, // 200s
-	},
+	}
 }

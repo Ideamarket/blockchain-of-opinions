@@ -1,6 +1,6 @@
 //SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
-import "./interfaces/IOpinionBounties.sol";
+import "./interfaces/INFTOpinionBounties.sol";
 import "./utils/Ownable.sol";
 import "./utils/Initializable.sol";
 import "./interfaces/IAddressOpinionBase.sol";
@@ -14,7 +14,7 @@ import "./interfaces/IArbSys.sol";
  * @dev Allows for posting and claiming of bounties for opinions
  */
 
- contract NFTOpinionBounties is IOpinionBounties, Ownable, Initializable {
+ contract NFTOpinionBounties is INFTOpinionBounties, Ownable, Initializable {
 
     // tokenAddress => whether it is an acceptable bounty payment
     mapping(address => bool) _isValidPayment;

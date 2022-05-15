@@ -2,17 +2,19 @@
 pragma solidity ^0.8.0;
 import "./interfaces/IOpinionBounties.sol";
 import "./utils/Ownable.sol";
+import "./utils/Initializable.sol";
 import "./interfaces/IAddressOpinionBase.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "./interfaces/IArbSys.sol";
 
 /**
- * @title AddressOpinionBounties
+ * @title NFTOpinionBounties
  * @author Kelton Madden
  *
  * @dev Allows for posting and claiming of bounties for opinions
  */
 
- contract AddressOpinionBounties is IOpinionBounties, Ownable {
+ contract NFTOpinionBounties is IOpinionBounties, Ownable, Initializable {
 
     // tokenAddress => whether it is an acceptable bounty payment
     mapping(address => bool) _isValidPayment;
@@ -24,11 +26,13 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
     address _eth = 0x0000000000000000000000000000000000000000;
     IAddressOpinionBase _addressOpinionBase;
+    IArbSys _arbSys = IArbSys(address(100));
 
     event BountyOffered(address addy, address user, address depositor, address token, uint amount);
     event BountyClaimed(address addy, address user, address token, uint amount);
     event BountyRescinded(address addy, address user, address depositor, address token, uint amount);
-
+    //FIX INitalizaier
+    
     constructor(address owner, address addressOpinionBase, address[] memory payableTokens) {
         setOwnerInternal(owner);
         _addressOpinionBase = IAddressOpinionBase(addressOpinionBase);
@@ -60,7 +64,8 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
         require(amount > 0, "amount must be greater than 0");
         require(_isValidPayment[token], "invalid bounty payment");
         require(token != _eth || (token == _eth && msg.value == amount), "invalid ETH amount");
-        Bounty memory bounty = Bounty(amount, depositor, block.number);
+        uint blockHeight = _arbSys.arbBlockNumber();
+        Bounty memory bounty = Bounty(amount, depositor, blockHeight);
         _bounties[user][addy][token].push(bounty);
         if (token != _eth) {
             require(IERC20(token).transferFrom(depositor, address(this), amount), "Transfer failed");
@@ -137,7 +142,6 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
     }
 
     function setFeeDistributorAddress() external override onlyOwner() {
-        
     }
 
     function getBountyInfo(address addy, address user, address token) external view override returns (Bounty[] memory) {

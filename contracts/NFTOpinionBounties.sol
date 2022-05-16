@@ -141,7 +141,14 @@ import "./interfaces/IArbSys.sol";
 
     }
 
-    function setFeeDistributorAddress() external override onlyOwner() {
+    function withdrawOwnerFees() external override onlyOwner() {
+        for (uint i; i < _payableTokens.length; i++) {
+            if (_payableTokens[i] != _eth) {
+                require(IERC20(_payableTokens[i]).transfer(_owner, IERC20(_payableTokens[i]).balanceOf(address(this))), "Transfer failed");
+            } else {
+                require(msg.sender.call{value:address(this).balance}(""), "Transfer failed");
+            }
+        }
     }
 
     function getBountyInfo(address addy, address user, address token) external view override returns (Bounty[] memory) {

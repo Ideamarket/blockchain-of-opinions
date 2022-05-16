@@ -17,4 +17,5 @@ interface INFTOpinionBounties {
     function getAmountDepositedByUser(address addy, address user, address token) external view returns (uint);
     function getBountyAmountPayable(address addy, address user, address token) external view returns (uint);
     function setBountyFees() external;
+    function withdrawOwnerFees() external;
 }

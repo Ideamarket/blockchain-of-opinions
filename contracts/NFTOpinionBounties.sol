@@ -146,7 +146,8 @@ import "./interfaces/IArbSys.sol";
             if (_payableTokens[i] != _eth) {
                 require(IERC20(_payableTokens[i]).transfer(_owner, IERC20(_payableTokens[i]).balanceOf(address(this))), "Transfer failed");
             } else {
-                require(msg.sender.call{value:address(this).balance}(""), "Transfer failed");
+                (bool sent,) = _owner.call{value:IERC20(_payableTokens[i]).balanceOf(address(this))}("");
+                require(sent, "Transfer failed");
             }
         }
     }

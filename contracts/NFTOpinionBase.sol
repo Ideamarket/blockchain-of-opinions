@@ -36,15 +36,22 @@ contract NFTOpinionBase is INFTOpinionBase {
     uint _totalOpinionNumber;
 
     IArbSys constant _arbSys = IArbSys(address(100));
-    
-    event NewOpinion(address contractAddress, uint tokenID, address user, uint8 rating, string comment);
 
-    function writeOpinion(address contractAddress, uint tokenID, uint8 rating, string calldata comment) external override {
+    event NewOpinion(address contractAddress, uint tokenID, address user, uint8 rating, uint[] citations, bool[] inFavorArr);
+
+    function writeOpinion(address contractAddress, uint tokenID, uint8 rating, 
+        uint[] calldata citations, bool[] calldata inFavorArr) external override {
         require(rating != 50, "rating must not be 50");
-        require(bytes(comment).length <= 10000, "comment must be lte 560 characters");
-        
+        require(citations.length <= 10, "too many citations");
+        require(citations.length == inFavorArr.length, "citation arr length must equal inFavorArr length");
+        for (uint i; i < citations.length; i++) {
+            if (citations[i] == tokenID) {
+                revert("cant cite post you are rating");
+            }
+        }
+
         uint blockHeight = _arbSys.arbBlockNumber();
-        Opinion memory opinion = Opinion(msg.sender, contractAddress,tokenID, rating, comment, blockHeight);
+        Opinion memory opinion = Opinion(msg.sender, contractAddress,tokenID, rating, citations, inFavorArr, blockHeight);
         _userOpinions[contractAddress][tokenID][msg.sender].push(opinion);
         _totalUserOpinions[msg.sender].push(opinion);
 
@@ -60,7 +67,7 @@ contract NFTOpinionBase is INFTOpinionBase {
 
         _addressOpinionCount[contractAddress]++;
         _totalOpinionNumber++;
-        emit NewOpinion(contractAddress, tokenID, msg.sender, rating, comment);
+        emit NewOpinion(contractAddress, tokenID, msg.sender, rating, citations, inFavorArr);
     }
 
     function getOpinion(address contractAddress, uint tokenID, address user) external view override returns (Opinion[] memory) {

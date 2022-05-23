@@ -19,9 +19,10 @@ describe("NFTOpinionBase", () => {
 	})
 
 	it("should write opinion", async () => {
-		await opinionBase.connect(alice).writeOpinion(token1Address, 1,  98, "I like this url a lot");
+		await opinionBase.connect(alice).writeOpinion(token1Address, 1,  98, [0], [true]);
 		const opinion = await opinionBase.getOpinion(token1Address, 1, alice.address);
-		expect(opinion[0]['comment']).to.equal("I like this url a lot");
+		expect(opinion[0]['citation'][0]).to.equal(0);
+		expect(opinion[0]['inFavor']).to.equal(true);
 		expect(opinion[0]['tokenID']).to.equal(1);
 		expect(opinion[0]['contractAddress']).to.equal("0x0000000000000000000000000000000000000001");
 		expect(opinion[0]['rating']).to.equal(98);
@@ -298,8 +299,8 @@ describe("NFTOpinionBase", () => {
 		expect(latestOpinionsAboutNFT[1]["comment"]).to.equal("I like this url a little");
 		expect(latestOpinionsAboutNFT.length).to.equal(2);
 	})
-	
-	it("emmited event should be connect", async () => {
+	//fix
+	it("emmited event should be correct", async () => {
 		expect(opinionBase.connect(alice).writeOpinion(token1Address, 1,  98, "I like this url a lot")).
 		to.emit(opinionBase, "OpinionWritten").withArgs(alice.address, token1Address, 1,  98, "I like this url a lot",);
 	})

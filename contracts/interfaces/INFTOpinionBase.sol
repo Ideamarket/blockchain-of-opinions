@@ -17,11 +17,13 @@ interface INFTOpinionBase {
         address contractAddress;
         uint tokenID;
         uint8 rating;
-        string comment;
+        uint[] citations;
+        bool[] inFavorArr;
         uint blockHeight;
     }
-    
-    function writeOpinion(address contractAddress, uint tokenID, uint8 rating, string calldata comment) external;
+
+    function writeOpinion(address contractAddress, uint tokenID, 
+        uint8 rating, uint[] calldata citations, bool[] calldata inFavorArr) external;
     function getOpinion(address contractAddress, uint tokenID, address user) external view returns (Opinion[] memory);
     function getUsersOpinions(address user) external view returns (Opinion[] memory);
     function getOpinionsAboutNFT(address contractAddress, uint tokenID) external view returns (Opinion[] memory);

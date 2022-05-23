@@ -18,11 +18,11 @@ describe("NFTOpinionBase", () => {
 		opinionBase = await OpinionBase.deploy();
 	})
 
-	it("should write opinion", async () => {
+	it("should write opinion citing 0 post", async () => {
 		await opinionBase.connect(alice).writeOpinion(token1Address, 1,  98, [0], [true]);
 		const opinion = await opinionBase.getOpinion(token1Address, 1, alice.address);
-		expect(opinion[0]['citation'][0]).to.equal(0);
-		expect(opinion[0]['inFavor']).to.equal(true);
+		expect(opinion[0]['citations'][0]).to.equal(0);
+		expect(opinion[0]['inFavorArr'][0]).to.equal(true);
 		expect(opinion[0]['tokenID']).to.equal(1);
 		expect(opinion[0]['contractAddress']).to.equal("0x0000000000000000000000000000000000000001");
 		expect(opinion[0]['rating']).to.equal(98);
@@ -30,10 +30,11 @@ describe("NFTOpinionBase", () => {
 		expect(opinion.length).to.equal(1);
 	})
 
-	it("should write short opinion", async () => {
-		await opinionBase.connect(alice).writeOpinion(token1Address, 1, 98, "I like");
-		const opinion = await opinionBase.getOpinion(token1Address, 1,  alice.address);
-		expect(opinion[0]['comment']).to.equal("I like");
+	it("should write opinion citing other post", async () => {
+		await opinionBase.connect(alice).writeOpinion(token1Address, 1, 98, [2], [true]);
+		const opinion = await opinionBase.getOpinion(token1Address, 1, alice.address);
+		expect(opinion[0]['citations'][0]).to.equal(2);
+		expect(opinion[0]['inFavorArr'][0]).to.equal(true);
 		expect(opinion[0]['tokenID']).to.equal(1);
 		expect(opinion[0]['contractAddress']).to.equal("0x0000000000000000000000000000000000000001");
 		expect(opinion[0]['rating']).to.equal(98);
@@ -41,10 +42,14 @@ describe("NFTOpinionBase", () => {
 		expect(opinion.length).to.equal(1);
 	})
 
-	it("should write opinion w/out comment", async () => {
-		await opinionBase.connect(alice).writeOpinion(token1Address, 1, 98, "");
+	it("should write opinion with multiple citations", async () => {
+		await opinionBase.connect(alice).writeOpinion(token1Address, 1, 98, [2, 3, 5, 6], [true, true, true, false]);
 		const opinion = await opinionBase.getOpinion(token1Address, 1,  alice.address);
-		expect(opinion[0]['comment']).to.equal("");
+		expect(opinion[0]['citations'][0]).to.equal(2);
+		expect(opinion[0]['citations'].length).to.equal(4);
+		expect(opinion[0]['inFavorArr'][0]).to.equal(true);
+		expect(opinion[0]['inFavorArr'][3]).to.equal(false);
+		expect(opinion[0]['inFavorArr'].length).to.equal(4);
 		expect(opinion[0]['contractAddress']).to.equal("0x0000000000000000000000000000000000000001");
 		expect(opinion[0]['rating']).to.equal(98);
 		expect(opinion[0]['author']).to.equal(alice.address);

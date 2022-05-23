@@ -45,12 +45,17 @@ contract NFTOpinionBase is INFTOpinionBase {
         require(citations.length <= 10, "too many citations");
         require(citations.length == inFavorArr.length, "citation arr length must equal inFavorArr length");
         for (uint i; i < citations.length; i++) {
-            if (citations[i] == tokenID) {
+            if (citations[i] == tokenID || (citations[i] == 0 && citations.length != 1)) {
                 revert("cant cite post you are rating");
+            } for (uint j = i + 1; j < citations.length; j++) {
+                if (citations[i] == citations[j]) {
+                    revert("repeat citations"); 
+                }
             }
         }
-
-        uint blockHeight = _arbSys.arbBlockNumber();
+    //fix
+        //uint blockHeight = _arbSys.arbBlockNumber();
+        uint blockHeight = block.number;
         Opinion memory opinion = Opinion(msg.sender, contractAddress,tokenID, rating, citations, inFavorArr, blockHeight);
         _userOpinions[contractAddress][tokenID][msg.sender].push(opinion);
         _totalUserOpinions[msg.sender].push(opinion);

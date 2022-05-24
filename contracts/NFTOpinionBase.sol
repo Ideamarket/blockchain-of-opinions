@@ -1,6 +1,8 @@
 //SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 import "./interfaces/INFTOpinionBase.sol";
+import "./utils/Initializable.sol";
+import "./IdeamarketPosts.sol";
 import "./interfaces/IArbSys.sol";
 
 /**
@@ -10,10 +12,10 @@ import "./interfaces/IArbSys.sol";
  * @dev Stores and retrieves opinions
  */
 
-contract NFTOpinionBase is INFTOpinionBase {
+contract NFTOpinionBase is INFTOpinionBase, Initializable {
 
     // contractAddress => uint => all opinions for a given tokenID
-    mapping(uint => Opinion[])) _opinions;
+    mapping(uint => Opinion[]) _opinions;
 
     // uint => user wallet address => the opinions they have made about that tokenID
     mapping(uint => mapping(address => Opinion[])) _userOpinions;
@@ -24,14 +26,19 @@ contract NFTOpinionBase is INFTOpinionBase {
     // uint => address[] of users who have made opinions about that tokenID
     mapping(uint => address[]) _opinionatorList;
 
-    // tokenIDs about which opinions have been made
     uint[] _opinionedTokenIDs;
-
     uint _totalOpinionNumber;
 
-    IArbSys constant _arbSys = IArbSys(address(100));
+    IArbSys _arbSys;
+    IdeamarketPosts _posts;
 
     event NewOpinion(uint tokenID, address user, uint8 rating, uint[] citations, bool[] inFavorArr);
+
+    function initialize(address ideamarketPosts) external initializer {
+        require(ideamarketPosts != address(0), "zero address");
+        _arbSys = IArbSys(address(100));
+        _posts = IdeamarketPosts(ideamarketPosts);
+    }
 
     function writeOpinion(uint tokenID, uint8 rating, uint[] calldata citations, bool[] calldata inFavorArr) external override {
         checkInput(tokenID, rating, citations, inFavorArr);
@@ -58,7 +65,7 @@ contract NFTOpinionBase is INFTOpinionBase {
         require(citations.length <= 10, "too many citations");
         require(citations.length == inFavorArr.length, "citation arr length must equal inFavorArr length");
         for (uint i; i < citations.length; i++) {
-            if (citations[i] == tokenID || (citations[i] == 0 && citations.length != 1)) {
+            if (citations[i] == tokenID || citations[i] > _posts.totalSupply() ||(citations[i] == 0 && citations.length != 1)) {
                 revert("invalid citation");
             } for (uint j = i + 1; j < citations.length; j++) {
                 if (citations[i] == citations[j]) {
@@ -72,11 +79,15 @@ contract NFTOpinionBase is INFTOpinionBase {
         return _userOpinions[tokenID][user];
     }
 
+    function getOpinionsAboutNFT(uint tokenID) external view override returns (Opinion[] memory) {
+        return _opinions[tokenID];
+    }
+
     function getUsersOpinions(address user) external view override returns (Opinion[] memory) {
         return _totalUserOpinions[user];
     }
 
-    function getLatestOpinions(uint tokenID) external view override returns (Opinion[] memory) {
+    function getLatestOpinionsAboutNFT(uint tokenID) external view override returns (Opinion[] memory) {
         Opinion[] memory latestOpinions = new Opinion[](_opinionatorList[tokenID].length);
         for (uint i = 0; i < _opinionatorList[tokenID].length; i++) {
             uint latestOpinionIndex = _userOpinions[tokenID][_opinionatorList[tokenID][i]].length - 1;

@@ -17,9 +17,11 @@ const allDeploymentParams = {
 const allExternalContractAddresses = {
 	'avm': {
 		multisig: '0x1Cc33A0ae55C250F66B8f9A1a3094bF285A9083f',
+		ideamarketPosts: 
 	},
 	'rinkeby-avm': {
 		multisig: '0x4e6a11b687F35fA21D92731F9CD2f231C61f9151',
+		ideamarketPosts:
 	},
 }
 
@@ -87,7 +89,6 @@ async function main() {
 	if (contractName ==='AddressOpinionBounties' || contractName ==='NFTOpinionBounties') {
 		console.log('deploy ' + contractName)
 		console.log('==============================================')
-        const params = []
 
 		const [proxyContract, contract] = await deployProxyContract(
 			contractName,
@@ -106,6 +107,7 @@ async function main() {
 		const [proxyContract, contract] = await deployProxyContract(
 			contractName,
 			proxyAdminAddress,
+			externalContractAddresses.ideamarketPosts,
 		)
 
 		proxyContractAddress = proxyContract.address

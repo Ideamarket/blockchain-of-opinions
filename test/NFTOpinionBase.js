@@ -55,21 +55,49 @@ describe("NFTOpinionBase", () => {
 		expect(opinion[0]['author']).to.equal(alice.address);
 	})
 
+	it("should fail with more than 10 citations", async () => {
+		await expectRevert(opinionBase.connect(alice).writeOpinion(token1Address, 1, 98, 
+			[2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], [true, true, true, false, true, true, true, false, true, true, true]), "too many citations");
+	})
+
+	it("should fail repeat citations", async () => {
+		await expectRevert(opinionBase.connect(alice).writeOpinion(token1Address, 1, 98, [2, 2, 5, 6], [true, true, true, false]), "repeat citation");
+	})
+
+	it("should fail if citations length != inFavorArr length", async () => {
+		await expectRevert(opinionBase.connect(alice).writeOpinion(token1Address, 1, 98, [2, 4, 5, 6], [true, true, false]), "citation arr length must equal inFavorArr length");
+		await expectRevert(opinionBase.connect(alice).writeOpinion(token1Address, 1, 98, [2, 4], [true, true, false]), "citation arr length must equal inFavorArr length");
+	})
+
+	it("should fail if cites itself", async () => {
+		await expectRevert(opinionBase.connect(alice).writeOpinion(token1Address, 1, 98, [2, 1, 5, 6], [true, true, true, false]), "invalid citation");
+		await expectRevert(opinionBase.connect(alice).writeOpinion(token1Address, 1, 98, [1], [true]), "invalid citation");
+	})
+
+	it("should fail citing multiple citations including 0 citation", async () => {
+		await expectRevert(opinionBase.connect(alice).writeOpinion(token1Address, 1, 98, [2, 0, 5, 6], [true, true, true, false]), "invalid citation");
+	})
+
 	it("should write and fetch users opinion", async () => {
-		await opinionBase.connect(alice).writeOpinion(token1Address, 1, 98, "");
+		await opinionBase.connect(alice).writeOpinion(token1Address, 1, 98, [2], [true]);
 		const opinion = await opinionBase.getOpinion(token1Address, 1,  alice.address);
 		const fetchedOpinions = await opinionBase.getUsersOpinions(alice.address);
-		expect(fetchedOpinions[0]['comment']).to.equal("");
+		expect(opinion[0]['citations'][0]).to.equal(2);
+		expect(opinion[0]['inFavorArr'][0]).to.equal(true);
 		expect(opinion[0]['tokenID']).to.equal(1);
+		expect(fetchedOpinions[0]['citations'][0]).to.equal(2);
+		expect(fetchedOpinions[0]['inFavorArr'][0]).to.equal(true);
+		expect(fetchedOpinions[0]['tokenID']).to.equal(1);
 		expect(fetchedOpinions[0]['contractAddress']).to.equal("0x0000000000000000000000000000000000000001");
 		expect(fetchedOpinions[0]['rating']).to.equal(98);
 		expect(fetchedOpinions[0]['author']).to.equal(alice.address);
 	})
 
 	it("should fetch opinion on topic", async () => {
-		await opinionBase.connect(alice).writeOpinion(token1Address, 1, 98, "");
+		await opinionBase.connect(alice).writeOpinion(token1Address, 1, 98, [2], [true]);
 		const fetchedOpinions = await opinionBase.getOpinionsAboutNFT(token1Address, 1);
-		expect(fetchedOpinions[0]['comment']).to.equal("");
+		expect(fetchedOpinions[0]['citations'][0]).to.equal(2);
+		expect(fetchedOpinions[0]['inFavorArr'][0]).to.equal(true);
 		expect(fetchedOpinions[0]['contractAddress']).to.equal("0x0000000000000000000000000000000000000001");
 		expect(fetchedOpinions[0]['rating']).to.equal(98);
 		expect(fetchedOpinions[0]['author']).to.equal(alice.address);
@@ -77,19 +105,21 @@ describe("NFTOpinionBase", () => {
 	})
 
 		it("should fetch opinions for an address", async () => {
-		await opinionBase.connect(alice).writeOpinion(token1Address, 1, 98, "");
-		await opinionBase.connect(alice).writeOpinion(token1Address, 2, 48, "");
-		await opinionBase.connect(alice).writeOpinion(token1Address, 2, 58, "");
+		await opinionBase.connect(alice).writeOpinion(token1Address, 1, 98, [2], [true]);
+		await opinionBase.connect(alice).writeOpinion(token1Address, 2, 48, [3], [false]);
+		await opinionBase.connect(alice).writeOpinion(token1Address, 2, 58, [4], [true]);
 		const fetchedOpinions = await opinionBase.getAllOpinionsForAddress(token1Address);
 		const idList = await opinionBase.getOpinionedNFTsForAddress(token1Address);
 		expect(idList.length).to.equal(2);
 		expect(idList[0]).to.equal(1);
 		expect(idList[1]).to.equal(2);
-		expect(fetchedOpinions[0]['comment']).to.equal("");
+		expect(fetchedOpinions[0]['citations'][0]).to.equal(2);
+		expect(fetchedOpinions[0]['inFavorArr'][0]).to.equal(true);
 		expect(fetchedOpinions[0]['contractAddress']).to.equal("0x0000000000000000000000000000000000000001");
 		expect(fetchedOpinions[0]['rating']).to.equal(98);
 		expect(fetchedOpinions[0]['author']).to.equal(alice.address);
-		expect(fetchedOpinions[1]['comment']).to.equal("");
+		expect(fetchedOpinions[1]['citations'][0]).to.equal(3);
+		expect(fetchedOpinions[1]['inFavorArr'][0]).to.equal(false);
 		expect(fetchedOpinions[1]['contractAddress']).to.equal("0x0000000000000000000000000000000000000001");
 		expect(fetchedOpinions[1]['rating']).to.equal(48);
 		expect(fetchedOpinions[1]['author']).to.equal(alice.address);
@@ -97,9 +127,10 @@ describe("NFTOpinionBase", () => {
 	})
 
 	it("should fetch latest opinion on topic", async () => {
-		await opinionBase.connect(alice).writeOpinion(token1Address, 1, 98, "");
+		await opinionBase.connect(alice).writeOpinion(token1Address, 1, 98, [2], [true]);
 		const fetchedOpinions = await opinionBase.getLatestOpinionsAboutNFT(token1Address, 1);
-		expect(fetchedOpinions[0]['comment']).to.equal("");
+		expect(fetchedOpinions[0]['citations'][0]).to.equal(2);
+		expect(fetchedOpinions[0]['inFavorArr'][0]).to.equal(true);
 		expect(fetchedOpinions[0]['contractAddress']).to.equal("0x0000000000000000000000000000000000000001");
 		expect(fetchedOpinions[0]['rating']).to.equal(98);
 		expect(fetchedOpinions[0]['author']).to.equal(alice.address);
@@ -107,7 +138,7 @@ describe("NFTOpinionBase", () => {
 	})
 
 	it("should fetch opinined tokenIDPairs", async () => {
-		await opinionBase.connect(alice).writeOpinion(token1Address, 1, 98, "I like this url a lot");
+		await opinionBase.connect(alice).writeOpinion(token1Address, 1, 98, [2, 5]);
 		const opinedNFTs = await opinionBase.getOpinionedNFTs();
 		expect(opinedNFTs[0]["contractAddress"]).to.equal(token1Address);
 		expect(opinedNFTs[0]["tokenID"]).to.equal(1);

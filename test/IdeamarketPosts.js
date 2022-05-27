@@ -126,6 +126,7 @@ describe("IdeamarketPosts", () => {
 
     it("should be able add and use multiple categories", async () => {
         await ideamarketPosts.connect(alice).addCategories(['A', 'B', 'C']);
+        await ideamarketPosts.connect(bob).addCategories(['A', 'C']);
         await ideamarketPosts.connect(alice).mint("https://mirror.xyz/charlemagnefang.eth/m3fUfJUS1DqsmIdPTpxLaoD-DLxR_aIyjOr2udcKGdY", [], ['A', 'B'], "", 
             true, "", alice.address);
         const post = await ideamarketPosts.getPost(1);
@@ -151,7 +152,6 @@ describe("IdeamarketPosts", () => {
         expect(post['categories'][0]).to.deep.equal('A');
         expect(post['categories'][1]).to.deep.equal('C');
     })
-
     
     it("should be able add imageHash", async () => {
         await ideamarketPosts.connect(alice).mint("https", ["QmPK1s3pNYLi9ERiq3BDxKa4XosgWwFRQUydHUtz4YgpqB"], [], "", 
@@ -290,11 +290,6 @@ describe("IdeamarketPosts", () => {
         await ideamarketPosts.connect(bob).addCategories(['A']);
         const categories = await ideamarketPosts.getActiveCategories();
         expect(categories.length).to.deep.equal(1);
-    })
-
-    it("only admin can add/remove categories", async () => {
-        await expectRevert(ideamarketPosts.connect(bob).addCategories(['A']), 'admin-only');
-        await expectRevert(ideamarketPosts.connect(bob).removeCategories(['A']), 'admin-only');
     })
 
     it("admin should remove category", async () => {

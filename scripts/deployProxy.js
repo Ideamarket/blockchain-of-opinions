@@ -21,7 +21,7 @@ const allExternalContractAddresses = {
 	},
 	'rinkeby-avm': {
 		multisig: '0x4e6a11b687F35fA21D92731F9CD2f231C61f9151',
-		ideamarketPosts: '0xA600B6E5C58194111687939808230cBA3857DF8e'
+		ideamarketPosts: '0xE761935f890FAcd12bB7274CCaECCa4c1B49Bf66'
 	},
 }
 
@@ -52,7 +52,7 @@ async function main() {
 
 	console.log('Block', await ethers.provider.getBlockNumber())
 
-	const STAGE = 1
+	const STAGE = 3
 
 	let dsPauseProxyAddress
 	if (STAGE <= 1) {

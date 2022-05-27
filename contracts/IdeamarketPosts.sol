@@ -97,7 +97,6 @@ contract IdeamarketPosts is IIdeamarketPosts, ERC721, AccessControl {
     }
 
     function addCategories(string[] calldata newCategories) external override{
-        require(hasRole(ADMIN_ROLE, msg.sender), "admin-only");
         for (uint i = 0; i < newCategories.length; i++) {
             categories[newCategories[i]] = true;
             activeCategories.push(newCategories[i]);

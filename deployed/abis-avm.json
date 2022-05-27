@@ -1,1 +1,843 @@
-{"dsPause":[{"inputs":[{"internalType":"uint256","name":"delay","type":"uint256"},{"internalType":"address","name":"owner","type":"address"}],"stateMutability":"nonpayable","type":"constructor"},{"inputs":[],"name":"_delay","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"_owner","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"bytes32","name":"","type":"bytes32"}],"name":"_plans","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"_proxy","outputs":[{"internalType":"contract DSPauseProxy","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"usr","type":"address"},{"internalType":"bytes32","name":"tag","type":"bytes32"},{"internalType":"bytes","name":"fax","type":"bytes"},{"internalType":"uint256","name":"eta","type":"uint256"}],"name":"drop","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"usr","type":"address"},{"internalType":"bytes32","name":"tag","type":"bytes32"},{"internalType":"bytes","name":"fax","type":"bytes"},{"internalType":"uint256","name":"eta","type":"uint256"}],"name":"exec","outputs":[{"internalType":"bytes","name":"out","type":"bytes"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"usr","type":"address"},{"internalType":"bytes32","name":"tag","type":"bytes32"},{"internalType":"bytes","name":"fax","type":"bytes"},{"internalType":"uint256","name":"eta","type":"uint256"}],"name":"plot","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"delay","type":"uint256"}],"name":"setDelay","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"owner","type":"address"}],"name":"setOwner","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"usr","type":"address"}],"name":"soul","outputs":[{"internalType":"bytes32","name":"tag","type":"bytes32"}],"stateMutability":"view","type":"function"}],"dsPauseProxy":[{"inputs":[],"stateMutability":"nonpayable","type":"constructor"},{"inputs":[],"name":"_owner","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"usr","type":"address"},{"internalType":"bytes","name":"fax","type":"bytes"}],"name":"exec","outputs":[{"internalType":"bytes","name":"out","type":"bytes"}],"stateMutability":"nonpayable","type":"function"}],"proxyAdmin":[{"inputs":[{"internalType":"address","name":"owner","type":"address"}],"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"address","name":"oldOwner","type":"address"},{"indexed":false,"internalType":"address","name":"newOwner","type":"address"}],"name":"OwnershipChanged","type":"event"},{"inputs":[{"internalType":"contract AdminUpgradeabilityProxy","name":"proxy","type":"address"},{"internalType":"address","name":"newAdmin","type":"address"}],"name":"changeProxyAdmin","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"getOwner","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"contract AdminUpgradeabilityProxy","name":"proxy","type":"address"}],"name":"getProxyAdmin","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"contract AdminUpgradeabilityProxy","name":"proxy","type":"address"}],"name":"getProxyImplementation","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"newOwner","type":"address"}],"name":"setOwner","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"contract AdminUpgradeabilityProxy","name":"proxy","type":"address"},{"internalType":"address","name":"implementation","type":"address"}],"name":"upgrade","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"contract AdminUpgradeabilityProxy","name":"proxy","type":"address"},{"internalType":"address","name":"implementation","type":"address"},{"internalType":"bytes","name":"data","type":"bytes"}],"name":"upgradeAndCall","outputs":[],"stateMutability":"payable","type":"function"}],"NFTOpinionBase":[{"anonymous":false,"inputs":[{"indexed":false,"internalType":"address","name":"contractAddress","type":"address"},{"indexed":false,"internalType":"uint256","name":"tokenID","type":"uint256"},{"indexed":false,"internalType":"address","name":"user","type":"address"},{"indexed":false,"internalType":"uint8","name":"rating","type":"uint8"},{"indexed":false,"internalType":"string","name":"comment","type":"string"}],"name":"NewOpinion","type":"event"},{"inputs":[],"name":"getAllOpinions","outputs":[{"components":[{"internalType":"address","name":"author","type":"address"},{"internalType":"address","name":"contractAddress","type":"address"},{"internalType":"uint256","name":"tokenID","type":"uint256"},{"internalType":"uint8","name":"rating","type":"uint8"},{"internalType":"string","name":"comment","type":"string"},{"internalType":"uint256","name":"blockHeight","type":"uint256"}],"internalType":"struct INFTOpinionBase.Opinion[]","name":"","type":"tuple[]"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"contractAddress","type":"address"}],"name":"getAllOpinionsForAddress","outputs":[{"components":[{"internalType":"address","name":"author","type":"address"},{"internalType":"address","name":"contractAddress","type":"address"},{"internalType":"uint256","name":"tokenID","type":"uint256"},{"internalType":"uint8","name":"rating","type":"uint8"},{"internalType":"string","name":"comment","type":"string"},{"internalType":"uint256","name":"blockHeight","type":"uint256"}],"internalType":"struct INFTOpinionBase.Opinion[]","name":"","type":"tuple[]"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"contractAddress","type":"address"},{"internalType":"uint256","name":"tokenID","type":"uint256"}],"name":"getLatestOpinionsAboutNFT","outputs":[{"components":[{"internalType":"address","name":"author","type":"address"},{"internalType":"address","name":"contractAddress","type":"address"},{"internalType":"uint256","name":"tokenID","type":"uint256"},{"internalType":"uint8","name":"rating","type":"uint8"},{"internalType":"string","name":"comment","type":"string"},{"internalType":"uint256","name":"blockHeight","type":"uint256"}],"internalType":"struct INFTOpinionBase.Opinion[]","name":"","type":"tuple[]"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"contractAddress","type":"address"},{"internalType":"uint256","name":"tokenID","type":"uint256"},{"internalType":"address","name":"user","type":"address"}],"name":"getOpinion","outputs":[{"components":[{"internalType":"address","name":"author","type":"address"},{"internalType":"address","name":"contractAddress","type":"address"},{"internalType":"uint256","name":"tokenID","type":"uint256"},{"internalType":"uint8","name":"rating","type":"uint8"},{"internalType":"string","name":"comment","type":"string"},{"internalType":"uint256","name":"blockHeight","type":"uint256"}],"internalType":"struct INFTOpinionBase.Opinion[]","name":"","type":"tuple[]"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getOpinionedNFTs","outputs":[{"components":[{"internalType":"address","name":"contractAddress","type":"address"},{"internalType":"uint256","name":"tokenID","type":"uint256"}],"internalType":"struct INFTOpinionBase.TokenIDPair[]","name":"","type":"tuple[]"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"contractAddress","type":"address"}],"name":"getOpinionedNFTsForAddress","outputs":[{"internalType":"uint256[]","name":"","type":"uint256[]"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"contractAddress","type":"address"},{"internalType":"uint256","name":"tokenID","type":"uint256"}],"name":"getOpinionsAboutNFT","outputs":[{"components":[{"internalType":"address","name":"author","type":"address"},{"internalType":"address","name":"contractAddress","type":"address"},{"internalType":"uint256","name":"tokenID","type":"uint256"},{"internalType":"uint8","name":"rating","type":"uint8"},{"internalType":"string","name":"comment","type":"string"},{"internalType":"uint256","name":"blockHeight","type":"uint256"}],"internalType":"struct INFTOpinionBase.Opinion[]","name":"","type":"tuple[]"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"getUsersOpinions","outputs":[{"components":[{"internalType":"address","name":"author","type":"address"},{"internalType":"address","name":"contractAddress","type":"address"},{"internalType":"uint256","name":"tokenID","type":"uint256"},{"internalType":"uint8","name":"rating","type":"uint8"},{"internalType":"string","name":"comment","type":"string"},{"internalType":"uint256","name":"blockHeight","type":"uint256"}],"internalType":"struct INFTOpinionBase.Opinion[]","name":"","type":"tuple[]"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"contractAddress","type":"address"},{"internalType":"uint256","name":"tokenID","type":"uint256"},{"internalType":"uint8","name":"rating","type":"uint8"},{"internalType":"string","name":"comment","type":"string"}],"name":"writeOpinion","outputs":[],"stateMutability":"nonpayable","type":"function"}]}
+{
+    "dsPause": [
+        {
+            "inputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "delay",
+                    "type": "uint256"
+                },
+                {
+                    "internalType": "address",
+                    "name": "owner",
+                    "type": "address"
+                }
+            ],
+            "stateMutability": "nonpayable",
+            "type": "constructor"
+        },
+        {
+            "inputs": [],
+            "name": "_delay",
+            "outputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "",
+                    "type": "uint256"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [],
+            "name": "_owner",
+            "outputs": [
+                {
+                    "internalType": "address",
+                    "name": "",
+                    "type": "address"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "bytes32",
+                    "name": "",
+                    "type": "bytes32"
+                }
+            ],
+            "name": "_plans",
+            "outputs": [
+                {
+                    "internalType": "bool",
+                    "name": "",
+                    "type": "bool"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [],
+            "name": "_proxy",
+            "outputs": [
+                {
+                    "internalType": "contract DSPauseProxy",
+                    "name": "",
+                    "type": "address"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "address",
+                    "name": "usr",
+                    "type": "address"
+                },
+                {
+                    "internalType": "bytes32",
+                    "name": "tag",
+                    "type": "bytes32"
+                },
+                {
+                    "internalType": "bytes",
+                    "name": "fax",
+                    "type": "bytes"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "eta",
+                    "type": "uint256"
+                }
+            ],
+            "name": "drop",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "address",
+                    "name": "usr",
+                    "type": "address"
+                },
+                {
+                    "internalType": "bytes32",
+                    "name": "tag",
+                    "type": "bytes32"
+                },
+                {
+                    "internalType": "bytes",
+                    "name": "fax",
+                    "type": "bytes"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "eta",
+                    "type": "uint256"
+                }
+            ],
+            "name": "exec",
+            "outputs": [
+                {
+                    "internalType": "bytes",
+                    "name": "out",
+                    "type": "bytes"
+                }
+            ],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "address",
+                    "name": "usr",
+                    "type": "address"
+                },
+                {
+                    "internalType": "bytes32",
+                    "name": "tag",
+                    "type": "bytes32"
+                },
+                {
+                    "internalType": "bytes",
+                    "name": "fax",
+                    "type": "bytes"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "eta",
+                    "type": "uint256"
+                }
+            ],
+            "name": "plot",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "delay",
+                    "type": "uint256"
+                }
+            ],
+            "name": "setDelay",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "address",
+                    "name": "owner",
+                    "type": "address"
+                }
+            ],
+            "name": "setOwner",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "address",
+                    "name": "usr",
+                    "type": "address"
+                }
+            ],
+            "name": "soul",
+            "outputs": [
+                {
+                    "internalType": "bytes32",
+                    "name": "tag",
+                    "type": "bytes32"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        }
+    ],
+    "dsPauseProxy": [
+        {
+            "inputs": [],
+            "stateMutability": "nonpayable",
+            "type": "constructor"
+        },
+        {
+            "inputs": [],
+            "name": "_owner",
+            "outputs": [
+                {
+                    "internalType": "address",
+                    "name": "",
+                    "type": "address"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "address",
+                    "name": "usr",
+                    "type": "address"
+                },
+                {
+                    "internalType": "bytes",
+                    "name": "fax",
+                    "type": "bytes"
+                }
+            ],
+            "name": "exec",
+            "outputs": [
+                {
+                    "internalType": "bytes",
+                    "name": "out",
+                    "type": "bytes"
+                }
+            ],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        }
+    ],
+    "proxyAdmin": [
+        {
+            "inputs": [
+                {
+                    "internalType": "address",
+                    "name": "owner",
+                    "type": "address"
+                }
+            ],
+            "stateMutability": "nonpayable",
+            "type": "constructor"
+        },
+        {
+            "anonymous": false,
+            "inputs": [
+                {
+                    "indexed": false,
+                    "internalType": "address",
+                    "name": "oldOwner",
+                    "type": "address"
+                },
+                {
+                    "indexed": false,
+                    "internalType": "address",
+                    "name": "newOwner",
+                    "type": "address"
+                }
+            ],
+            "name": "OwnershipChanged",
+            "type": "event"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "contract AdminUpgradeabilityProxy",
+                    "name": "proxy",
+                    "type": "address"
+                },
+                {
+                    "internalType": "address",
+                    "name": "newAdmin",
+                    "type": "address"
+                }
+            ],
+            "name": "changeProxyAdmin",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "inputs": [],
+            "name": "getOwner",
+            "outputs": [
+                {
+                    "internalType": "address",
+                    "name": "",
+                    "type": "address"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "contract AdminUpgradeabilityProxy",
+                    "name": "proxy",
+                    "type": "address"
+                }
+            ],
+            "name": "getProxyAdmin",
+            "outputs": [
+                {
+                    "internalType": "address",
+                    "name": "",
+                    "type": "address"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "contract AdminUpgradeabilityProxy",
+                    "name": "proxy",
+                    "type": "address"
+                }
+            ],
+            "name": "getProxyImplementation",
+            "outputs": [
+                {
+                    "internalType": "address",
+                    "name": "",
+                    "type": "address"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "address",
+                    "name": "newOwner",
+                    "type": "address"
+                }
+            ],
+            "name": "setOwner",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "contract AdminUpgradeabilityProxy",
+                    "name": "proxy",
+                    "type": "address"
+                },
+                {
+                    "internalType": "address",
+                    "name": "implementation",
+                    "type": "address"
+                }
+            ],
+            "name": "upgrade",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "contract AdminUpgradeabilityProxy",
+                    "name": "proxy",
+                    "type": "address"
+                },
+                {
+                    "internalType": "address",
+                    "name": "implementation",
+                    "type": "address"
+                },
+                {
+                    "internalType": "bytes",
+                    "name": "data",
+                    "type": "bytes"
+                }
+            ],
+            "name": "upgradeAndCall",
+            "outputs": [],
+            "stateMutability": "payable",
+            "type": "function"
+        }
+    ],
+    "NFTOpinionBase": [
+        {
+            "anonymous": false,
+            "inputs": [
+                {
+                    "indexed": false,
+                    "internalType": "address",
+                    "name": "contractAddress",
+                    "type": "address"
+                },
+                {
+                    "indexed": false,
+                    "internalType": "uint256",
+                    "name": "tokenID",
+                    "type": "uint256"
+                },
+                {
+                    "indexed": false,
+                    "internalType": "address",
+                    "name": "user",
+                    "type": "address"
+                },
+                {
+                    "indexed": false,
+                    "internalType": "uint8",
+                    "name": "rating",
+                    "type": "uint8"
+                },
+                {
+                    "indexed": false,
+                    "internalType": "string",
+                    "name": "comment",
+                    "type": "string"
+                }
+            ],
+            "name": "NewOpinion",
+            "type": "event"
+        },
+        {
+            "inputs": [],
+            "name": "getAllOpinions",
+            "outputs": [
+                {
+                    "components": [
+                        {
+                            "internalType": "address",
+                            "name": "author",
+                            "type": "address"
+                        },
+                        {
+                            "internalType": "address",
+                            "name": "contractAddress",
+                            "type": "address"
+                        },
+                        {
+                            "internalType": "uint256",
+                            "name": "tokenID",
+                            "type": "uint256"
+                        },
+                        {
+                            "internalType": "uint8",
+                            "name": "rating",
+                            "type": "uint8"
+                        },
+                        {
+                            "internalType": "string",
+                            "name": "comment",
+                            "type": "string"
+                        },
+                        {
+                            "internalType": "uint256",
+                            "name": "blockHeight",
+                            "type": "uint256"
+                        }
+                    ],
+                    "internalType": "struct INFTOpinionBase.Opinion[]",
+                    "name": "",
+                    "type": "tuple[]"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "address",
+                    "name": "contractAddress",
+                    "type": "address"
+                }
+            ],
+            "name": "getAllOpinionsForAddress",
+            "outputs": [
+                {
+                    "components": [
+                        {
+                            "internalType": "address",
+                            "name": "author",
+                            "type": "address"
+                        },
+                        {
+                            "internalType": "address",
+                            "name": "contractAddress",
+                            "type": "address"
+                        },
+                        {
+                            "internalType": "uint256",
+                            "name": "tokenID",
+                            "type": "uint256"
+                        },
+                        {
+                            "internalType": "uint8",
+                            "name": "rating",
+                            "type": "uint8"
+                        },
+                        {
+                            "internalType": "string",
+                            "name": "comment",
+                            "type": "string"
+                        },
+                        {
+                            "internalType": "uint256",
+                            "name": "blockHeight",
+                            "type": "uint256"
+                        }
+                    ],
+                    "internalType": "struct INFTOpinionBase.Opinion[]",
+                    "name": "",
+                    "type": "tuple[]"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "address",
+                    "name": "contractAddress",
+                    "type": "address"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "tokenID",
+                    "type": "uint256"
+                }
+            ],
+            "name": "getLatestOpinionsAboutNFT",
+            "outputs": [
+                {
+                    "components": [
+                        {
+                            "internalType": "address",
+                            "name": "author",
+                            "type": "address"
+                        },
+                        {
+                            "internalType": "address",
+                            "name": "contractAddress",
+                            "type": "address"
+                        },
+                        {
+                            "internalType": "uint256",
+                            "name": "tokenID",
+                            "type": "uint256"
+                        },
+                        {
+                            "internalType": "uint8",
+                            "name": "rating",
+                            "type": "uint8"
+                        },
+                        {
+                            "internalType": "string",
+                            "name": "comment",
+                            "type": "string"
+                        },
+                        {
+                            "internalType": "uint256",
+                            "name": "blockHeight",
+                            "type": "uint256"
+                        }
+                    ],
+                    "internalType": "struct INFTOpinionBase.Opinion[]",
+                    "name": "",
+                    "type": "tuple[]"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "address",
+                    "name": "contractAddress",
+                    "type": "address"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "tokenID",
+                    "type": "uint256"
+                },
+                {
+                    "internalType": "address",
+                    "name": "user",
+                    "type": "address"
+                }
+            ],
+            "name": "getOpinion",
+            "outputs": [
+                {
+                    "components": [
+                        {
+                            "internalType": "address",
+                            "name": "author",
+                            "type": "address"
+                        },
+                        {
+                            "internalType": "address",
+                            "name": "contractAddress",
+                            "type": "address"
+                        },
+                        {
+                            "internalType": "uint256",
+                            "name": "tokenID",
+                            "type": "uint256"
+                        },
+                        {
+                            "internalType": "uint8",
+                            "name": "rating",
+                            "type": "uint8"
+                        },
+                        {
+                            "internalType": "string",
+                            "name": "comment",
+                            "type": "string"
+                        },
+                        {
+                            "internalType": "uint256",
+                            "name": "blockHeight",
+                            "type": "uint256"
+                        }
+                    ],
+                    "internalType": "struct INFTOpinionBase.Opinion[]",
+                    "name": "",
+                    "type": "tuple[]"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [],
+            "name": "getOpinionedNFTs",
+            "outputs": [
+                {
+                    "components": [
+                        {
+                            "internalType": "address",
+                            "name": "contractAddress",
+                            "type": "address"
+                        },
+                        {
+                            "internalType": "uint256",
+                            "name": "tokenID",
+                            "type": "uint256"
+                        }
+                    ],
+                    "internalType": "struct INFTOpinionBase.TokenIDPair[]",
+                    "name": "",
+                    "type": "tuple[]"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "address",
+                    "name": "contractAddress",
+                    "type": "address"
+                }
+            ],
+            "name": "getOpinionedNFTsForAddress",
+            "outputs": [
+                {
+                    "internalType": "uint256[]",
+                    "name": "",
+                    "type": "uint256[]"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "address",
+                    "name": "contractAddress",
+                    "type": "address"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "tokenID",
+                    "type": "uint256"
+                }
+            ],
+            "name": "getOpinionsAboutNFT",
+            "outputs": [
+                {
+                    "components": [
+                        {
+                            "internalType": "address",
+                            "name": "author",
+                            "type": "address"
+                        },
+                        {
+                            "internalType": "address",
+                            "name": "contractAddress",
+                            "type": "address"
+                        },
+                        {
+                            "internalType": "uint256",
+                            "name": "tokenID",
+                            "type": "uint256"
+                        },
+                        {
+                            "internalType": "uint8",
+                            "name": "rating",
+                            "type": "uint8"
+                        },
+                        {
+                            "internalType": "string",
+                            "name": "comment",
+                            "type": "string"
+                        },
+                        {
+                            "internalType": "uint256",
+                            "name": "blockHeight",
+                            "type": "uint256"
+                        }
+                    ],
+                    "internalType": "struct INFTOpinionBase.Opinion[]",
+                    "name": "",
+                    "type": "tuple[]"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "address",
+                    "name": "user",
+                    "type": "address"
+                }
+            ],
+            "name": "getUsersOpinions",
+            "outputs": [
+                {
+                    "components": [
+                        {
+                            "internalType": "address",
+                            "name": "author",
+                            "type": "address"
+                        },
+                        {
+                            "internalType": "address",
+                            "name": "contractAddress",
+                            "type": "address"
+                        },
+                        {
+                            "internalType": "uint256",
+                            "name": "tokenID",
+                            "type": "uint256"
+                        },
+                        {
+                            "internalType": "uint8",
+                            "name": "rating",
+                            "type": "uint8"
+                        },
+                        {
+                            "internalType": "string",
+                            "name": "comment",
+                            "type": "string"
+                        },
+                        {
+                            "internalType": "uint256",
+                            "name": "blockHeight",
+                            "type": "uint256"
+                        }
+                    ],
+                    "internalType": "struct INFTOpinionBase.Opinion[]",
+                    "name": "",
+                    "type": "tuple[]"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "address",
+                    "name": "contractAddress",
+                    "type": "address"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "tokenID",
+                    "type": "uint256"
+                },
+                {
+                    "internalType": "uint8",
+                    "name": "rating",
+                    "type": "uint8"
+                },
+                {
+                    "internalType": "string",
+                    "name": "comment",
+                    "type": "string"
+                }
+            ],
+            "name": "writeOpinion",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        }
+    ]
+}

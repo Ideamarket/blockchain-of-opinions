@@ -328,7 +328,7 @@ describe("NFTOpinionBase", () => {
 	})
 	//fix
 	it("emmited event should be correct", async () => {
-		expect(opinionBase.connect(alice).writeOpinion(1,  98, [3, 7, 12], [false, true, true])).
+		expect(await opinionBase.connect(alice).writeOpinion(1,  98, [3, 7, 12], [false, true, true])).
 		to.emit(opinionBase, "OpinionWritten").withArgs(alice.address, 1,  98, [3, 7, 12], [false, true, true]);
 	})
 

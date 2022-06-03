@@ -144,6 +144,7 @@ import "./interfaces/IArbSys.sol";
     function withdrawOwnerFees() external override onlyOwner() {
         for (uint i; i < _payableTokens.length; i++) {
             if (_payableTokens[i] != _eth) {
+                //totally WRONG FIX
                 require(IERC20(_payableTokens[i]).transfer(_owner, IERC20(_payableTokens[i]).balanceOf(address(this))), "Transfer failed");
             } else {
                 (bool sent,) = _owner.call{value:IERC20(_payableTokens[i]).balanceOf(address(this))}("");

@@ -6,15 +6,13 @@ const { exec } = require('child_process')
 const path = require('path')
 
 const buildDir = './res'
-const abiDir = './abis'
-const contractsRepo = 'github.com/ideamarket/blockchain-of-opinions.git'
 
 const allContracts = {
 	avm: [
 		{
 			contractName: 'NFTOpinionBase',
 			deployedName: 'NFTOpinionBase',
-			abiPath: 'contracts/NFTOpinionBase.sol/NFTOpinionBase.json',
+			abiPath: 'NFTOpinionBase.sol/NFTOpinionBase.json',
 		},
 	],
 }
@@ -29,7 +27,7 @@ const networks = {
 	'test-avm-l2': {
 		name: 'test-avm-l2',
 		realNetworkName: 'arbitrum-rinkeby',
-		startBlock: 9107630,
+		startBlock: 12564700,
 	},
 }
 
@@ -74,85 +72,6 @@ async function main() {
 	console.log(`> Using network ${network.name}`)
 	console.log(`> Using branch ${branch}`)
 	console.log(startBlock > 0 ? `> Using startblock ${startBlock}` : `> Using hardcoded startBlock`)
-	// Create build dir if it does not exist
-	if (!fs.existsSync(buildDir)) {
-		console.log('> Creating build directory')
-		fs.mkdirSync(buildDir)
-	} else {
-		console.log('> Build directory exists')
-	}
-
-	// Clone contract repo if it doesnt exist
-	process.chdir(buildDir)
-	if (!fs.existsSync('./ideamarket')) {
-		console.log('> Cloning ideamarket repository')
-		if (process.env.IDEAMARKET_CLONE_TOKEN) {
-			await executeCmd(
-				'git clone https://' + process.env.IDEAMARKET_CLONE_TOKEN + '@' + contractsRepo + ' ideamarket'
-			)
-		} else {
-			await executeCmd('git clone https://' + contractsRepo + ' ideamarket')
-		}
-	} else {
-		console.log('> Ideamarket repository exists')
-	}
-
-	// Clean and update repo
-	process.chdir('./ideamarket')
-	console.log('> Cleaning and updating ideamarket repository')
-	await executeCmd(`git fetch origin ${branch}`)
-	await executeCmd(`git checkout ${branch}`)
-	await executeCmd(`git reset --hard origin/${branch}`)
-
-	if (fs.existsSync('./build/contracts')) {
-		console.log('> Cleaning old contract build')
-		cleanDirectory('./build/contracts')
-	}
-
-	// Install dependencies
-	console.log('> Installing dependencies')
-	await executeCmd('npm i')
-
-	// Compile contracts
-	console.log('> Compiling contracts')
-	await executeCmd('npx hardhat compile')
-
-	process.chdir('..')
-
-	// Create abi dir if it does not exist
-	if (!fs.existsSync(abiDir)) {
-		console.log('> Creating ABI directory')
-		fs.mkdirSync(abiDir)
-	} else {
-		console.log('> Cleaning old ABIs')
-		cleanDirectory(abiDir)
-	}
-
-	// Extracts ABIs from contract build
-	console.log('> Extracting ABIs')
-	contracts.forEach((contract) => {
-		const rawArtifact = fs.readFileSync(path.join('ideamarket/build/contracts/contracts/', contract.abiPath))
-		const jsonArtifact = JSON.parse(rawArtifact)
-		const abi = JSON.stringify(jsonArtifact.abi)
-		fs.writeFileSync(path.join(abiDir, contract.contractName + '.json'), abi)
-	})
-
-	// Extract addresses from deployed-{network}.json
-	console.log('> Extracting deployed addresses')
-	const rawDeployed = fs.readFileSync('ideamarket/deployed/deployed-' + network.name + '.json')
-	const jsonDeployed = JSON.parse(rawDeployed)
-
-	const jsonNetworkConfig = { network: network.realNetworkName }
-
-	for (let i = 0; i < contracts.length; i++) {
-		const contract = contracts[i]
-		jsonNetworkConfig[contract.contractName] = jsonDeployed[contract.deployedName]
-	}
-
-	// Hardcode the startblock values. Does not need to be accurate, just save some sync time
-	jsonNetworkConfig['startBlock'] = startBlock > 0 ? startBlock : network.startBlock
-
-	fs.writeFileSync('network-config.json', JSON.stringify(jsonNetworkConfig))
 
 	// Generate subgraph.yaml file
 	process.chdir('..')
@@ -178,19 +97,6 @@ async function main() {
 		graphCmd += '.cmd'
 	}
 	executeCmd(graphCmd + ' codegen --output-dir ' + path.normalize(buildDir + '/generated'))
-}
-
-function cleanDirectory(dir) {
-	if (fs.existsSync(dir)) {
-		fs.readdirSync(dir).forEach((file) => {
-			const curPath = path.join(dir, file)
-			if (fs.lstatSync(curPath).isDirectory()) {
-				cleanDirectory(curPath)
-			} else {
-				fs.unlinkSync(curPath)
-			}
-		})
-	}
 }
 
 function deleteDirectory(dir) {

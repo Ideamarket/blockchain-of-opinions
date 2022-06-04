@@ -4,132 +4,21 @@ schema:
 templates:
   # ============================== IdeaToken ==============================
   - kind: ethereum/contract
-    name: IdeaToken
+    name: IdeamarketPost
     network: {{ network }} 
     source:
-      abi: IdeaToken
+      abi: NFTOpinionBase
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
       entities:
-        - IdeaToken
-        - IdeaTokenBalance
-        - IdeaTokenAllowance
-        - IdeaMarket
-        - IdeaTokenPricePoint
-        - FutureDayValueChange
-        - BlockHandlerValues
+        - IdeamarketPost
       abis:
-        - name: IdeaToken
-          file: ./res/abis/IdeaToken.json
+        - name: NFTOpinionBase
+          file: ./res/abis/NFTOpinionBase.json
       eventHandlers:
-        - event: Transfer(indexed address,indexed address,uint256)
-          handler: handleTransfer
-        - event: Approval(indexed address,indexed address,uint256)
-          handler: handleApproval
-      file: ./src/IdeaToken.ts
+        - event: NewOpinion(uint tokenID,address user,uint8 rating,uint[] citations,bool[] inFavorArr)
+          handler: handleOpinion
+      file: ./src/IdeamarketPosts.ts
 dataSources:
-  # ============================== IdeaTokenFactory ==============================
-  - kind: ethereum/contract
-    name: IdeaTokenFactory
-    network: {{ network }}
-    source:
-      address: "{{ IdeaTokenFactory }}"
-      abi: IdeaTokenFactory
-      startBlock: {{ startBlock }}
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.4
-      language: wasm/assemblyscript
-      entities:
-        - IdeaMarket
-        - IdeaToken
-        - IdeaTokenFactory
-        - IdeaTokenPricePoint
-        - IdeaTokenVolumePoint
-        - LockedIdeaTokenAmount
-        - FutureDayValueChange
-        - BlockHandlerValues
-      abis:
-        - name: IdeaTokenFactory
-          file: ./res/abis/IdeaTokenFactory.json
-      blockHandlers:
-        - handler: handleBlock
-      eventHandlers:
-        - event: NewMarket(uint256,string,uint256,uint256,uint256,uint256,uint256,bool,address)
-          handler: handleNewMarket
-        - event: NewToken(uint256,uint256,string,address,address)
-          handler: handleNewToken
-        - event: NewNameVerifier(uint256,address)
-          handler: handleNewNameVerifier
-        - event: OwnershipChanged(address,address)
-          handler: handleOwnershipChanged
-        - event: NewTradingFee(uint256,uint256)
-          handler: handleNewTradingFee
-        - event: NewPlatformFee(uint256,uint256)
-          handler: handleNewPlatformFee
-      file: ./src/IdeaTokenFactory.ts
-  # ============================== IdeaTokenExchange ==============================
-  - kind: ethereum/contract
-    name: IdeaTokenExchange
-    network: {{ network }}
-    source:
-      address: "{{ IdeaTokenExchange }}"
-      abi: IdeaTokenExchange
-      startBlock: {{ startBlock }}
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.4
-      language: wasm/assemblyscript
-      entities:
-        - IdeaToken
-        - IdeaMarket
-        - IdeaTokenExchange
-        - IdeaTokenVolumePoint
-        - FutureDayValueChange
-        - BlockHandlerValues
-      abis:
-        - name: IdeaTokenExchange
-          file: ./res/abis/IdeaTokenExchange.json
-      eventHandlers:
-        - event: NewTokenOwner(address,address)
-          handler: handleNewTokenOwner
-        - event: NewPlatformOwner(uint256,address)
-          handler: handleNewPlatformOwner
-        - event: InvestedState(uint256,address,uint256,uint256,uint256,uint256,uint256)
-          handler: handleInvestedState
-        - event: TokenInterestRedeemed(address,uint256,uint256)
-          handler: handleTokenInterestRedeemed
-        - event: PlatformInterestRedeemed(uint256,uint256,uint256)
-          handler: handlePlatformInterestRedeemed
-        - event: TradingFeeRedeemed(uint256)
-          handler: handleTradingFeeRedeemed
-        - event: PlatformFeeRedeemed(uint256,uint256)
-          handler: handlePlatformFeeRedeemed
-        - event: OwnershipChanged(address,address)
-          handler: handleOwnershipChanged
-      file: ./src/IdeaTokenExchange.ts
-  # ============================== IdeaTokenVault ==============================
-  - kind: ethereum/contract
-    name: IdeaTokenVault
-    network: {{ network }}
-    source:
-      address: "{{ IdeaTokenVault }}"
-      abi: IdeaTokenVault
-      startBlock: {{ startBlock }}
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.4
-      language: wasm/assemblyscript
-      entities:
-        - LockedIdeaTokenAmount
-        - FutureDayValueChange
-        - BlockHandlerValues
-      abis:
-        - name: IdeaTokenVault
-          file: ./res/abis/IdeaTokenVault.json
-      eventHandlers:
-        - event: Locked(address,address,uint256,uint256,uint256)
-          handler: handleLocked
-      file: ./src/IdeaTokenVault.ts

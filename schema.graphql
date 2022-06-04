@@ -155,3 +155,12 @@ type BlockHandlerValues @entity {
   
   futureDayValueChanges: [FutureDayValueChange!]!
 }
+
+"========================================================== Ideamarket Post =======================================================" 
+type IdeamarketPost @entity {
+  "id: <erc721 token id>-<ts>"
+  id: ID!
+
+  citedBy: [Int]
+  timesCited: Int
+}

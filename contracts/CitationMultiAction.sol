@@ -23,8 +23,8 @@ contract CitationMultiAction {
 
     function postAndCite(string calldata content, string[] memory categoryTags, bool urlBool, address recipient,
         uint tokenID, uint8 rating, uint[] calldata otherCitations, bool[] calldata inFavorArr) external {
-            _posts.mint(content, [], categoryTags, "", urlBool, "", recipient)
-            _nftOpinionBase.writeOpinion()
+            //_posts.mint(content, [], categoryTags, "", urlBool, "", recipient);
+            //_nftOpinionBase.writeOpinion()
 
     }
 

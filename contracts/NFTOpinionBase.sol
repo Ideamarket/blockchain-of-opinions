@@ -58,7 +58,7 @@ contract NFTOpinionBase is INFTOpinionBase, Initializable {
         emit NewOpinion(tokenID, msg.sender, rating, citations, inFavorArr);
     }
 
-    function checkInput(uint tokenID, uint8 rating, uint[] calldata citations, bool[] calldata inFavorArr) public {
+    function checkInput(uint tokenID, uint8 rating, uint[] calldata citations, bool[] calldata inFavorArr) public view {
         require(rating != 50, "rating must not be 50");
         require(citations.length <= 10, "too many citations");
         require(citations.length == inFavorArr.length, "citation arr length must equal inFavorArr length");

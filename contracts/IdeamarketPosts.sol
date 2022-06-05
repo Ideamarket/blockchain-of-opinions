@@ -22,7 +22,6 @@ contract IdeamarketPosts is IIdeamarketPosts, ERC721, AccessControl {
 
     // list of tokenIDs a particular address minted
     mapping(address => uint[]) mintedTokens;
-    //fix make sure this is working properly
     // metadata for posts by tokenID
     mapping(uint => Post) public posts;
     // mapping of existing category tags

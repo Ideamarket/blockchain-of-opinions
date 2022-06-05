@@ -66,7 +66,7 @@ import "./interfaces/IArbSys.sol";
         require(token != _eth || (token == _eth && msg.value == amount), "invalid ETH amount");
         uint blockHeight = _arbSys.arbBlockNumber();
         Bounty memory bounty = Bounty(amount, depositor, blockHeight);
-        _bounties[user][addy][token].push(bounty);
+        _bounties[addy][user][token].push(bounty);
         if (token != _eth) {
             require(IERC20(token).transferFrom(depositor, address(this), amount), "Transfer failed");
         }

@@ -3,7 +3,7 @@ pragma solidity ^0.8.0;
 import "./interfaces/INFTOpinionBounties.sol";
 import "./utils/Ownable.sol";
 import "./utils/Initializable.sol";
-import "./interfaces/IAddressOpinionBase.sol";
+import "./interfaces/INFTOpinionBase.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "./interfaces/IArbSys.sol";
 
@@ -19,23 +19,24 @@ import "./interfaces/IArbSys.sol";
     // tokenAddress => whether it is an acceptable bounty payment
     mapping(address => bool) _isValidPayment;
     // address => user address => paymentTokenAddress => bounty info
-    mapping(address => mapping(address => mapping(address => Bounty[]))) _bounties;
-
+    mapping(uint => mapping(address => mapping(address => Bounty[]))) _bounties;
+    // address => claimable owner fees
+    mapping(address => uint) _ownerFees;
     // user address to Bounty[] of elibigle bounties for them
     address[] _payableTokens;
 
     address _eth = 0x0000000000000000000000000000000000000000;
-    IAddressOpinionBase _addressOpinionBase;
+    INFTOpinionBase _nftOpinionBase;
     IArbSys _arbSys = IArbSys(address(100));
 
-    event BountyOffered(address addy, address user, address depositor, address token, uint amount);
-    event BountyClaimed(address addy, address user, address token, uint amount);
-    event BountyRescinded(address addy, address user, address depositor, address token, uint amount);
+    event BountyOffered(uint tokenID, address user, address depositor, address token, uint amount);
+    event BountyClaimed(uint tokenID, address user, address token, uint amount);
+    event BountyRescinded(uint tokenID, address user, address depositor, address token, uint amount);
     //FIX INitalizaier
     
     constructor(address owner, address addressOpinionBase, address[] memory payableTokens) {
         setOwnerInternal(owner);
-        _addressOpinionBase = IAddressOpinionBase(addressOpinionBase);
+        _nftOpinionBase = INFTOpinionBase(addressOpinionBase);
         for (uint i; i < payableTokens.length; i++) {
             _isValidPayment[payableTokens[i]] = true;
             _payableTokens.push(payableTokens[i]);
@@ -60,78 +61,79 @@ import "./interfaces/IArbSys.sol";
         }
     }
 
-    function depositBounty(address addy, address user, address depositor, address token, uint amount) external override payable {
+    function depositBounty(uint tokenID, address user, address depositor, address token, uint amount) external override payable {
         require(amount > 0, "amount must be greater than 0");
         require(_isValidPayment[token], "invalid bounty payment");
         require(token != _eth || (token == _eth && msg.value == amount), "invalid ETH amount");
         uint blockHeight = _arbSys.arbBlockNumber();
         Bounty memory bounty = Bounty(amount, depositor, blockHeight);
-        _bounties[user][addy][token].push(bounty);
+        //fix parse fees here and other functions
+        _bounties[tokenID][user][token].push(bounty);
         if (token != _eth) {
             require(IERC20(token).transferFrom(depositor, address(this), amount), "Transfer failed");
         }
 
-        emit BountyOffered(addy, user, depositor, token, amount);
+        emit BountyOffered(tokenID, user, depositor, token, amount);
     }
 
-    function rescindBounty(address addy, address user, address token) external override {
+    function rescindBounty(uint tokenID, address user, address token) external override {
         uint amount;
-        for (uint i = 0; i < _bounties[addy][user][token].length; i++) {
-            if (_bounties[addy][user][token][i].depositor == msg.sender) {
-                amount += _bounties[addy][user][token][i].amount;
-                _bounties[addy][user][token][i] = _bounties[addy][user][token][_bounties[addy][user][token].length - 1];
-                _bounties[addy][user][token].pop();
+        for (uint i = 0; i < _bounties[tokenID][user][token].length; i++) {
+            if (_bounties[tokenID][user][token][i].depositor == msg.sender) {
+                amount += _bounties[tokenID][user][token][i].amount;
+                _bounties[tokenID][user][token][i] = _bounties[tokenID][user][token][_bounties[tokenID][user][token].length - 1];
+                _bounties[tokenID][user][token].pop();
             }
         }
-        if (addy == _eth) {
+        if (token == _eth) {
             (bool success, ) = msg.sender.call{value:amount}("");
             require(success, "Transfer failed.");
         } else {
             require(IERC20(token).transfer(msg.sender, amount), "Transfer failed.");
         }
 
-        emit BountyRescinded(addy, user, msg.sender, token, amount);
+        emit BountyRescinded(tokenID, user, msg.sender, token, amount);
     }
 
-    function claimBounty(address addy, address token) external override {
+    function claimBounty(uint tokenID, address token) external override {
         uint amount;
-        IAddressOpinionBase.Opinion[] memory opinions = _addressOpinionBase.getOpinion(addy, msg.sender);
-        Bounty[] memory bounties = _bounties[msg.sender][addy][token];
+        INFTOpinionBase.Opinion[] memory opinions = _nftOpinionBase.getOpinion(tokenID, msg.sender);
+        Bounty[] memory bounties = _bounties[tokenID][msg.sender][token];
         delete bounties;
 
         for (uint i = 0; i < bounties.length; i++) {
             if (opinions[opinions.length - 1].blockHeight <= bounties[i].blockHeight) {
                 amount += bounties[i].amount;
             } else {
-                _bounties[addy][msg.sender][token].push(bounties[i]);
+                _bounties[tokenID][msg.sender][token].push(bounties[i]);
             }
         }
-        if (addy == _eth) {
+        if (token == _eth) {
             (bool success, ) = msg.sender.call{value:amount}("");
             require(success, "Transfer failed.");
         } else {
             require(IERC20(token).transfer(msg.sender, amount), "Transfer failed.");
         }
 
-        emit BountyClaimed(addy, msg.sender, token, amount);
+        emit BountyClaimed(tokenID, msg.sender, token, amount);
     }
 
-    function getAmountDepositedByUser(address addy, address user, address token) external view override returns (uint) {
+    function getAmountDepositedByUser(uint tokenID, address user, address token) external view override returns (uint) {
         uint amount;
-        for (uint i = 0; i < _bounties[user][addy][token].length; i++) {
-            if (_bounties[user][addy][token][i].depositor == msg.sender) {
-                amount += _bounties[user][addy][token][i].amount;
+        for (uint i = 0; i < _bounties[tokenID][user][token].length; i++) {
+            if (_bounties[tokenID][user][token][i].depositor == msg.sender) {
+                amount += _bounties[tokenID][user][token][i].amount;
             }
         }
         return amount;
     }
 
-    function getBountyAmountPayable(address addy, address user, address token) external view override returns (uint) {
+    function getBountyAmountPayable(uint tokenID, address user, address token) external view override returns (uint) {
         uint amount;
-        IAddressOpinionBase.Opinion[] memory opinions = _addressOpinionBase.getOpinion(addy, msg.sender);
-        for (uint i = 0; i <  _bounties[addy][msg.sender][token].length; i++) {
-            if (opinions[opinions.length - 1].blockHeight <=  _bounties[addy][msg.sender][token][i].blockHeight) {
-                amount +=  _bounties[addy][msg.sender][token][i].amount;
+        INFTOpinionBase.Opinion[] memory opinions = _nftOpinionBase.getOpinion(tokenID, user);
+        for (uint i = 0; i <  _bounties[tokenID][user][token].length; i++) {
+            if (opinions[opinions.length - 1].blockHeight <=  _bounties[tokenID][user][token][i].blockHeight) {
+                amount +=  _bounties[tokenID][user][token][i].amount;
             }
         }
         return amount;
@@ -144,16 +146,20 @@ import "./interfaces/IArbSys.sol";
     function withdrawOwnerFees() external override onlyOwner() {
         for (uint i; i < _payableTokens.length; i++) {
             if (_payableTokens[i] != _eth) {
-                //totally WRONG FIX
-                require(IERC20(_payableTokens[i]).transfer(_owner, IERC20(_payableTokens[i]).balanceOf(address(this))), "Transfer failed");
+                uint amount = _ownerFees[_payableTokens[i]];
+                _ownerFees[_payableTokens[i]] = 0;
+                require(IERC20(_payableTokens[i]).transfer(_owner, amount), "Transfer failed");
+
             } else {
-                (bool sent,) = _owner.call{value:IERC20(_payableTokens[i]).balanceOf(address(this))}("");
+                uint amount = _ownerFees[_payableTokens[i]];
+                _ownerFees[_payableTokens[i]] = 0;
+                (bool sent,) = _owner.call{value:amount}("");
                 require(sent, "Transfer failed");
             }
         }
     }
 
-    function getBountyInfo(address addy, address user, address token) external view override returns (Bounty[] memory) {
-        return _bounties[addy][user][token];
+    function getBountyInfo(uint tokenID, address user, address token) external view override returns (Bounty[] memory) {
+        return _bounties[tokenID][user][token];
     }
  }

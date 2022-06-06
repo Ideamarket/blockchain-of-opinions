@@ -34,9 +34,9 @@ import "./interfaces/IArbSys.sol";
     event BountyRescinded(uint tokenID, address user, address depositor, address token, uint amount);
     //FIX INitalizaier
     
-    constructor(address owner, address addressOpinionBase, address[] memory payableTokens) {
+    constructor(address owner, address nftOpinionBase, address[] memory payableTokens) {
         setOwnerInternal(owner);
-        _nftOpinionBase = INFTOpinionBase(addressOpinionBase);
+        _nftOpinionBase = INFTOpinionBase(nftOpinionBase);
         for (uint i; i < payableTokens.length; i++) {
             _isValidPayment[payableTokens[i]] = true;
             _payableTokens.push(payableTokens[i]);
@@ -66,8 +66,9 @@ import "./interfaces/IArbSys.sol";
         require(_isValidPayment[token], "invalid bounty payment");
         require(token != _eth || (token == _eth && msg.value == amount), "invalid ETH amount");
         uint blockHeight = _arbSys.arbBlockNumber();
+                //fix parse fees here and other functions
+                // if fee boolean
         Bounty memory bounty = Bounty(amount, depositor, blockHeight);
-        //fix parse fees here and other functions
         _bounties[tokenID][user][token].push(bounty);
         if (token != _eth) {
             require(IERC20(token).transferFrom(depositor, address(this), amount), "Transfer failed");

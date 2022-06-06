@@ -17,7 +17,7 @@ const allDeploymentParams = {
 const allExternalContractAddresses = {
 	'avm': {
 		multisig: '0x1Cc33A0ae55C250F66B8f9A1a3094bF285A9083f',
-		ideamarketPosts: '0xBebAED547207328f7bb47E7e31185a8d7d69d7B8'
+		ideamarketPosts: '0xf726f0065772B22860D07DC18f7C71597B4D4e8B'
 	},
 	'rinkeby-avm': {
 		multisig: '0x4e6a11b687F35fA21D92731F9CD2f231C61f9151',

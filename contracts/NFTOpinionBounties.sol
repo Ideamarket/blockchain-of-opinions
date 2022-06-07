@@ -22,24 +22,30 @@ import "./interfaces/IArbSys.sol";
     mapping(uint => mapping(address => mapping(address => Bounty[]))) _bounties;
     // address => claimable owner fees
     mapping(address => uint) _ownerFees;
+    //fee percentage for bounties of a particular token
+    //fee format is a uint with 2 digits representing a percentage (ex: 2.5% => 025)
+    mapping(address => uint8) _tokenFeePercentage; 
+
     // user address to Bounty[] of elibigle bounties for them
     address[] _payableTokens;
+    bool feeSwitch;
 
     address _eth = 0x0000000000000000000000000000000000000000;
     INFTOpinionBase _nftOpinionBase;
-    IArbSys _arbSys = IArbSys(address(100));
+    IArbSys _arbSys;
 
     event BountyOffered(uint tokenID, address user, address depositor, address token, uint amount);
     event BountyClaimed(uint tokenID, address user, address token, uint amount);
     event BountyRescinded(uint tokenID, address user, address depositor, address token, uint amount);
     //FIX INitalizaier
-    
-    constructor(address owner, address nftOpinionBase, address[] memory payableTokens) {
+    //    IArbSys _arbSys IArbSys(address(100));
+    constructor(address owner, address nftOpinionBase, address[] memory payableTokens, uint8[] memory tokenFeePercentage) {
         setOwnerInternal(owner);
         _nftOpinionBase = INFTOpinionBase(nftOpinionBase);
         for (uint i; i < payableTokens.length; i++) {
             _isValidPayment[payableTokens[i]] = true;
             _payableTokens.push(payableTokens[i]);
+            _tokenFeePercentage[payableTokens[i]] = tokenFeePercentage[i];
         }
     }
 
@@ -66,14 +72,17 @@ import "./interfaces/IArbSys.sol";
         require(_isValidPayment[token], "invalid bounty payment");
         require(token != _eth || (token == _eth && msg.value == amount), "invalid ETH amount");
         uint blockHeight = _arbSys.arbBlockNumber();
+        uint fees = 0;
+        if (feeSwitch = true) {
+            amount = amount - amount *_tokenFeePercentage[token]  / 1000;
+        }
                 //fix parse fees here and other functions
-                // if fee boolean
         Bounty memory bounty = Bounty(amount, depositor, blockHeight);
         _bounties[tokenID][user][token].push(bounty);
         if (token != _eth) {
             require(IERC20(token).transferFrom(depositor, address(this), amount), "Transfer failed");
         }
-
+        _ownerFees[token] += fees;
         emit BountyOffered(tokenID, user, depositor, token, amount);
     }
 
@@ -100,8 +109,8 @@ import "./interfaces/IArbSys.sol";
         uint amount;
         INFTOpinionBase.Opinion[] memory opinions = _nftOpinionBase.getOpinion(tokenID, msg.sender);
         Bounty[] memory bounties = _bounties[tokenID][msg.sender][token];
-        delete bounties;
-
+        delete _bounties[tokenID][msg.sender][token];
+ 
         for (uint i = 0; i < bounties.length; i++) {
             if (opinions[opinions.length - 1].blockHeight <= bounties[i].blockHeight) {
                 amount += bounties[i].amount;
@@ -140,8 +149,9 @@ import "./interfaces/IArbSys.sol";
         return amount;
     }
 
-    function setBountyFees() external override onlyOwner() {
-
+    function setBountyFees(address token, uint8 fee) external override onlyOwner() {
+        require(token != address(0), "zero-addr");
+         _tokenFeePercentage[token] = fee;
     }
 
     function withdrawOwnerFees() external override onlyOwner() {
@@ -162,5 +172,9 @@ import "./interfaces/IArbSys.sol";
 
     function getBountyInfo(uint tokenID, address user, address token) external view override returns (Bounty[] memory) {
         return _bounties[tokenID][user][token];
+    }
+
+    function toggleFeeSwitch() external override onlyOwner() {
+        feeSwitch = !feeSwitch;
     }
  }

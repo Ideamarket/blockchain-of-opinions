@@ -75,7 +75,9 @@ import "./interfaces/IArbSys.sol";
         require(amount > 0, "amount must be greater than 0");
         require(_isValidPayment[token], "invalid bounty payment");
         require(token != _eth || (token == _eth && msg.value == amount), "invalid ETH amount");
-        uint blockHeight = _arbSys.arbBlockNumber();
+        //fix
+        //uint blockHeight = _arbSys.arbBlockNumber();
+        uint blockHeight = block.number;
         uint fees = 0;
         if (_feeSwitch = true) {
             amount = amount - amount *_tokenFeePercentage[token]  / 1000;

@@ -42,7 +42,8 @@ contract NFTOpinionBase is INFTOpinionBase, Initializable {
 
     function writeOpinion(uint tokenID, uint8 rating, uint[] calldata citations, bool[] calldata inFavorArr) external override {
         checkInput(tokenID, rating, citations, inFavorArr);
-        uint blockHeight = _arbSys.arbBlockNumber();
+        //uint blockHeight = _arbSys.arbBlockNumber();
+        uint blockHeight = block.number;
         Opinion memory opinion = Opinion(msg.sender, tokenID, rating, citations, inFavorArr, blockHeight);
         if (_opinions[tokenID].length == 0) {
             _opinionedTokenIDs.push(tokenID);

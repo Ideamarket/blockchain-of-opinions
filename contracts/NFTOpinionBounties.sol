@@ -28,7 +28,7 @@ import "./interfaces/IArbSys.sol";
 
     // user address to Bounty[] of elibigle bounties for them
     address[] _payableTokens;
-    bool feeSwitch;
+    bool _feeSwitch;
 
     address _eth = 0x0000000000000000000000000000000000000000;
     INFTOpinionBase _nftOpinionBase;
@@ -37,11 +37,15 @@ import "./interfaces/IArbSys.sol";
     event BountyOffered(uint tokenID, address user, address depositor, address token, uint amount);
     event BountyClaimed(uint tokenID, address user, address token, uint amount);
     event BountyRescinded(uint tokenID, address user, address depositor, address token, uint amount);
-    //FIX INitalizaier
-    //    IArbSys _arbSys IArbSys(address(100));
-    constructor(address owner, address nftOpinionBase, address[] memory payableTokens, uint8[] memory tokenFeePercentage) {
+
+    function initialize(address owner, address nftOpinionBase, address[] memory payableTokens, uint8[] memory tokenFeePercentage, bool feeSwitch) external initializer{
+        require(owner!= address(0), "zero-addr");
+        require(payableTokens.length == tokenFeePercentage.length, "arr-length-mismatch");
+
         setOwnerInternal(owner);
+        _feeSwitch = feeSwitch;
         _nftOpinionBase = INFTOpinionBase(nftOpinionBase);
+        _arbSys = IArbSys(address(100));
         for (uint i; i < payableTokens.length; i++) {
             _isValidPayment[payableTokens[i]] = true;
             _payableTokens.push(payableTokens[i]);
@@ -73,10 +77,10 @@ import "./interfaces/IArbSys.sol";
         require(token != _eth || (token == _eth && msg.value == amount), "invalid ETH amount");
         uint blockHeight = _arbSys.arbBlockNumber();
         uint fees = 0;
-        if (feeSwitch = true) {
+        if (_feeSwitch = true) {
             amount = amount - amount *_tokenFeePercentage[token]  / 1000;
         }
-                //fix parse fees here and other functions
+        //fix parse fees here and other functions
         Bounty memory bounty = Bounty(amount, depositor, blockHeight);
         _bounties[tokenID][user][token].push(bounty);
         if (token != _eth) {
@@ -175,6 +179,6 @@ import "./interfaces/IArbSys.sol";
     }
 
     function toggleFeeSwitch() external override onlyOwner() {
-        feeSwitch = !feeSwitch;
+        _feeSwitch = !_feeSwitch;
     }
  }

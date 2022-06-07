@@ -24,6 +24,7 @@ import "./interfaces/IArbSys.sol";
     // user address to Bounty[] of elibigle bounties for them
     address[] _payableTokens;
 
+    bool feeSwitch;
     address _eth = 0x0000000000000000000000000000000000000000;
     IAddressOpinionBase _addressOpinionBase;
     IArbSys _arbSys = IArbSys(address(100));
@@ -137,11 +138,12 @@ import "./interfaces/IArbSys.sol";
         return amount;
     }
 
-    function setBountyFees() external override onlyOwner() {
+    function setBountyFees(address token, uint8 fee) external override onlyOwner() {
 
     }
 
-    function setFeeDistributorAddress() external override onlyOwner() {
+    function toggleFeeSwitch() external override onlyOwner() {
+        feeSwitch = !feeSwitch;
     }
 
     function getBountyInfo(address addy, address user, address token) external view override returns (Bounty[] memory) {

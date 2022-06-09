@@ -1,7 +1,7 @@
 //SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "./interfaces/IIdeamarketPosts.sol";
+import "./IdeamarketPosts.sol";
 import "./interfaces/INFTOpinionBase.sol";
 
 
@@ -13,19 +13,26 @@ import "./interfaces/INFTOpinionBase.sol";
  */
 
 contract CitationMultiAction {
-    IIdeamarketPosts _posts;
+    IdeamarketPosts _posts;
     INFTOpinionBase _nftOpinionBase;
 
     constructor(address posts, address nftOpinionBase) {
-        _posts = IIdeamarketPosts(posts);
+        _posts = IdeamarketPosts(posts);
         _nftOpinionBase = INFTOpinionBase(nftOpinionBase);
     }
 
-    function postAndCite(string calldata content, string[] memory categoryTags, bool urlBool, address recipient,
-        uint tokenID, uint8 rating, uint[] calldata otherCitations, bool[] calldata inFavorArr) external {
-            //_posts.mint(content, [], categoryTags, "", urlBool, "", recipient);
-            //_nftOpinionBase.writeOpinion()
-
+    function postAndCite(string calldata content, uint8 rating, string[] memory categoryTags, bool urlBool, 
+        string calldata web2Content, address recipient, uint tokenID) external {
+            string[] memory imageHashes = new string[](0);
+            _posts.mint(content, imageHashes, categoryTags, "", urlBool, web2Content, recipient);
+            bool b = false;
+            if (rating > 50) {
+                b = true;
+            }
+            uint[] memory citations = new uint[](1);
+            citations[0] =  _posts.totalSupply();
+            bool[] memory boolArr = new bool[](1);
+            boolArr[0] =  b;
+            _nftOpinionBase.writeOpinion(tokenID, rating, citations, boolArr);
     }
-
 }

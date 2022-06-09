@@ -204,4 +204,5 @@ describe("NFTOpinionBounties", () => {
 // fee and no nfee deposit and rescinding
 //claim variations
 //adding / removing bountiable token
+//multiple bounties
 })

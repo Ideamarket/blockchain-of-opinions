@@ -2022,5 +2022,66 @@
             "stateMutability": "nonpayable",
             "type": "function"
         }
-    ]
+    ], 
+    "CitationMultiAction": [
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "posts",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "nftOpinionBase",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "nonpayable",
+          "type": "constructor"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "string",
+              "name": "content",
+              "type": "string"
+            },
+            {
+              "internalType": "uint8",
+              "name": "rating",
+              "type": "uint8"
+            },
+            {
+              "internalType": "string[]",
+              "name": "categoryTags",
+              "type": "string[]"
+            },
+            {
+              "internalType": "bool",
+              "name": "urlBool",
+              "type": "bool"
+            },
+            {
+              "internalType": "string",
+              "name": "web2Content",
+              "type": "string"
+            },
+            {
+              "internalType": "address",
+              "name": "recipient",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "tokenID",
+              "type": "uint256"
+            }
+          ],
+          "name": "postAndCite",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        }
+      ]
 }

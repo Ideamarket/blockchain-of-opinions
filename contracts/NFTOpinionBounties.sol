@@ -6,7 +6,7 @@ import "./utils/Initializable.sol";
 import "./interfaces/INFTOpinionBase.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "./interfaces/IArbSys.sol";
-
+import "hardhat/console.sol";
 /**
  * @title NFTOpinionBounties
  * @author Kelton Madden
@@ -53,24 +53,6 @@ import "./interfaces/IArbSys.sol";
         }
     }
 
-    function addBountiableToken(address token) external override {
-        require(token != address(0), "zero-addr");
-        require(!_isValidPayment[token], "token already added");
-        _isValidPayment[token] = true;
-        _payableTokens.push(token);
-    }
-
-    function removeBountiableToken(address token) external override {
-        require(_isValidPayment[token], "token not added");
-        _isValidPayment[token]= false;
-        for (uint i = 0; i < _payableTokens.length; i++) {
-            if (_payableTokens[i] == token) {
-                _payableTokens[i] = _payableTokens[_payableTokens.length - 1];
-                _payableTokens.pop();
-            }
-        }
-    }
-
     function depositBounty(uint tokenID, address user, address depositor, address token, uint amount) external override payable {
         require(amount > 0, "amount must be greater than 0");
         require(_isValidPayment[token], "invalid bounty payment");
@@ -112,6 +94,7 @@ import "./interfaces/IArbSys.sol";
     }
 
     function claimBounty(uint tokenID, address token) external override {
+        //fix get bounty amount payable?
         uint amount;
         INFTOpinionBase.Opinion[] memory opinions = _nftOpinionBase.getOpinion(tokenID, msg.sender);
         Bounty[] memory bounties = _bounties[tokenID][msg.sender][token];
@@ -134,25 +117,22 @@ import "./interfaces/IArbSys.sol";
         emit BountyClaimed(tokenID, msg.sender, token, amount);
     }
 
-    function getAmountDepositedByUser(uint tokenID, address user, address token) external view override returns (uint) {
-        uint amount;
-        for (uint i = 0; i < _bounties[tokenID][user][token].length; i++) {
-            if (_bounties[tokenID][user][token][i].depositor == msg.sender) {
-                amount += _bounties[tokenID][user][token][i].amount;
-            }
-        }
-        return amount;
+        function addBountiableToken(address token) external override {
+        require(token != address(0), "zero-addr");
+        require(!_isValidPayment[token], "token already added");
+        _isValidPayment[token] = true;
+        _payableTokens.push(token);
     }
 
-    function getBountyAmountPayable(uint tokenID, address user, address token) external view override returns (uint) {
-        uint amount;
-        INFTOpinionBase.Opinion[] memory opinions = _nftOpinionBase.getOpinion(tokenID, user);
-        for (uint i = 0; i <  _bounties[tokenID][user][token].length; i++) {
-            if (opinions[opinions.length - 1].blockHeight <=  _bounties[tokenID][user][token][i].blockHeight) {
-                amount +=  _bounties[tokenID][user][token][i].amount;
+    function removeBountiableToken(address token) external override {
+        require(_isValidPayment[token], "token not added");
+        _isValidPayment[token]= false;
+        for (uint i = 0; i < _payableTokens.length; i++) {
+            if (_payableTokens[i] == token) {
+                _payableTokens[i] = _payableTokens[_payableTokens.length - 1];
+                _payableTokens.pop();
             }
         }
-        return amount;
     }
 
     function setBountyFees(address token, uint8 fee) external override onlyOwner() {
@@ -174,6 +154,30 @@ import "./interfaces/IArbSys.sol";
                 require(sent, "Transfer failed");
             }
         }
+    }
+
+    function getAmountDepositedByUser(uint tokenID, address user, address depositor, address token) external view override returns (uint) {
+        uint amount;
+        for (uint i = 0; i < _bounties[tokenID][user][token].length; i++) {
+            if (_bounties[tokenID][user][token][i].depositor == depositor) {
+                amount += _bounties[tokenID][user][token][i].amount;
+            }
+        }
+        return amount;
+    }
+
+    function getBountyAmountPayable(uint tokenID, address user, address token) external view override returns (uint) {
+        uint amount;
+        INFTOpinionBase.Opinion[] memory opinions = _nftOpinionBase.getOpinion(tokenID, user);
+        if (opinions.length == 0) {
+            return 0;
+        } 
+        for (uint i = 0; i <  _bounties[tokenID][user][token].length; i++) {
+            if (opinions[opinions.length - 1].blockHeight >=  _bounties[tokenID][user][token][i].blockHeight) {
+                amount +=  _bounties[tokenID][user][token][i].amount;
+            }
+        }
+        return amount;
     }
 
     function getBountyInfo(uint tokenID, address user, address token) external view override returns (Bounty[] memory) {

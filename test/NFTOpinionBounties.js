@@ -44,8 +44,8 @@ describe("NFTOpinionBounties", () => {
 		expect(opinion[0]['rating']).to.equal(98);
 		expect(opinion[0]['author']).to.equal(alice.address);
 		expect(opinion.length).to.equal(1);
-	})	
-  
+	})
+
   it("deposit and get bounty info", async () => {
     await someToken.connect(alice).mint(alice.address, pow18)
     await someToken.connect(alice).approve(opinionBounties.address, pow18)

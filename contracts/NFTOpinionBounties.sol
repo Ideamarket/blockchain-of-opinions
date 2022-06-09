@@ -34,7 +34,7 @@ import "hardhat/console.sol";
     INFTOpinionBase _nftOpinionBase;
     IArbSys _arbSys;
 
-    event BountyOffered(uint tokenID, address user, address depositor, address token, uint amount);
+    event BountyOffered(uint tokenID, address user, address depositor, address token, uint amount, uint fee);
     event BountyClaimed(uint tokenID, address user, address token, uint amount);
     event BountyRescinded(uint tokenID, address user, address depositor, address token, uint amount);
 
@@ -60,18 +60,19 @@ import "hardhat/console.sol";
         //fix
         //uint blockHeight = _arbSys.arbBlockNumber();
         uint blockHeight = block.number;
-        uint fees = 0;
+        uint fee = 0;
+        uint modifiedAmount = amount;
         if (_feeSwitch = true) {
-            amount = amount - amount *_tokenFeePercentage[token]  / 1000;
+            fee = amount *_tokenFeePercentage[token]  / 1000;
+            modifiedAmount = amount - fee;
         }
-        //fix parse fees here and other functions
-        Bounty memory bounty = Bounty(amount, depositor, blockHeight);
+        Bounty memory bounty = Bounty(modifiedAmount, depositor, blockHeight);
         _bounties[tokenID][user][token].push(bounty);
         if (token != _eth) {
             require(IERC20(token).transferFrom(depositor, address(this), amount), "Transfer failed");
         }
-        _ownerFees[token] += fees;
-        emit BountyOffered(tokenID, user, depositor, token, amount);
+        _ownerFees[token] += fee;
+        emit BountyOffered(tokenID, user, depositor, token, modifiedAmount, fee);
     }
 
     function rescindBounty(uint tokenID, address user, address token) external override {
@@ -94,14 +95,16 @@ import "hardhat/console.sol";
     }
 
     function claimBounty(uint tokenID, address token) external override {
-        //fix get bounty amount payable?
         uint amount;
         INFTOpinionBase.Opinion[] memory opinions = _nftOpinionBase.getOpinion(tokenID, msg.sender);
+        if (opinions.length == 0) {
+            return;
+        } 
         Bounty[] memory bounties = _bounties[tokenID][msg.sender][token];
         delete _bounties[tokenID][msg.sender][token];
  
         for (uint i = 0; i < bounties.length; i++) {
-            if (opinions[opinions.length - 1].blockHeight <= bounties[i].blockHeight) {
+            if (opinions[opinions.length - 1].blockHeight >= bounties[i].blockHeight) {
                 amount += bounties[i].amount;
             } else {
                 _bounties[tokenID][msg.sender][token].push(bounties[i]);
@@ -178,6 +181,10 @@ import "hardhat/console.sol";
             }
         }
         return amount;
+    }
+
+    function getOwnerFeesPayable(address token) external view override returns (uint) {
+        return _ownerFees[token];
     }
 
     function getBountyInfo(uint tokenID, address user, address token) external view override returns (Bounty[] memory) {

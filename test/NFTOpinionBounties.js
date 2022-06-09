@@ -116,4 +116,92 @@ describe("NFTOpinionBounties", () => {
     expect(amount).to.equal(pow18.toString())
   })
 
+  it("withdraw owner fee", async () => {
+    await someOtherToken.connect(alice).mint(alice.address, pow18)
+    await someOtherToken.connect(alice).approve(opinionBounties.address, pow18)
+		await opinionBounties.connect(alice).depositBounty(1, bob.address, alice.address, someOtherToken.address, pow18)
+    await opinionBounties.connect(alice).withdrawOwnerFees()
+    expect(await someOtherToken.balanceOf(alice.address)).to.equal('50000000000000000')
+  })
+
+  it("withdraw owner fee before bounty is withdrawn", async () => {
+    await someOtherToken.connect(alice).mint(alice.address, pow18)
+    await someOtherToken.connect(alice).approve(opinionBounties.address, pow18)
+		await opinionBounties.connect(alice).depositBounty(1, bob.address, alice.address, someOtherToken.address, pow18)
+    let bounty = await opinionBounties.connect(alice).getBountyInfo(1, bob.address, someOtherToken.address)
+    expect(bounty[0]['amount'].toString()).to.equal('950000000000000000')
+    expect(bounty[0]['depositor']).to.equal(alice.address)
+    await opinionBounties.connect(alice).withdrawOwnerFees()
+    expect(await someOtherToken.balanceOf(alice.address)).to.equal('50000000000000000')
+    bounty = await opinionBounties.connect(alice).getBountyInfo(1, bob.address, someOtherToken.address)
+    expect(bounty[0]['amount'].toString()).to.equal('950000000000000000')
+    await opinionBase.connect(bob).writeOpinion(1,  98, [], [])
+    await opinionBounties.connect(bob).claimBounty(1, someOtherToken.address)
+    expect(await someOtherToken.balanceOf(bob.address)).to.equal('950000000000000000')
+    const amountPayable = await opinionBounties.connect(bob).getBountyAmountPayable(1, bob.address, someOtherToken.address)
+    const amount = await opinionBounties.connect(alice).getAmountDepositedByUser(1, bob.address, alice.address, someOtherToken.address)
+    expect(amountPayable).to.equal('0')
+    expect(amount.toString()).to.equal('0')
+    await opinionBounties.connect(bob).claimBounty(1, someOtherToken.address)
+    await opinionBounties.connect(alice).withdrawOwnerFees()
+    expect(await someOtherToken.balanceOf(alice.address)).to.equal('50000000000000000')
+    expect(await someOtherToken.balanceOf(bob.address)).to.equal('950000000000000000')
+  })
+
+  it("onlyOwner can withdraw owner fee", async () => {
+    await expectRevert(opinionBounties.connect(bob).withdrawOwnerFees(), "only-owner")
+  })
+
+  it("deposit and rescind bounty", async () => {
+    await someToken.connect(alice).mint(alice.address, pow18)
+    await someToken.connect(alice).approve(opinionBounties.address, pow18)
+		await opinionBounties.connect(alice).depositBounty(1, bob.address, alice.address, someToken.address, pow18)
+    await opinionBounties.connect(alice).rescindBounty(1, bob.address, someToken.address)
+    const bounty = await opinionBounties.connect(alice).getBountyInfo(1, bob.address, someToken.address)
+    expect(bounty.length).to.equal(0)
+    const amountPayable = await opinionBounties.connect(bob).getBountyAmountPayable(1, bob.address, someOtherToken.address)
+    const amount = await opinionBounties.connect(alice).getAmountDepositedByUser(1, bob.address, alice.address, someOtherToken.address)
+    expect(amountPayable).to.equal('0')
+    expect(amount.toString()).to.equal('0')
+  })
+
+  it("withdraw owner fees after rescinding bounty", async () => {
+
+    await someOtherToken.connect(alice).mint(alice.address, pow18)
+    await someOtherToken.connect(alice).approve(opinionBounties.address, pow18)
+		await opinionBounties.connect(alice).depositBounty(1, bob.address, alice.address, someOtherToken.address, pow18)
+    await opinionBounties.connect(alice).rescindBounty(1, bob.address, someOtherToken.address)
+    const fees = await opinionBounties.connect(alice).getOwnerFeesPayable(someOtherToken.address)
+    expect(fees).to.equal('50000000000000000')
+    expect(await someOtherToken.balanceOf(alice.address)).to.equal('950000000000000000')
+    await opinionBounties.connect(alice).withdrawOwnerFees()
+    expect(await someOtherToken.balanceOf(alice.address)).to.equal('1000000000000000000')
+  })
+
+  it("get Owner Fees Payable with no fees", async () => {
+    await someToken.connect(alice).mint(alice.address, pow18)
+    await someToken.connect(alice).approve(opinionBounties.address, pow18)
+		await opinionBounties.connect(alice).depositBounty(1, bob.address, alice.address, someToken.address, pow18)
+    const fees = await opinionBounties.connect(alice).getOwnerFeesPayable(someToken.address)
+    expect(fees).to.equal('0')
+    await opinionBounties.connect(alice).withdrawOwnerFees()
+    expect(await someOtherToken.balanceOf(alice.address)).to.equal('0')
+  })
+
+  it("get Owner Fees Payable with fees", async () => {
+    await someOtherToken.connect(alice).mint(alice.address, pow18)
+    await someOtherToken.connect(alice).approve(opinionBounties.address, pow18)
+		await opinionBounties.connect(alice).depositBounty(1, bob.address, alice.address, someOtherToken.address, pow18)
+    const fees = await opinionBounties.connect(alice).getOwnerFeesPayable(someOtherToken.address)
+    expect(fees).to.equal('50000000000000000')
+    await opinionBounties.connect(alice).withdrawOwnerFees()
+    expect(await someOtherToken.balanceOf(alice.address)).to.equal('50000000000000000')
+  })
+
+  //fee switch
+//rescind bounty
+//eth tests of each version
+// fee and no nfee deposit and rescinding
+//claim variations
+//adding / removing bountiable token
 })

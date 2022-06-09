@@ -19,4 +19,5 @@ interface INFTOpinionBounties {
     function toggleFeeSwitch() external;
     function setBountyFees(address token, uint8 fee) external;
     function withdrawOwnerFees() external;
+    function getOwnerFeesPayable(address token) external view returns (uint);
 }

@@ -6,6 +6,7 @@ import "./utils/Initializable.sol";
 import "./interfaces/INFTOpinionBase.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "./interfaces/IArbSys.sol";
+//fix
 import "hardhat/console.sol";
 /**
  * @title NFTOpinionBounties
@@ -28,9 +29,9 @@ import "hardhat/console.sol";
 
     // user address to Bounty[] of elibigle bounties for them
     address[] _payableTokens;
-    bool _feeSwitch;
+    bool public _feeSwitch;
 
-    address _eth = 0x0000000000000000000000000000000000000000;
+    address _eth;
     INFTOpinionBase _nftOpinionBase;
     IArbSys _arbSys;
 
@@ -46,6 +47,7 @@ import "hardhat/console.sol";
         _feeSwitch = feeSwitch;
         _nftOpinionBase = INFTOpinionBase(nftOpinionBase);
         _arbSys = IArbSys(address(100));
+        _eth = address(0x0000000000000000000000000000000000000000);
         for (uint i; i < payableTokens.length; i++) {
             _isValidPayment[payableTokens[i]] = true;
             _payableTokens.push(payableTokens[i]);
@@ -62,7 +64,7 @@ import "hardhat/console.sol";
         uint blockHeight = block.number;
         uint fee = 0;
         uint modifiedAmount = amount;
-        if (_feeSwitch = true) {
+        if (_feeSwitch) {
             fee = amount *_tokenFeePercentage[token]  / 1000;
             modifiedAmount = amount - fee;
         }
@@ -75,7 +77,7 @@ import "hardhat/console.sol";
         emit BountyOffered(tokenID, user, depositor, token, modifiedAmount, fee);
     }
 
-    function rescindBounty(uint tokenID, address user, address token) external override {
+    function rescindBounty(uint tokenID, address user, address token, uint withdrawAmount) external override {
         uint amount;
         for (uint i = 0; i < _bounties[tokenID][user][token].length; i++) {
             if (_bounties[tokenID][user][token][i].depositor == msg.sender) {
@@ -84,14 +86,23 @@ import "hardhat/console.sol";
                 _bounties[tokenID][user][token].pop();
             }
         }
+        if (amount > withdrawAmount) {
+            //fix
+            //uint blockHeight = _arbSys.arbBlockNumber();
+            uint blockHeight = block.number;
+            Bounty memory bounty = Bounty(amount - withdrawAmount, msg.sender, blockHeight);
+            _bounties[tokenID][user][token].push(bounty);
+        } else {
+            withdrawAmount = amount;
+        }
         if (token == _eth) {
-            (bool success, ) = msg.sender.call{value:amount}("");
+            (bool success, ) = msg.sender.call{value: withdrawAmount}("");
             require(success, "Transfer failed.");
         } else {
-            require(IERC20(token).transfer(msg.sender, amount), "Transfer failed.");
+            require(IERC20(token).transfer(msg.sender, withdrawAmount), "Transfer failed.");
         }
 
-        emit BountyRescinded(tokenID, user, msg.sender, token, amount);
+        emit BountyRescinded(tokenID, user, msg.sender, token, withdrawAmount);
     }
 
     function claimBounty(uint tokenID, address token) external override {
@@ -120,15 +131,14 @@ import "hardhat/console.sol";
         emit BountyClaimed(tokenID, msg.sender, token, amount);
     }
 
-        function addBountiableToken(address token) external override {
-        require(token != address(0), "zero-addr");
-        require(!_isValidPayment[token], "token already added");
+    function addBountiableToken(address token) external override onlyOwner() {
+        require(!_isValidPayment[token], "token-already-added");
         _isValidPayment[token] = true;
         _payableTokens.push(token);
     }
 
-    function removeBountiableToken(address token) external override {
-        require(_isValidPayment[token], "token not added");
+    function removeBountiableToken(address token) external override onlyOwner() {
+        require(_isValidPayment[token], "token-not-added");
         _isValidPayment[token]= false;
         for (uint i = 0; i < _payableTokens.length; i++) {
             if (_payableTokens[i] == token) {
@@ -139,8 +149,8 @@ import "hardhat/console.sol";
     }
 
     function setBountyFees(address token, uint8 fee) external override onlyOwner() {
-        require(token != address(0), "zero-addr");
-         _tokenFeePercentage[token] = fee;
+        require(_isValidPayment[token], "invalid-token");
+        _tokenFeePercentage[token] = fee;
     }
 
     function withdrawOwnerFees() external override onlyOwner() {

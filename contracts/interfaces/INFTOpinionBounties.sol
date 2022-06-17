@@ -11,7 +11,7 @@ interface INFTOpinionBounties {
     function addBountiableToken(address token) external;
     function removeBountiableToken(address token) external;
     function depositBounty(uint tokenID, address user, address depositor, address token, uint amount) external payable;
-    function rescindBounty(uint tokenID, address user, address token) external;
+    function rescindBounty(uint tokenID, address user, address token, uint amount) external;
     function getBountyInfo(uint tokenID, address user, address token) external view returns (Bounty[] memory);
     function claimBounty(uint tokenID, address token) external; //?
     function getAmountDepositedByUser(uint tokenID, address user, address depositor, address token) external view returns (uint);

@@ -13,26 +13,30 @@ import "./interfaces/INFTOpinionBase.sol";
  */
 
 contract CitationMultiAction {
-    IdeamarketPosts _posts;
-    INFTOpinionBase _nftOpinionBase;
+    IdeamarketPosts _postsSupply;
+    address _posts;
+    address _nftOpinionBase;
 
     constructor(address posts, address nftOpinionBase) {
-        _posts = IdeamarketPosts(posts);
-        _nftOpinionBase = INFTOpinionBase(nftOpinionBase);
+        _postsSupply = IdeamarketPosts(posts);
+        _posts = posts;
+        _nftOpinionBase = nftOpinionBase;
     }
 
     function postAndCite(string calldata content, uint8 rating, string[] memory categoryTags, bool urlBool, 
-        string calldata web2Content, address recipient, uint tokenID) external {
+        string calldata web2Content, address recipient, uint tokenID) external returns(bool) {
             string[] memory imageHashes = new string[](0);
-            _posts.mint(content, imageHashes, categoryTags, "", urlBool, web2Content, recipient);
+            (bool success,) = _posts.delegatecall(abi.encodeWithSignature("mint(string,string[],string[],string,bool,string,address)", content, imageHashes, categoryTags, "", urlBool, web2Content, recipient));
+            if (!success) { return false;}
             bool b = false;
             if (rating > 50) {
                 b = true;
             }
             uint[] memory citations = new uint[](1);
-            citations[0] =  _posts.totalSupply();
+            citations[0] =  _postsSupply.totalSupply();
             bool[] memory boolArr = new bool[](1);
             boolArr[0] =  b;
-            _nftOpinionBase.writeOpinion(tokenID, rating, citations, boolArr);
+            (bool successOpinion,) =_nftOpinionBase.delegatecall(abi.encodeWithSignature("writeOpinion(uint,uint8,uint[],bool[])", tokenID, rating, citations, boolArr));
+            return successOpinion;
     }
 }

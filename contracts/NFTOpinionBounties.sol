@@ -113,7 +113,7 @@ import "hardhat/console.sol";
         } 
         Bounty[] memory bounties = _bounties[tokenID][msg.sender][token];
         delete _bounties[tokenID][msg.sender][token];
- 
+    //fix must have commented
         for (uint i = 0; i < bounties.length; i++) {
             if (opinions[opinions.length - 1].blockHeight >= bounties[i].blockHeight) {
                 amount += bounties[i].amount;
@@ -184,7 +184,7 @@ import "hardhat/console.sol";
         INFTOpinionBase.Opinion[] memory opinions = _nftOpinionBase.getOpinion(tokenID, user);
         if (opinions.length == 0) {
             return 0;
-        } 
+        }     //fix must have commented
         for (uint i = 0; i <  _bounties[tokenID][user][token].length; i++) {
             if (opinions[opinions.length - 1].blockHeight >=  _bounties[tokenID][user][token][i].blockHeight) {
                 amount +=  _bounties[tokenID][user][token][i].amount;

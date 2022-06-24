@@ -53,7 +53,9 @@ describe("NFTOpinionBounties", () => {
 		await opinionBounties.connect(alice).depositBounty(1, bob.address, alice.address, someToken.address, pow18)
     const bounty = await opinionBounties.connect(alice).getBountyInfo(1, bob.address, someToken.address)
     expect(bounty[0]['amount'].toString()).to.equal(pow18.toString())
-    expect(bounty[0]['depositor']).to.equal(alice.address)
+    expect(bounty[0]['depositor']).to.equal(alice.address)    
+    expect(bounty[0]['user']).to.equal(bob.address)
+    expect(bounty[0]['token']).to.equal(someToken.address)
   })
 
   it("deposit and get bounty info with fee", async () => {
@@ -73,8 +75,12 @@ describe("NFTOpinionBounties", () => {
     const bounty = await opinionBounties.connect(alice).getBountyInfo(1, bob.address, someToken.address)
     expect(bounty[0]['amount'].toString()).to.equal(pow18.toString())
     expect(bounty[0]['depositor']).to.equal(alice.address)
+    expect(bounty[0]['user']).to.equal(bob.address)
+    expect(bounty[0]['token']).to.equal(someToken.address)
     expect(bounty[1]['amount'].toString()).to.equal('2000000000000000000')
     expect(bounty[1]['depositor']).to.equal(alice.address)
+    expect(bounty[1]['user']).to.equal(bob.address)
+    expect(bounty[1]['token']).to.equal(someToken.address)
   })
 
   it("deposit and get amount payable with no opinion made", async () => {
@@ -85,11 +91,20 @@ describe("NFTOpinionBounties", () => {
     expect(amountPayable).to.equal('0')
   })
 
-  it("deposit and get amount payable with no opinion made", async () => {
+  it("deposit and get amount payable with opinion made without citation", async () => {
     await someToken.connect(bob).mint(bob.address, pow18)
     await someToken.connect(bob).approve(opinionBounties.address, pow18)
 		await opinionBounties.connect(bob).depositBounty(1, alice.address, bob.address, someToken.address, pow18)
     await opinionBase.connect(alice).writeOpinion(1,  98, [], [])
+    const amountPayable = await opinionBounties.connect(bob).getBountyAmountPayable(1, alice.address, someToken.address)
+    expect(amountPayable).to.equal('0')
+  })
+
+  it("deposit and get amount payable with opinion made with citation", async () => {
+    await someToken.connect(bob).mint(bob.address, pow18)
+    await someToken.connect(bob).approve(opinionBounties.address, pow18)
+		await opinionBounties.connect(bob).depositBounty(1, alice.address, bob.address, someToken.address, pow18)
+    await opinionBase.connect(alice).writeOpinion(1,  98, [2], [false])
     const amountPayable = await opinionBounties.connect(bob).getBountyAmountPayable(1, alice.address, someToken.address)
     expect(amountPayable).to.equal(pow18.toString())
   })
@@ -103,8 +118,10 @@ describe("NFTOpinionBounties", () => {
     let amountPayable = await opinionBounties.connect(bob).getBountyAmountPayable(1, alice.address, someToken.address)
     expect(amountPayable).to.equal('0')
 		await opinionBounties.connect(bob).depositBounty(1, alice.address, bob.address, someToken.address, pow18)
-		await opinionBounties.connect(charlie).depositBounty(1, alice.address, charlie.address, someToken.address, '2000000000000000000')
-    await opinionBase.connect(alice).writeOpinion(1,  98, [], [])
+    await opinionBounties.connect(charlie).depositBounty(1, alice.address, charlie.address, someToken.address, '2000000000000000000')
+    expect((await opinionBounties.getAllBounties())[0]['depositor']).to.equal(bob.address)
+    expect((await opinionBounties.getAllBounties())[1]['depositor']).to.equal(charlie.address)
+    await opinionBase.connect(alice).writeOpinion(1,  98, [5, 6], [false, true])
     amountPayable = await opinionBounties.connect(bob).getBountyAmountPayable(1, alice.address, someToken.address)
     expect(amountPayable).to.equal('3000000000000000000')
   })
@@ -119,7 +136,7 @@ describe("NFTOpinionBounties", () => {
   it("deposit and claim with making an opinion made before bounty deposit", async () => {
     await someToken.connect(bob).mint(bob.address, pow18)
     await someToken.connect(bob).approve(opinionBounties.address, pow18)
-    await opinionBase.connect(alice).writeOpinion(1,  98, [], [])
+    await opinionBase.connect(alice).writeOpinion(1,  98, [5], [false])
     await opinionBounties.connect(bob).depositBounty(1, alice.address, bob.address, someToken.address, pow18)
     await opinionBounties.connect(bob).claimBounty(1, someToken.address)
   })
@@ -151,7 +168,7 @@ describe("NFTOpinionBounties", () => {
     expect(await someOtherToken.balanceOf(alice.address)).to.equal('50000000000000000')
     bounty = await opinionBounties.connect(alice).getBountyInfo(1, bob.address, someOtherToken.address)
     expect(bounty[0]['amount'].toString()).to.equal('950000000000000000')
-    await opinionBase.connect(bob).writeOpinion(1,  98, [], [])
+    await opinionBase.connect(bob).writeOpinion(1,  98, [2], [true])
     await opinionBounties.connect(bob).claimBounty(1, someOtherToken.address)
     expect(await someOtherToken.balanceOf(bob.address)).to.equal('950000000000000000')
     const amountPayable = await opinionBounties.connect(bob).getBountyAmountPayable(1, bob.address, someOtherToken.address)
@@ -201,7 +218,7 @@ describe("NFTOpinionBounties", () => {
     await opinionBounties.connect(alice).rescindBounty(1, bob.address, someToken.address, '500000000000000000')
     const bounty = await opinionBounties.connect(alice).getBountyInfo(1, bob.address, someToken.address)
     expect(bounty.length).to.equal(1)    
-    await opinionBase.connect(bob).writeOpinion(1,  98, [], [])
+    await opinionBase.connect(bob).writeOpinion(1,  98, [2, 6, 8, 7], [true, false, true, true])
     const amountPayable = await opinionBounties.connect(bob).getBountyAmountPayable(1, bob.address, someToken.address)
     const amount = await opinionBounties.connect(alice).getAmountDepositedByUser(1, bob.address, alice.address, someToken.address)
     expect(amountPayable).to.equal('500000000000000000')
@@ -247,7 +264,7 @@ describe("NFTOpinionBounties", () => {
 		await opinionBounties.connect(alice).depositBounty(1, bob.address, alice.address, someOtherToken.address, pow18)
     await opinionBounties.connect(alice).withdrawOwnerFees()
     expect(await someOtherToken.balanceOf(alice.address)).to.equal('0')
-    await opinionBase.connect(bob).writeOpinion(1,  98, [], [])
+    await opinionBase.connect(bob).writeOpinion(1,  98, [2], [false])
     const amountPayable = await opinionBounties.connect(bob).getBountyAmountPayable(1, bob.address, someOtherToken.address)
     const amount = await opinionBounties.connect(alice).getAmountDepositedByUser(1, bob.address, alice.address, someOtherToken.address)
     expect(amountPayable).to.equal('1000000000000000000')
@@ -296,7 +313,7 @@ describe("NFTOpinionBounties", () => {
     expect(bounty[0]['depositor']).to.equal(alice.address)
     expect(await opinionBounties.getOwnerFeesPayable(eth)).to.equal('50000000000000000')
     await opinionBounties.connect(alice).withdrawOwnerFees()
-    expect(await ethers.provider.getBalance(alice.address)).to.equal('9997689717012831245765')
+    expect(await ethers.provider.getBalance(alice.address)).to.equal('9997658096632001939785')
   })
 
   it("(ETH) deposit and read info of multiple bounties", async () => {
@@ -311,7 +328,7 @@ describe("NFTOpinionBounties", () => {
     expect(bounty[1]['depositor']).to.equal(charlie.address)
     expect(bounty[2]['amount'].toString()).to.equal('100000000000000000')
     expect(bounty[2]['depositor']).to.equal(alice.address)
-    await opinionBase.connect(bob).writeOpinion(1,  98, [], [])
+    await opinionBase.connect(bob).writeOpinion(1,  98, [6], [true])
     const amountPayable = await opinionBounties.connect(bob).getBountyAmountPayable(1, bob.address, eth)
     const amountAlice = await opinionBounties.connect(alice).getAmountDepositedByUser(1, bob.address, alice.address, eth)
     const amountCharlie = await opinionBounties.connect(charlie).getAmountDepositedByUser(1, bob.address, charlie.address, eth)
@@ -319,7 +336,7 @@ describe("NFTOpinionBounties", () => {
     expect(amountAlice.toString()).to.equal('1100000000000000000')
     expect(amountCharlie.toString()).to.equal('2000000000000000000')
     await opinionBounties.connect(bob).claimBounty(1, eth)
-    expect(await ethers.provider.getBalance(bob.address)).to.equal('10003096221924951033712')
+    expect(await ethers.provider.getBalance(bob.address)).to.equal('10003093318347914312932')
   })
 
   it("(ETH) deposit and rescind bounty", async () => {

@@ -17,18 +17,29 @@ import "hardhat/console.sol";
 
  contract NFTOpinionBounties is INFTOpinionBounties, Ownable, Initializable {
 
+    struct BountyQueryInfo {
+        uint tokenID;
+        address user;
+        address token;
+    }
+
     // tokenAddress => whether it is an acceptable bounty payment
     mapping(address => bool) _isValidPayment;
-    // address => user address => paymentTokenAddress => bounty info
+    // tokenID => user address => paymentTokenAddress => bounty info
     mapping(uint => mapping(address => mapping(address => Bounty[]))) _bounties;
     // address => claimable owner fees
     mapping(address => uint) _ownerFees;
     //fee percentage for bounties of a particular token
     //fee format is a uint with 2 digits representing a percentage (ex: 2.5% => 025)
-    mapping(address => uint8) _tokenFeePercentage; 
+    mapping(address => uint8) _tokenFeePercentage;
+    // tokenID => user address => paymentTokenAddress => bounty exists
+    mapping(uint => mapping(address => mapping(address => bool))) _bountyExists;
+    // list of all bountyQueryInfo
+    BountyQueryInfo[] _bountyQueryInfo;
 
     // user address to Bounty[] of elibigle bounties for them
-    address[] _payableTokens;
+    address[] public _payableTokens;
+    uint _bountyNumber;
     bool public _feeSwitch;
 
     address _eth;
@@ -68,12 +79,17 @@ import "hardhat/console.sol";
             fee = amount *_tokenFeePercentage[token]  / 1000;
             modifiedAmount = amount - fee;
         }
-        Bounty memory bounty = Bounty(modifiedAmount, depositor, blockHeight);
-        _bounties[tokenID][user][token].push(bounty);
         if (token != _eth) {
             require(IERC20(token).transferFrom(depositor, address(this), amount), "Transfer failed");
         }
+        Bounty memory bounty = Bounty(tokenID, modifiedAmount, user, depositor, token, blockHeight);
+        _bounties[tokenID][user][token].push(bounty);
         _ownerFees[token] += fee;
+        if(!_bountyExists[tokenID][user][token]) {
+            _bountyQueryInfo.push(BountyQueryInfo(tokenID, user, token));
+        }
+        _bountyExists[tokenID][user][token] = true;
+        _bountyNumber++;
         emit BountyOffered(tokenID, user, depositor, token, modifiedAmount, fee);
     }
 
@@ -90,8 +106,9 @@ import "hardhat/console.sol";
             //fix
             //uint blockHeight = _arbSys.arbBlockNumber();
             uint blockHeight = block.number;
-            Bounty memory bounty = Bounty(amount - withdrawAmount, msg.sender, blockHeight);
+            Bounty memory bounty = Bounty(tokenID, amount - withdrawAmount, user, msg.sender, token, blockHeight);
             _bounties[tokenID][user][token].push(bounty);
+
         } else {
             withdrawAmount = amount;
         }
@@ -113,9 +130,9 @@ import "hardhat/console.sol";
         } 
         Bounty[] memory bounties = _bounties[tokenID][msg.sender][token];
         delete _bounties[tokenID][msg.sender][token];
-    //fix must have commented
         for (uint i = 0; i < bounties.length; i++) {
-            if (opinions[opinions.length - 1].blockHeight >= bounties[i].blockHeight) {
+            if (opinions[opinions.length - 1].blockHeight >= bounties[i].blockHeight && 
+                opinions[opinions.length - 1].citations.length != 0) {
                 amount += bounties[i].amount;
             } else {
                 _bounties[tokenID][msg.sender][token].push(bounties[i]);
@@ -127,7 +144,7 @@ import "hardhat/console.sol";
         } else {
             require(IERC20(token).transfer(msg.sender, amount), "Transfer failed.");
         }
-
+        _bountyExists[tokenID][msg.sender][token] = false;
         emit BountyClaimed(tokenID, msg.sender, token, amount);
     }
 
@@ -186,7 +203,8 @@ import "hardhat/console.sol";
             return 0;
         }     //fix must have commented
         for (uint i = 0; i <  _bounties[tokenID][user][token].length; i++) {
-            if (opinions[opinions.length - 1].blockHeight >=  _bounties[tokenID][user][token][i].blockHeight) {
+            if (opinions[opinions.length - 1].blockHeight >=  _bounties[tokenID][user][token][i].blockHeight && 
+                opinions[opinions.length - 1].citations.length != 0) {
                 amount +=  _bounties[tokenID][user][token][i].amount;
             }
         }
@@ -199,6 +217,18 @@ import "hardhat/console.sol";
 
     function getBountyInfo(uint tokenID, address user, address token) external view override returns (Bounty[] memory) {
         return _bounties[tokenID][user][token];
+    }
+
+    function getAllBounties() external view override returns (Bounty[] memory) {
+        Bounty[] memory retArray = new Bounty[](_bountyNumber);
+        uint k;
+        for(uint i = 0; i < _bountyQueryInfo.length; i++) {
+            for (uint j = 0; j < _bounties[_bountyQueryInfo[i].tokenID][_bountyQueryInfo[i].user][_bountyQueryInfo[i].token].length; j++) {
+                retArray[k] =_bounties[_bountyQueryInfo[i].tokenID][_bountyQueryInfo[i].user][_bountyQueryInfo[i].token][j];
+                k++;
+            }
+        }
+        return retArray;
     }
 
     function toggleFeeSwitch() external override onlyOwner() {

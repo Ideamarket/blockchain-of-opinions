@@ -2,9 +2,13 @@
 pragma solidity ^0.8.0;
 
 interface INFTOpinionBounties {
+
     struct Bounty {
+        uint tokenID;
         uint amount;
+        address user;
         address depositor;
+        address token;
         uint blockHeight;
     }
 
@@ -19,5 +23,6 @@ interface INFTOpinionBounties {
     function toggleFeeSwitch() external;
     function setBountyFees(address token, uint8 fee) external;
     function withdrawOwnerFees() external;
+    function getAllBounties() external view returns (Bounty[] memory);
     function getOwnerFeesPayable(address token) external view returns (uint);
 }

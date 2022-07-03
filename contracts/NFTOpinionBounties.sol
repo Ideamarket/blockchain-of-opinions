@@ -6,8 +6,7 @@ import "./utils/Initializable.sol";
 import "./interfaces/INFTOpinionBase.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "./interfaces/IArbSys.sol";
-//fix
-import "hardhat/console.sol";
+
 /**
  * @title NFTOpinionBounties
  * @author Kelton Madden
@@ -30,7 +29,7 @@ import "hardhat/console.sol";
     // address => claimable owner fees
     mapping(address => uint) _ownerFees;
     //fee percentage for bounties of a particular token
-    //fee format is a uint with 2 digits representing a percentage (ex: 2.5% => 025)
+    //fee format is a uint with 2 digits representing a percentage (ex: 2.5% => 25)
     mapping(address => uint8) _tokenFeePercentage;
     // tokenID => user address => paymentTokenAddress => bounty exists
     mapping(uint => mapping(address => mapping(address => bool))) _bountyExists;
@@ -70,9 +69,7 @@ import "hardhat/console.sol";
         require(amount > 0, "amount must be greater than 0");
         require(_isValidPayment[token], "invalid bounty payment");
         require(token != _eth || (token == _eth && msg.value == amount), "invalid ETH amount");
-        //fix
-        //uint blockHeight = _arbSys.arbBlockNumber();
-        uint blockHeight = block.number;
+        uint blockHeight = _arbSys.arbBlockNumber();
         uint fee = 0;
         uint modifiedAmount = amount;
         if (_feeSwitch) {
@@ -103,9 +100,7 @@ import "hardhat/console.sol";
             }
         }
         if (amount > withdrawAmount) {
-            //fix
-            //uint blockHeight = _arbSys.arbBlockNumber();
-            uint blockHeight = block.number;
+            uint blockHeight = _arbSys.arbBlockNumber();
             Bounty memory bounty = Bounty(tokenID, amount - withdrawAmount, user, msg.sender, token, blockHeight);
             _bounties[tokenID][user][token].push(bounty);
 
@@ -201,7 +196,7 @@ import "hardhat/console.sol";
         INFTOpinionBase.Opinion[] memory opinions = _nftOpinionBase.getOpinion(tokenID, user);
         if (opinions.length == 0) {
             return 0;
-        }     //fix must have commented
+        }
         for (uint i = 0; i <  _bounties[tokenID][user][token].length; i++) {
             if (opinions[opinions.length - 1].blockHeight >=  _bounties[tokenID][user][token][i].blockHeight && 
                 opinions[opinions.length - 1].citations.length != 0) {

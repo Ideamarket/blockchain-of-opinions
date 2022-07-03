@@ -49,8 +49,7 @@ contract IdeamarketPosts is IIdeamarketPosts, ERC721, AccessControl {
         require(bytes(content).length > 0 && bytes(content).length <= 20000, "content-length");
         require(recipient != address(0), "zero-addr");
         
-        //uint blockHeight = _arbSys.arbBlockNumber();
-        uint blockHeight = block.number;
+        uint blockHeight = _arbSys.arbBlockNumber();
         _mint(recipient, ++tokenNumber);
         string[] memory validCategoryTags = filterValidCategories(tokenNumber, categoryTags);
         

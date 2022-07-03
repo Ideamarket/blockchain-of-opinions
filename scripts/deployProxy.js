@@ -11,6 +11,8 @@ const allDeploymentParams = {
 	'rinkeby-avm': {
 		timelockDelay: '1',
 		gasPrice: 10000000000, // 10 gwei
+		tokenFeePercentage: BigNumber.from('0'),
+		feeSwitch: false
 
 	},
 }
@@ -21,7 +23,10 @@ const allExternalContractAddresses = {
 	},
 	'rinkeby-avm': {
 		multisig: '0x4e6a11b687F35fA21D92731F9CD2f231C61f9151',
-		ideamarketPosts: '0xE761935f890FAcd12bB7274CCaECCa4c1B49Bf66'
+		ideamarketPosts: '0xE761935f890FAcd12bB7274CCaECCa4c1B49Bf66',
+		nftOpinionBase: '0x7f40ec20DB16F8573706f81732DcE76893b455c8',
+		imoAddress: '0x634a0900a5F90C9F2d42BF1d49d94B84Db0A260d',
+
 	},
 }
 
@@ -94,8 +99,11 @@ async function main() {
 			contractName,
 			proxyAdminAddress,
 			externalContractAddresses.multisig,
+			externalContractAddresses.nftOpinionBase,
+			[externalContractAddresses.imoAddress],
+			[deploymentParams.tokenFeePercentage],
+			deploymentParams.feeSwitch
 		)
-
 		proxyContractAddress = proxyContract.address
 		saveDeployedAddress(networkName, contractName, proxyContractAddress)
 		saveDeployedABI(networkName, contractName, artifacts.readArtifactSync(contractName).abi)

@@ -79,14 +79,14 @@ import "./interfaces/IArbSys.sol";
         if (token != _eth) {
             require(IERC20(token).transferFrom(depositor, address(this), amount), "Transfer failed");
         }
-        Bounty memory bounty = Bounty(tokenID, modifiedAmount, user, depositor, token, blockHeight);
+        _bountyNumber++;
+        Bounty memory bounty = Bounty(_bountyNumber, tokenID, modifiedAmount, user, depositor, token, blockHeight);
         _bounties[tokenID][user][token].push(bounty);
         _ownerFees[token] += fee;
         if(!_bountyExists[tokenID][user][token]) {
             _bountyQueryInfo.push(BountyQueryInfo(tokenID, user, token));
         }
         _bountyExists[tokenID][user][token] = true;
-        _bountyNumber++;
         emit BountyOffered(tokenID, user, depositor, token, modifiedAmount, fee);
     }
 
@@ -101,7 +101,7 @@ import "./interfaces/IArbSys.sol";
         }
         if (amount > withdrawAmount) {
             uint blockHeight = _arbSys.arbBlockNumber();
-            Bounty memory bounty = Bounty(tokenID, amount - withdrawAmount, user, msg.sender, token, blockHeight);
+            Bounty memory bounty = Bounty(_bountyNumber, tokenID, amount - withdrawAmount, user, msg.sender, token, blockHeight);
             _bounties[tokenID][user][token].push(bounty);
 
         } else {

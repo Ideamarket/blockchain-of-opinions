@@ -4,6 +4,7 @@ pragma solidity ^0.8.0;
 interface INFTOpinionBounties {
 
     struct Bounty {
+        uint bountyID;
         uint tokenID;
         uint amount;
         address user;

@@ -45,9 +45,9 @@ import "./interfaces/IArbSys.sol";
     INFTOpinionBase _nftOpinionBase;
     IArbSys _arbSys;
 
-    event BountyOffered(uint tokenID, address user, address depositor, address token, uint amount, uint fee);
-    event BountyClaimed(uint tokenID, address user, address token, uint amount);
-    event BountyRescinded(uint tokenID, address user, address depositor, address token, uint amount);
+    event BountyOffered(uint bountyID, uint tokenID, address user, address depositor, address token, uint amount, uint fee);
+    event BountyClaimed(uint bountyID, uint tokenID, address user, address token, uint amount);
+    event BountyRescinded(uint bountyID, uint tokenID, address user, address depositor, address token, uint amount);
 
     function initialize(address owner, address nftOpinionBase, address[] memory payableTokens, uint8[] memory tokenFeePercentage, bool feeSwitch) external initializer{
         require(owner!= address(0), "zero-addr");

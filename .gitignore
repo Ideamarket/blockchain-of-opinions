@@ -87,3 +87,5 @@ types
 cache
 artifacts
 /out
+build
+package-lock.json

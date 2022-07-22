@@ -101,6 +101,7 @@ import "./interfaces/IArbSys.sol";
         }
         if (amount > withdrawAmount) {
             uint blockHeight = _arbSys.arbBlockNumber();
+            _bountyNumber++;
             Bounty memory bounty = Bounty(_bountyNumber, tokenID, amount - withdrawAmount, user, msg.sender, token, blockHeight);
             _bounties[tokenID][user][token].push(bounty);
 

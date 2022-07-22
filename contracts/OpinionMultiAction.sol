@@ -2,7 +2,7 @@
 pragma solidity ^0.8.0;
 
 import "./interfaces/INFTOpinionBase.sol";
-import "./interfaces/IIdeamarketPosts.sol";
+import "./IdeamarketPosts.sol";
 
 /**
  * @title FeeMultiAction
@@ -11,20 +11,21 @@ import "./interfaces/IIdeamarketPosts.sol";
  * @dev takes a fee while rating
  */
 
- contract OpinionMultiAction {
+contract OpinionMultiAction {
     
-    IIdeamarketPosts _opinionBase;
-    IIdeamarketPosts _ideamarketPosts;
+    INFTOpinionBase _opinionBase;
+    IdeamarketPosts _ideamarketPosts;
 
-    constructor(address ideamarketPosts, address ideamarketAdmin) {
-        _opinionBase = INFTOpinionBase(ideamarketPosts);
-        _ideamarketPosts = IIdeamarketPosts(ideamarketPosts);
-        _ideamarketAdmin = ideamarketAdmin;
+    constructor(address opinionBase, address ideamarketPosts) {
+        _opinionBase = INFTOpinionBase(opinionBase);
+        _ideamarketPosts = IdeamarketPosts(ideamarketPosts);
     }
 
-    function post(uint tokenID, uint8 rating, uint[] calldata citations, bool[] calldata inFavorArr) external {
+    function post(uint tokenID, uint8 rating, uint[] calldata citations, bool[] calldata inFavorArr) external payable {
         address tokenOwner = _ideamarketPosts.ownerOf(tokenID);
         (bool success, ) = tokenOwner.call{value: msg.value}("");
         require(success, "transfer-failed");
-        _opinionBase.writeOpinion(tokenID, rating,citations, inFavorArr);
- }
+        _opinionBase.writeOpinion(tokenID, rating, citations, inFavorArr);
+    }
+    
+}

@@ -21,11 +21,11 @@ contract OpinionMultiAction {
         _ideamarketPosts = IdeamarketPosts(ideamarketPosts);
     }
 
-    function post(uint tokenID, uint8 rating, uint[] calldata citations, bool[] calldata inFavorArr) external payable {
+    function post(uint tokenID, uint8 rating, uint[] calldata citations, bool[] calldata inFavorArr, address minter) external payable {
         address tokenOwner = _ideamarketPosts.ownerOf(tokenID);
         (bool success, ) = tokenOwner.call{value: msg.value}("");
         require(success, "transfer-failed");
-        _opinionBase.writeOpinion(tokenID, rating, citations, inFavorArr);
+        _opinionBase.writeOpinion(tokenID, rating, citations, inFavorArr, minter);
     }
     
 }

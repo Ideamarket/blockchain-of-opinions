@@ -110,9 +110,9 @@ import "./interfaces/IArbSys.sol";
         }
         if (token == _eth) {
             (bool success, ) = msg.sender.call{value: withdrawAmount}("");
-            require(success, "Transfer failed.");
+            require(success, "Transfer failed");
         } else {
-            require(IERC20(token).transfer(msg.sender, withdrawAmount), "Transfer failed.");
+            require(IERC20(token).transfer(msg.sender, withdrawAmount), "Transfer failed");
         }
 
         emit BountyRescinded(tokenID, user, msg.sender, token, withdrawAmount);
@@ -136,9 +136,9 @@ import "./interfaces/IArbSys.sol";
         }
         if (token == _eth) {
             (bool success, ) = msg.sender.call{value:amount}("");
-            require(success, "Transfer failed.");
+            require(success, "Transfer failed");
         } else {
-            require(IERC20(token).transfer(msg.sender, amount), "Transfer failed.");
+            require(IERC20(token).transfer(msg.sender, amount), "Transfer failed");
         }
         _bountyExists[tokenID][msg.sender][token] = false;
         emit BountyClaimed(tokenID, msg.sender, token, amount);

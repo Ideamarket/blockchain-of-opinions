@@ -25,7 +25,6 @@ interface INFTOpinionBase {
     function getOpinionedNFTs() external view returns (uint[] memory);
     function getAllOpinions() external view returns (Opinion[] memory);
     function changeFeePrice(uint) external;
-    function changeFeeCurrency(address, uint) external;
     function flipFeeSwitch() external;
-    function withdrawOwnerFees() external;
+    function withdrawClaimableFees() external;
 }

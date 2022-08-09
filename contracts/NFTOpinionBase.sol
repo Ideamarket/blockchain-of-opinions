@@ -28,12 +28,13 @@ contract NFTOpinionBase is INFTOpinionBase, Initializable, Ownable {
     // uint => address[] of users who have made opinions about that tokenID
     mapping(uint => address[]) _opinionatorList;
 
+    // user address => uint claimable fees
+    mapping(address => uint) _claimableFees;
+
     uint[] _opinionedTokenIDs;
     uint public _totalOpinionNumber;
 
     uint public _fee;
-    address public _feeCurrency;
-    address public _eth;
     bool public _feeSwitch;
 
     IArbSys _arbSys;
@@ -41,35 +42,31 @@ contract NFTOpinionBase is INFTOpinionBase, Initializable, Ownable {
 
     event NewOpinion(uint tokenID, address user, uint8 rating, uint[] citations, bool[] inFavorArr);
 
-    function initialize(address ideamarketPosts) external initializer {
+    function initialize(address ideamarketPosts, address owner) external initializer {
         require(ideamarketPosts != address(0), "zero address");
         _arbSys = IArbSys(address(100));
         _posts = IdeamarketPosts(ideamarketPosts);
+        setOwnerInternal(owner);
     }
 
-    function writeOpinion(uint tokenID, uint8 rating, uint[] calldata citations, bool[] calldata inFavorArr, address minter) external override payable {
-        if (_feeSwitch) {
-            if (_feeCurrency == _eth) {
-                require(msg.value == _fee, "invalid payment");
-            } else {
-                require(IERC20(_feeCurrency).transferFrom(minter, address(this), _fee), "erc20 fee payment failed");
-            }
-        }
+    function writeOpinion(uint tokenID, uint8 rating, uint[] calldata citations, bool[] calldata inFavorArr, address opinionWriter) external override payable {
+        require(!_feeSwitch || msg.value == _fee, "invalid fee");
+        _claimableFees[_posts.ownerOf(tokenID)] += _fee;
         checkInput(tokenID, rating, citations, inFavorArr);
         uint blockHeight = _arbSys.arbBlockNumber();
-        Opinion memory opinion = Opinion(minter, tokenID, rating, citations, inFavorArr, blockHeight);
+        Opinion memory opinion = Opinion(opinionWriter, tokenID, rating, citations, inFavorArr, blockHeight);
         if (_opinions[tokenID].length == 0) {
             _opinionedTokenIDs.push(tokenID);
         }
         _opinions[tokenID].push(opinion);
-        if (_userOpinions[tokenID][minter].length == 0) {
-            _opinionatorList[tokenID].push(minter);
+        if (_userOpinions[tokenID][opinionWriter].length == 0) {
+            _opinionatorList[tokenID].push(opinionWriter);
         }
-        _userOpinions[tokenID][minter].push(opinion);
-        _totalUserOpinions[minter].push(opinion);
+        _userOpinions[tokenID][opinionWriter].push(opinion);
+        _totalUserOpinions[opinionWriter].push(opinion);
         _totalOpinionNumber++;
 
-        emit NewOpinion(tokenID, minter, rating, citations, inFavorArr);
+        emit NewOpinion(tokenID, opinionWriter, rating, citations, inFavorArr);
     }
 
     function checkInput(uint tokenID, uint8 rating, uint[] calldata citations, bool[] calldata inFavorArr) public view {
@@ -128,22 +125,14 @@ contract NFTOpinionBase is INFTOpinionBase, Initializable, Ownable {
         _fee = newPrice;
     }
 
-    function changeFeeCurrency(address currency, uint newPrice) external override onlyOwner {
-        withdrawOwnerFees();
-        _feeCurrency = currency;
-        _fee = newPrice;
-    }
-
     function flipFeeSwitch() external override onlyOwner {
         _feeSwitch = !_feeSwitch;
     }
 
-    function withdrawOwnerFees() public override onlyOwner {
-        if (_feeCurrency == _eth) {
-            (bool success, ) = msg.sender.call{value: address(this).balance}("");
-            require(success, "Transfer failed");
-        } else {
-            require(IERC20(_feeCurrency).transfer(msg.sender, IERC20(_feeCurrency).balanceOf(address(this))), "Transfer failed");
-        }
+    function withdrawClaimableFees() public override {
+        uint val = _claimableFees[msg.sender];
+        _claimableFees[msg.sender] = 0;
+        (bool success, ) = msg.sender.call{value: val}("");
+        require(success, "Transfer failed");
     }
 }

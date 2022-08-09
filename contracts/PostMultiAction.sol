@@ -20,10 +20,9 @@ contract PostMultiAction {
         _ideamarketAdmin = ideamarketAdmin;
     }
 
-    function post(string calldata content, string[] memory imageHashes, string[] memory categoryTags, string calldata imageLink, 
-        bool urlBool, string calldata urlContent, address recipient) external payable {
+    function post(address recipient) external payable {
         (bool success, ) = _ideamarketAdmin.call{value: msg.value}("");
         require(success, "transfer-failed");
-        _ideamarketPosts.mint(content, imageHashes, categoryTags, imageLink, urlBool, urlContent, recipient);
+        _ideamarketPosts.mint(recipient);
     }
 }

@@ -79,12 +79,10 @@ contract IdeamarketPosts is IIdeamarketPosts, ERC721, Ownable {
         return bytes(_baseUri).length > 0 ? string(abi.encodePacked(_baseUri, tokenId.toString())) : "";
     }
 
-    
     function getPostContent(uint tokenID) external view override returns (string memory content) {
         require(_exists(tokenID), "nonexistent token");
         return _postContent[tokenID];
     }
-
 
     function totalSupply() public view returns (uint) {
         return _totalSupply;

@@ -26,5 +26,6 @@ interface INFTOpinionBase {
     function getAllOpinions() external view returns (Opinion[] memory);
     function changeFeePrice(uint) external;
     function flipFeeSwitch() external;
+    function claimableFees(address user) external view returns (uint);
     function withdrawClaimableFees() external;
 }

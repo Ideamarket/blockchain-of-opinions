@@ -18,16 +18,16 @@ import "@openzeppelin/contracts/utils/Strings.sol";
 contract IdeamarketPosts is IIdeamarketPosts, ERC721, Ownable {
     using Strings for uint256;
 
-    // list of tokenIDs a particular address minted
+    // tokenID => particular address minted
     mapping(address => uint[]) _mintedTokens;
+    // tokenID => content string
+    mapping(uint => string) _postContent;
 
     string public _baseUri;
-    string _contractUri;
+    string public _contractUri;
     uint public _fee;
     bool public _feeSwitch;
     uint _totalSupply;
-    // contract to retrieve arb block height
-    IArbSys constant _arbSys = IArbSys(address(100));
 
     constructor(address owner, string memory contractUri, string memory baseUri) ERC721("IdeamarketPost", "IMPOST") {
         setOwnerInternal(owner);
@@ -35,11 +35,13 @@ contract IdeamarketPosts is IIdeamarketPosts, ERC721, Ownable {
         _baseUri = baseUri;
     }
     
-    function mint(address recipient) external payable {
+    function mint(string calldata content, address recipient) external payable {
         require(!_feeSwitch || msg.value == _fee, "invalid fee");
         require(recipient != address(0), "zero-addr");
-
+        require(bytes(content).length > 0 && bytes(content).length <= 20000, "content-length");
+        
         _mint(recipient, ++_totalSupply);
+        _postContent[_totalSupply] = content;
         _mintedTokens[recipient].push(_totalSupply);
     }
 
@@ -47,15 +49,15 @@ contract IdeamarketPosts is IIdeamarketPosts, ERC721, Ownable {
         return _mintedTokens[user];
     }
 
-    function changeFeePrice(uint newPrice) external override onlyOwner {
-        _fee = newPrice;
+    function changeFeePrice(uint newFee) external override onlyOwner {
+        _fee = newFee;
     }
 
     function flipFeeSwitch() external override onlyOwner{
         _feeSwitch = !_feeSwitch;
     }
 
-    function withdrawOwnerFees() public override {
+    function withdrawOwnerFees() public override onlyOwner{
         (bool success, ) = _owner.call{value: address(this).balance}("");
         require(success, "Transfer failed");
     }
@@ -76,6 +78,13 @@ contract IdeamarketPosts is IIdeamarketPosts, ERC721, Ownable {
         require(_exists(tokenId), "ERC721: uri query for nonexistent token");
         return bytes(_baseUri).length > 0 ? string(abi.encodePacked(_baseUri, tokenId.toString())) : "";
     }
+
+    
+    function getPostContent(uint tokenID) external view override returns (string memory content) {
+        require(_exists(tokenID), "nonexistent token");
+        return _postContent[tokenID];
+    }
+
 
     function totalSupply() public view returns (uint) {
         return _totalSupply;

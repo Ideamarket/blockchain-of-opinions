@@ -121,12 +121,16 @@ contract NFTOpinionBase is INFTOpinionBase, Initializable, Ownable {
         return allOpinions;
     }
 
-    function changeFeePrice(uint newPrice) external override onlyOwner {
-        _fee = newPrice;
+    function changeFeePrice(uint newFee) external override onlyOwner {
+        _fee = newFee;
     }
 
     function flipFeeSwitch() external override onlyOwner {
         _feeSwitch = !_feeSwitch;
+    }
+
+    function claimableFees(address user) external view override returns (uint) {
+        return _claimableFees[user];
     }
 
     function withdrawClaimableFees() public override {

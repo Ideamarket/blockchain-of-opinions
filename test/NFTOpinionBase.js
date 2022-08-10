@@ -17,9 +17,9 @@ describe("NFTOpinionBase", () => {
 		ideamarketPosts = await IdeamarketPosts.deploy(alice.address, "contractURI/IMPOSTS", "https://ideamarketposts/");
         const OpinionBase = await ethers.getContractFactory("NFTOpinionBase");
 		opinionBase = await OpinionBase.deploy();
-		await opinionBase.connect(alice).initialize(alice.address, ideamarketPosts.address);
+		await opinionBase.connect(alice).initialize(alice.address, ideamarketPosts.address, BigNumber.from('1000000000000000'));
 		for (i = 0; i <= 15; i++) {
-			await ideamarketPosts.connect(alice).mint("hi", alice.address)
+			await ideamarketPosts.connect(charlie).mint("hi", charlie.address)
 		}
 	})
 
@@ -332,10 +332,31 @@ describe("NFTOpinionBase", () => {
 		to.emit(opinionBase, "OpinionWritten").withArgs(alice.address, 1,  98, [3, 7, 12], [false, true, true], alice.address);
 	})
 
-	//reverts if no payment,
-	//reverts of more than neede payment
-	//check withdrawable amount works
-	//withdraw works
-	//cannot double withdraw
+	it("should revert if no fee payment", async () => {
+		await expectRevert(opinionBase.connect(alice).writeOpinion(1, 98, [2], [true], alice.address), "invalid fee");
+	})
+	
+	it("should revert if incorrect fee payment", async () => {
+		await expectRevert(opinionBase.connect(alice).writeOpinion(1, 98, [2], [true], alice.address, {value: ethers.utils.parseEther("0.01")}), "invalid fee");
+		await expectRevert(opinionBase.connect(alice).writeOpinion(1, 98, [2], [true], alice.address, {value: ethers.utils.parseEther("0.0001")}), "invalid fee");
+	})
 
+	it("withdraw works", async () => {
+		await opinionBase.connect(alice).writeOpinion(1, 98, [2], [true], alice.address, {value: ethers.utils.parseEther("0.001")});
+		await opinionBase.connect(alice).writeOpinion(1, 98, [2], [true], alice.address, {value: ethers.utils.parseEther("0.001")});
+		await opinionBase.connect(bob).writeOpinion(1, 98, [2], [true], bob.address, {value: ethers.utils.parseEther("0.001")});
+		let balanceBefore = await ethers.provider.getBalance(charlie.address);
+		let claimableFees = await opinionBase.claimableFees(charlie.address);
+		expect(claimableFees).to.equal(ethers.utils.parseEther("0.003"));
+		await opinionBase.connect(charlie).withdrawClaimableFees();
+		let balanceAfter = await ethers.provider.getBalance(charlie.address);
+		balanceBefore = await ethers.provider.getBalance(charlie.address);
+		claimableFees = await opinionBase.claimableFees(charlie.address);
+		expect(claimableFees).to.equal(ethers.utils.parseEther("0"));
+		claimableFees = await opinionBase.claimableFees(alice.address);
+		expect(claimableFees).to.equal(ethers.utils.parseEther("0"));
+		claimableFees = await opinionBase.claimableFees(bob.address);
+		expect(claimableFees).to.equal(ethers.utils.parseEther("0"));
+	})
+	
 })

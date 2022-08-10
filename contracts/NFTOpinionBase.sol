@@ -42,11 +42,13 @@ contract NFTOpinionBase is INFTOpinionBase, Initializable, Ownable {
 
     event NewOpinion(uint tokenID, address user, uint8 rating, uint[] citations, bool[] inFavorArr);
 
-    function initialize(address owner, address ideamarketPosts) external initializer {
+    function initialize(address owner, address ideamarketPosts, uint fee) external initializer {
         require(ideamarketPosts != address(0), "zero address");
         _arbSys = IArbSys(address(100));
         _posts = IdeamarketPosts(ideamarketPosts);
         setOwnerInternal(owner);
+        _feeSwitch = true;
+        _fee = fee;
     }
 
     function writeOpinion(uint tokenID, uint8 rating, uint[] calldata citations, bool[] calldata inFavorArr, address opinionWriter) external override payable {

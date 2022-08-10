@@ -709,379 +709,524 @@
     ],
     "NFTOpinionBase": [
         {
-            "anonymous": false,
-            "inputs": [
-                {
-                    "indexed": false,
-                    "internalType": "uint256",
-                    "name": "tokenID",
-                    "type": "uint256"
-                },
-                {
-                    "indexed": false,
-                    "internalType": "address",
-                    "name": "user",
-                    "type": "address"
-                },
-                {
-                    "indexed": false,
-                    "internalType": "uint8",
-                    "name": "rating",
-                    "type": "uint8"
-                },
-                {
-                    "indexed": false,
-                    "internalType": "uint256[]",
-                    "name": "citations",
-                    "type": "uint256[]"
-                },
-                {
-                    "indexed": false,
-                    "internalType": "bool[]",
-                    "name": "inFavorArr",
-                    "type": "bool[]"
-                }
-            ],
-            "name": "NewOpinion",
-            "type": "event"
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "tokenID",
+              "type": "uint256"
+            },
+            {
+              "indexed": false,
+              "internalType": "address",
+              "name": "user",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint8",
+              "name": "rating",
+              "type": "uint8"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint256[]",
+              "name": "citations",
+              "type": "uint256[]"
+            },
+            {
+              "indexed": false,
+              "internalType": "bool[]",
+              "name": "inFavorArr",
+              "type": "bool[]"
+            }
+          ],
+          "name": "NewOpinion",
+          "type": "event"
         },
         {
-            "inputs": [
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "address",
+              "name": "oldOwner",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "internalType": "address",
+              "name": "newOwner",
+              "type": "address"
+            }
+          ],
+          "name": "OwnershipChanged",
+          "type": "event"
+        },
+        {
+          "inputs": [],
+          "name": "_fee",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "_feeSwitch",
+          "outputs": [
+            {
+              "internalType": "bool",
+              "name": "",
+              "type": "bool"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "_totalOpinionNumber",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "uint256",
+              "name": "newFee",
+              "type": "uint256"
+            }
+          ],
+          "name": "changeFeePrice",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "uint256",
+              "name": "tokenID",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint8",
+              "name": "rating",
+              "type": "uint8"
+            },
+            {
+              "internalType": "uint256[]",
+              "name": "citations",
+              "type": "uint256[]"
+            },
+            {
+              "internalType": "bool[]",
+              "name": "inFavorArr",
+              "type": "bool[]"
+            }
+          ],
+          "name": "checkInput",
+          "outputs": [],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "user",
+              "type": "address"
+            }
+          ],
+          "name": "claimableFees",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "flipFeeSwitch",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "getAllOpinions",
+          "outputs": [
+            {
+              "components": [
                 {
-                    "internalType": "uint256",
-                    "name": "tokenID",
-                    "type": "uint256"
+                  "internalType": "address",
+                  "name": "author",
+                  "type": "address"
                 },
                 {
-                    "internalType": "uint8",
-                    "name": "rating",
-                    "type": "uint8"
+                  "internalType": "uint256",
+                  "name": "tokenID",
+                  "type": "uint256"
                 },
                 {
-                    "internalType": "uint256[]",
-                    "name": "citations",
-                    "type": "uint256[]"
+                  "internalType": "uint8",
+                  "name": "rating",
+                  "type": "uint8"
                 },
                 {
-                    "internalType": "bool[]",
-                    "name": "inFavorArr",
-                    "type": "bool[]"
-                }
-            ],
-            "name": "checkInput",
-            "outputs": [],
-            "stateMutability": "view",
-            "type": "function"
-        },
-        {
-            "inputs": [],
-            "name": "getAllOpinions",
-            "outputs": [
-                {
-                    "components": [
-                        {
-                            "internalType": "address",
-                            "name": "author",
-                            "type": "address"
-                        },
-                        {
-                            "internalType": "uint256",
-                            "name": "tokenID",
-                            "type": "uint256"
-                        },
-                        {
-                            "internalType": "uint8",
-                            "name": "rating",
-                            "type": "uint8"
-                        },
-                        {
-                            "internalType": "uint256[]",
-                            "name": "citations",
-                            "type": "uint256[]"
-                        },
-                        {
-                            "internalType": "bool[]",
-                            "name": "inFavorArr",
-                            "type": "bool[]"
-                        },
-                        {
-                            "internalType": "uint256",
-                            "name": "blockHeight",
-                            "type": "uint256"
-                        }
-                    ],
-                    "internalType": "struct INFTOpinionBase.Opinion[]",
-                    "name": "",
-                    "type": "tuple[]"
-                }
-            ],
-            "stateMutability": "view",
-            "type": "function"
-        },
-        {
-            "inputs": [
-                {
-                    "internalType": "uint256",
-                    "name": "tokenID",
-                    "type": "uint256"
-                }
-            ],
-            "name": "getLatestOpinionsAboutNFT",
-            "outputs": [
-                {
-                    "components": [
-                        {
-                            "internalType": "address",
-                            "name": "author",
-                            "type": "address"
-                        },
-                        {
-                            "internalType": "uint256",
-                            "name": "tokenID",
-                            "type": "uint256"
-                        },
-                        {
-                            "internalType": "uint8",
-                            "name": "rating",
-                            "type": "uint8"
-                        },
-                        {
-                            "internalType": "uint256[]",
-                            "name": "citations",
-                            "type": "uint256[]"
-                        },
-                        {
-                            "internalType": "bool[]",
-                            "name": "inFavorArr",
-                            "type": "bool[]"
-                        },
-                        {
-                            "internalType": "uint256",
-                            "name": "blockHeight",
-                            "type": "uint256"
-                        }
-                    ],
-                    "internalType": "struct INFTOpinionBase.Opinion[]",
-                    "name": "",
-                    "type": "tuple[]"
-                }
-            ],
-            "stateMutability": "view",
-            "type": "function"
-        },
-        {
-            "inputs": [
-                {
-                    "internalType": "uint256",
-                    "name": "tokenID",
-                    "type": "uint256"
+                  "internalType": "uint256[]",
+                  "name": "citations",
+                  "type": "uint256[]"
                 },
                 {
-                    "internalType": "address",
-                    "name": "user",
-                    "type": "address"
-                }
-            ],
-            "name": "getOpinion",
-            "outputs": [
-                {
-                    "components": [
-                        {
-                            "internalType": "address",
-                            "name": "author",
-                            "type": "address"
-                        },
-                        {
-                            "internalType": "uint256",
-                            "name": "tokenID",
-                            "type": "uint256"
-                        },
-                        {
-                            "internalType": "uint8",
-                            "name": "rating",
-                            "type": "uint8"
-                        },
-                        {
-                            "internalType": "uint256[]",
-                            "name": "citations",
-                            "type": "uint256[]"
-                        },
-                        {
-                            "internalType": "bool[]",
-                            "name": "inFavorArr",
-                            "type": "bool[]"
-                        },
-                        {
-                            "internalType": "uint256",
-                            "name": "blockHeight",
-                            "type": "uint256"
-                        }
-                    ],
-                    "internalType": "struct INFTOpinionBase.Opinion[]",
-                    "name": "",
-                    "type": "tuple[]"
-                }
-            ],
-            "stateMutability": "view",
-            "type": "function"
-        },
-        {
-            "inputs": [],
-            "name": "getOpinionedNFTs",
-            "outputs": [
-                {
-                    "internalType": "uint256[]",
-                    "name": "",
-                    "type": "uint256[]"
-                }
-            ],
-            "stateMutability": "view",
-            "type": "function"
-        },
-        {
-            "inputs": [
-                {
-                    "internalType": "uint256",
-                    "name": "tokenID",
-                    "type": "uint256"
-                }
-            ],
-            "name": "getOpinionsAboutNFT",
-            "outputs": [
-                {
-                    "components": [
-                        {
-                            "internalType": "address",
-                            "name": "author",
-                            "type": "address"
-                        },
-                        {
-                            "internalType": "uint256",
-                            "name": "tokenID",
-                            "type": "uint256"
-                        },
-                        {
-                            "internalType": "uint8",
-                            "name": "rating",
-                            "type": "uint8"
-                        },
-                        {
-                            "internalType": "uint256[]",
-                            "name": "citations",
-                            "type": "uint256[]"
-                        },
-                        {
-                            "internalType": "bool[]",
-                            "name": "inFavorArr",
-                            "type": "bool[]"
-                        },
-                        {
-                            "internalType": "uint256",
-                            "name": "blockHeight",
-                            "type": "uint256"
-                        }
-                    ],
-                    "internalType": "struct INFTOpinionBase.Opinion[]",
-                    "name": "",
-                    "type": "tuple[]"
-                }
-            ],
-            "stateMutability": "view",
-            "type": "function"
-        },
-        {
-            "inputs": [
-                {
-                    "internalType": "address",
-                    "name": "user",
-                    "type": "address"
-                }
-            ],
-            "name": "getUsersOpinions",
-            "outputs": [
-                {
-                    "components": [
-                        {
-                            "internalType": "address",
-                            "name": "author",
-                            "type": "address"
-                        },
-                        {
-                            "internalType": "uint256",
-                            "name": "tokenID",
-                            "type": "uint256"
-                        },
-                        {
-                            "internalType": "uint8",
-                            "name": "rating",
-                            "type": "uint8"
-                        },
-                        {
-                            "internalType": "uint256[]",
-                            "name": "citations",
-                            "type": "uint256[]"
-                        },
-                        {
-                            "internalType": "bool[]",
-                            "name": "inFavorArr",
-                            "type": "bool[]"
-                        },
-                        {
-                            "internalType": "uint256",
-                            "name": "blockHeight",
-                            "type": "uint256"
-                        }
-                    ],
-                    "internalType": "struct INFTOpinionBase.Opinion[]",
-                    "name": "",
-                    "type": "tuple[]"
-                }
-            ],
-            "stateMutability": "view",
-            "type": "function"
-        },
-        {
-            "inputs": [
-                {
-                    "internalType": "address",
-                    "name": "ideamarketPosts",
-                    "type": "address"
-                }
-            ],
-            "name": "initialize",
-            "outputs": [],
-            "stateMutability": "nonpayable",
-            "type": "function"
-        },
-        {
-            "inputs": [
-                {
-                    "internalType": "uint256",
-                    "name": "tokenID",
-                    "type": "uint256"
+                  "internalType": "bool[]",
+                  "name": "inFavorArr",
+                  "type": "bool[]"
                 },
                 {
-                    "internalType": "uint8",
-                    "name": "rating",
-                    "type": "uint8"
-                },
-                {
-                    "internalType": "uint256[]",
-                    "name": "citations",
-                    "type": "uint256[]"
-                },
-                {
-                    "internalType": "bool[]",
-                    "name": "inFavorArr",
-                    "type": "bool[]"
+                  "internalType": "uint256",
+                  "name": "blockHeight",
+                  "type": "uint256"
                 }
-            ],
-            "name": "writeOpinion",
-            "outputs": [],
-            "stateMutability": "nonpayable",
-            "type": "function"
+              ],
+              "internalType": "struct INFTOpinionBase.Opinion[]",
+              "name": "",
+              "type": "tuple[]"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "uint256",
+              "name": "tokenID",
+              "type": "uint256"
+            }
+          ],
+          "name": "getLatestOpinionsAboutNFT",
+          "outputs": [
+            {
+              "components": [
+                {
+                  "internalType": "address",
+                  "name": "author",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "tokenID",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint8",
+                  "name": "rating",
+                  "type": "uint8"
+                },
+                {
+                  "internalType": "uint256[]",
+                  "name": "citations",
+                  "type": "uint256[]"
+                },
+                {
+                  "internalType": "bool[]",
+                  "name": "inFavorArr",
+                  "type": "bool[]"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "blockHeight",
+                  "type": "uint256"
+                }
+              ],
+              "internalType": "struct INFTOpinionBase.Opinion[]",
+              "name": "",
+              "type": "tuple[]"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "uint256",
+              "name": "tokenID",
+              "type": "uint256"
+            },
+            {
+              "internalType": "address",
+              "name": "user",
+              "type": "address"
+            }
+          ],
+          "name": "getOpinion",
+          "outputs": [
+            {
+              "components": [
+                {
+                  "internalType": "address",
+                  "name": "author",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "tokenID",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint8",
+                  "name": "rating",
+                  "type": "uint8"
+                },
+                {
+                  "internalType": "uint256[]",
+                  "name": "citations",
+                  "type": "uint256[]"
+                },
+                {
+                  "internalType": "bool[]",
+                  "name": "inFavorArr",
+                  "type": "bool[]"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "blockHeight",
+                  "type": "uint256"
+                }
+              ],
+              "internalType": "struct INFTOpinionBase.Opinion[]",
+              "name": "",
+              "type": "tuple[]"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "getOpinionedNFTs",
+          "outputs": [
+            {
+              "internalType": "uint256[]",
+              "name": "",
+              "type": "uint256[]"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "uint256",
+              "name": "tokenID",
+              "type": "uint256"
+            }
+          ],
+          "name": "getOpinionsAboutNFT",
+          "outputs": [
+            {
+              "components": [
+                {
+                  "internalType": "address",
+                  "name": "author",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "tokenID",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint8",
+                  "name": "rating",
+                  "type": "uint8"
+                },
+                {
+                  "internalType": "uint256[]",
+                  "name": "citations",
+                  "type": "uint256[]"
+                },
+                {
+                  "internalType": "bool[]",
+                  "name": "inFavorArr",
+                  "type": "bool[]"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "blockHeight",
+                  "type": "uint256"
+                }
+              ],
+              "internalType": "struct INFTOpinionBase.Opinion[]",
+              "name": "",
+              "type": "tuple[]"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "getOwner",
+          "outputs": [
+            {
+              "internalType": "address",
+              "name": "",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "user",
+              "type": "address"
+            }
+          ],
+          "name": "getUsersOpinions",
+          "outputs": [
+            {
+              "components": [
+                {
+                  "internalType": "address",
+                  "name": "author",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "tokenID",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint8",
+                  "name": "rating",
+                  "type": "uint8"
+                },
+                {
+                  "internalType": "uint256[]",
+                  "name": "citations",
+                  "type": "uint256[]"
+                },
+                {
+                  "internalType": "bool[]",
+                  "name": "inFavorArr",
+                  "type": "bool[]"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "blockHeight",
+                  "type": "uint256"
+                }
+              ],
+              "internalType": "struct INFTOpinionBase.Opinion[]",
+              "name": "",
+              "type": "tuple[]"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "owner",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "ideamarketPosts",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "fee",
+              "type": "uint256"
+            }
+          ],
+          "name": "initialize",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "newOwner",
+              "type": "address"
+            }
+          ],
+          "name": "setOwner",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "withdrawClaimableFees",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "uint256",
+              "name": "tokenID",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint8",
+              "name": "rating",
+              "type": "uint8"
+            },
+            {
+              "internalType": "uint256[]",
+              "name": "citations",
+              "type": "uint256[]"
+            },
+            {
+              "internalType": "bool[]",
+              "name": "inFavorArr",
+              "type": "bool[]"
+            },
+            {
+              "internalType": "address",
+              "name": "opinionWriter",
+              "type": "address"
+            }
+          ],
+          "name": "writeOpinion",
+          "outputs": [],
+          "stateMutability": "payable",
+          "type": "function"
         }
-    ],
+      ],
     "IdeamarketPosts": [
         {
             "inputs": [

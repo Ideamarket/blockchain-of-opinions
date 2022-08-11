@@ -75,11 +75,11 @@ contract IdeamarketPosts is IIdeamarketPosts, ERC721, Ownable {
     }
 
     function tokenURI(uint256 tokenId) public view override returns (string memory) {
-        require(_exists(tokenId), "ERC721: uri query for nonexistent token");
+        require(_exists(tokenId), "ERC721Metadata: URI query for nonexistent token");
         return bytes(_baseUri).length > 0 ? string(abi.encodePacked(_baseUri, tokenId.toString())) : "";
     }
 
-    function getPostContent(uint tokenID) external view override returns (string memory content) {
+    function getPost(uint tokenID) external view override returns (string memory content) {
         require(_exists(tokenID), "nonexistent token");
         return _postContent[tokenID];
     }

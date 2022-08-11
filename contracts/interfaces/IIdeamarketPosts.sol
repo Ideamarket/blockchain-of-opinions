@@ -12,5 +12,5 @@ interface IIdeamarketPosts {
     function changeFeePrice(uint) external;
     function flipFeeSwitch() external;
     function withdrawOwnerFees() external;
-    function getPostContent(uint tokenID) external view returns (string memory);
+    function getPost(uint tokenID) external view returns (string memory);
 }

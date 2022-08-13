@@ -29,10 +29,12 @@ contract IdeamarketPosts is IIdeamarketPosts, ERC721, Ownable {
     bool public _feeSwitch;
     uint _totalSupply;
 
-    constructor(address owner, string memory contractUri, string memory baseUri) ERC721("IdeamarketPost", "IMPOST") {
+    constructor(address owner, string memory contractUri, string memory baseUri, uint fee) ERC721("IdeamarketPost", "IMPOST") {
         setOwnerInternal(owner);
         _contractUri = contractUri;
         _baseUri = baseUri;
+        _feeSwitch = true;
+        _fee = fee;
     }
     
     function mint(string calldata content, address recipient) external payable {
@@ -66,11 +68,11 @@ contract IdeamarketPosts is IIdeamarketPosts, ERC721, Ownable {
         return _contractUri;
     }
 
-    function updateContractURI(string calldata contractUri) public {
+    function updateContractURI(string calldata contractUri) public onlyOwner {
         _contractUri = contractUri;
     }
 
-    function updateBaseURI(string calldata baseUri) public {
+    function updateBaseURI(string calldata baseUri) public onlyOwner {
         _baseUri = baseUri;
     }
 

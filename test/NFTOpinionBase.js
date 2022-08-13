@@ -14,17 +14,17 @@ describe("NFTOpinionBase", () => {
 		bob = accounts[1];
 		charlie = accounts[2];
 		const IdeamarketPosts = await ethers.getContractFactory("IdeamarketPosts");
-		ideamarketPosts = await IdeamarketPosts.deploy(alice.address, "contractURI/IMPOSTS", "https://ideamarketposts/");
+		ideamarketPosts = await IdeamarketPosts.deploy(alice.address, "contractURI/IMPOSTS", "https://ideamarketposts/",  ethers.utils.parseEther("0.001"));
         const OpinionBase = await ethers.getContractFactory("NFTOpinionBase");
 		opinionBase = await OpinionBase.deploy();
 		await opinionBase.connect(alice).initialize(alice.address, ideamarketPosts.address, BigNumber.from('1000000000000000'));
 		for (i = 0; i <= 15; i++) {
-			await ideamarketPosts.connect(charlie).mint("hi", charlie.address)
+			await ideamarketPosts.connect(charlie).mint("hi", charlie.address,  {value: ethers.utils.parseEther("0.001")})
 		}
 	})
 
 	it("should write opinion citing 0 post", async () => {
-		await opinionBase.connect(alice).writeOpinion(1,  98, [0], [true], alice.address, {value: ethers.utils.parseEther("0.001")});
+		await opinionBase.connect(alice).writeOpinion(1,  98, [1], [true], alice.address, {value: ethers.utils.parseEther("0.001")});
 		const opinion = await opinionBase.getOpinion(1, alice.address);
 		expect(opinion[0]['citations'][0]).to.equal(0);
 		expect(opinion[0]['inFavorArr'][0]).to.equal(true);
@@ -65,6 +65,10 @@ describe("NFTOpinionBase", () => {
 
 	it("should fail repeat citations", async () => {
 		await expectRevert(opinionBase.connect(alice).writeOpinion(1, 98, [2, 2, 5, 6], [true, true, true, false], alice.address, {value: ethers.utils.parseEther("0.001")}), "repeat citation");
+	})
+
+	it("should fail if citation number is 0 ", async () => {
+		await expectRevert(opinionBase.connect(alice).writeOpinion(1, 98, [0], [true, true, true, false], alice.address, {value: ethers.utils.parseEther("0.001")}), "invalid citation");
 	})
 
 	it("should fail if citing nonexistant post", async () => {
@@ -357,6 +361,30 @@ describe("NFTOpinionBase", () => {
 		expect(claimableFees).to.equal(ethers.utils.parseEther("0"));
 		claimableFees = await opinionBase.claimableFees(bob.address);
 		expect(claimableFees).to.equal(ethers.utils.parseEther("0"));
+	})
+
+	it("change fee", async () => {
+		await opinionBase.connect(alice).changeFeePrice(ethers.utils.parseEther("0.01"));  
+		await opinionBase.connect(alice).writeOpinion(1,  98, [1], [true], alice.address, {value: ethers.utils.parseEther("0.01")});
+		const opinion = await opinionBase.getOpinion(1, alice.address);
+		expect(opinion[0]['citations'][0]).to.equal(0);
+		expect(opinion[0]['inFavorArr'][0]).to.equal(true);
+		expect(opinion[0]['tokenID']).to.equal(1);
+		expect(opinion[0]['rating']).to.equal(98);
+		expect(opinion[0]['author']).to.equal(alice.address);
+		expect(opinion.length).to.equal(1);
+	})
+
+	it("pause fees", async () => {
+		await opinionBase.connect(alice).flipFeeSwitch();
+		await opinionBase.connect(alice).writeOpinion(1,  98, [1], [true], alice.address);
+		const opinion = await opinionBase.getOpinion(1, alice.address);
+		expect(opinion[0]['citations'][0]).to.equal(0);
+		expect(opinion[0]['inFavorArr'][0]).to.equal(true);
+		expect(opinion[0]['tokenID']).to.equal(1);
+		expect(opinion[0]['rating']).to.equal(98);
+		expect(opinion[0]['author']).to.equal(alice.address);
+		expect(opinion.length).to.equal(1);
 	})
 	
 })

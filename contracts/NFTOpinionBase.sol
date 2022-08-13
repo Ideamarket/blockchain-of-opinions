@@ -77,7 +77,7 @@ contract NFTOpinionBase is INFTOpinionBase, Initializable, Ownable {
         require(citations.length <= 10, "too many citations");
         require(citations.length == inFavorArr.length, "citation arr length must equal inFavorArr length");
         for (uint i; i < citations.length; i++) {
-            if (citations[i] == tokenID || citations[i] > _posts.totalSupply() ||(citations[i] == 0 && citations.length != 1)) {
+            if (citations[i] == tokenID || citations[i] > _posts.totalSupply() || citations[i] == 0) {
                 revert("invalid citation");
             } for (uint j = i + 1; j < citations.length; j++) {
                 if (citations[i] == citations[j]) {

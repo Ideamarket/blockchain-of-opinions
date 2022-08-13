@@ -55,8 +55,7 @@ contract NFTOpinionBase is INFTOpinionBase, Initializable, Ownable {
         require(!_feeSwitch || msg.value == _fee, "invalid fee");
         _claimableFees[_posts.ownerOf(tokenID)] += _fee;
         checkInput(tokenID, rating, citations, inFavorArr);
-        //uint blockHeight = _arbSys.arbBlockNumber();
-        uint blockHeight = block.number;
+        uint blockHeight = _arbSys.arbBlockNumber();
         Opinion memory opinion = Opinion(opinionWriter, tokenID, rating, citations, inFavorArr, blockHeight);
         if (_opinions[tokenID].length == 0) {
             _opinionedTokenIDs.push(tokenID);

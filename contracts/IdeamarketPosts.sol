@@ -2,7 +2,6 @@
 pragma solidity ^0.8.0;
 
 import "./interfaces/IIdeamarketPosts.sol";
-import "./interfaces/IArbSys.sol";
 import "./utils/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";

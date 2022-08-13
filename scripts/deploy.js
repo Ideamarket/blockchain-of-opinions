@@ -17,8 +17,8 @@ async function main() {
 	//const OpinionBase = await ethers.getContractFactory("IdeamarketPosts");
 	//const opinionBase = await OpinionBase.deploy('0x93f9707adb26d98cfc6d73C8840425010AfA968B', { gasLimit: ethers.BigNumber.from(200000000)});
 	//const opinionBase = await OpinionBase.deploy('0x4e6a11b687F35fA21D92731F9CD2f231C61f9151', { gasLimit: ethers.BigNumber.from(200000000)});
-	const OpinionBase = await ethers.getContractFactory("PostMultiAction");
-	const opinionBase = await OpinionBase.deploy("0xE761935f890FAcd12bB7274CCaECCa4c1B49Bf66", "0x4e6a11b687F35fA21D92731F9CD2f231C61f9151", { gasLimit: ethers.BigNumber.from(200000000)});
+	const OpinionBase = await ethers.getContractFactory("IdeamarketPosts");
+	const opinionBase = await OpinionBase.deploy("0x4e6a11b687F35fA21D92731F9CD2f231C61f9151", "data/base64:contractURI", "https://ideamarketPostsBaseURI/", ethers.utils.parseEther(".001"), { gasLimit: ethers.BigNumber.from(200000000)});
 	await opinionBase.deployed();
 
 	console.log(`[$]: npx hardhat verify --network <> ${opinionBase.address}`);

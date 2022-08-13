@@ -23,7 +23,7 @@ const allExternalContractAddresses = {
 	},
 	'rinkeby-avm': {
 		multisig: '0x4e6a11b687F35fA21D92731F9CD2f231C61f9151',
-		ideamarketPosts: '0xE761935f890FAcd12bB7274CCaECCa4c1B49Bf66',
+		ideamarketPosts: '0x1EAb68548F5ca15D874166522BBa6B724b03A534',
 		nftOpinionBase: '0x7f40ec20DB16F8573706f81732DcE76893b455c8',
 		imoAddress: '0x634a0900a5F90C9F2d42BF1d49d94B84Db0A260d',
 
@@ -115,7 +115,9 @@ async function main() {
 		const [proxyContract, contract] = await deployProxyContract(
 			contractName,
 			proxyAdminAddress,
+			externalContractAddresses.multisig,
 			externalContractAddresses.ideamarketPosts,
+			ethers.utils.parseEther(".001")
 		)
 
 		proxyContractAddress = proxyContract.address

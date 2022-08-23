@@ -23,20 +23,19 @@ contract CitationMultiAction {
         _nftOpinionBase = nftOpinionBase;
     }
 
-    function postAndCite(string calldata content, uint8 rating, string[] memory categoryTags, bool urlBool, 
-        string calldata web2Content, address recipient, uint tokenID) external returns(bool) {
-            string[] memory imageHashes = new string[](0);
-            (bool success,) = _posts.delegatecall(abi.encodeWithSignature("mint(string,string[],string[],string,bool,string,address)", content, imageHashes, categoryTags, "", urlBool, web2Content, recipient));
-            if (!success) { return false;}
-            bool b = false;
-            if (rating > 50) {
-                b = true;
-            }
-            uint[] memory citations = new uint[](1);
-            citations[0] =  _postsSupply.totalSupply();
-            bool[] memory boolArr = new bool[](1);
-            boolArr[0] =  b;
-            (bool successOpinion,) =_nftOpinionBase.delegatecall(abi.encodeWithSignature("writeOpinion(uint,uint8,uint[],bool[])", tokenID, rating, citations, boolArr));
-            return successOpinion;
+    function postAndCite(string calldata content, uint8 rating, address recipient, uint tokenID) external payable returns(bool) {
+        require(msg.value == .002 ether, "invalid amount");
+        (bool success,) = _posts.call{value: msg.value / 2}(abi.encodeWithSignature("mint(string,address)", content, recipient));
+        if (!success) { return false;}
+        bool b = false;
+        if (rating > 50) {
+            b = true;
+        }
+        uint[] memory citations = new uint[](1);
+        citations[0] =  _postsSupply.totalSupply();
+        bool[] memory boolArr = new bool[](1);
+        boolArr[0] =  b;
+        (bool successOpinion,) =_nftOpinionBase.call{value: msg.value / 2}(abi.encodeWithSignature("writeOpinion(uint,uint8,uint[],bool[])", tokenID, rating, citations, boolArr));
+        return successOpinion;
     }
 }

@@ -35,7 +35,7 @@ contract CitationMultiAction {
         citations[0] =  _postsSupply.totalSupply();
         bool[] memory boolArr = new bool[](1);
         boolArr[0] =  b;
-        (bool successOpinion,) =_nftOpinionBase.call{value: msg.value / 2}(abi.encodeWithSignature("writeOpinion(uint,uint8,uint[],bool[])", tokenID, rating, citations, boolArr));
+        (bool successOpinion,) =_nftOpinionBase.call{value: msg.value / 2}(abi.encodeWithSignature("writeOpinion(uint,uint8,uint[],bool[],address)", tokenID, rating, citations, boolArr,recipient));
         return successOpinion;
     }
 }

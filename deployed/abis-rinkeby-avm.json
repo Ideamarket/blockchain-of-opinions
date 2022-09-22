@@ -1847,21 +1847,6 @@
                     "type": "uint8"
                 },
                 {
-                    "internalType": "string[]",
-                    "name": "categoryTags",
-                    "type": "string[]"
-                },
-                {
-                    "internalType": "bool",
-                    "name": "urlBool",
-                    "type": "bool"
-                },
-                {
-                    "internalType": "string",
-                    "name": "web2Content",
-                    "type": "string"
-                },
-                {
                     "internalType": "address",
                     "name": "recipient",
                     "type": "address"
@@ -1873,8 +1858,14 @@
                 }
             ],
             "name": "postAndCite",
-            "outputs": [],
-            "stateMutability": "nonpayable",
+            "outputs": [
+                {
+                    "internalType": "bool",
+                    "name": "",
+                    "type": "bool"
+                }
+            ],
+            "stateMutability": "payable",
             "type": "function"
         }
     ],
